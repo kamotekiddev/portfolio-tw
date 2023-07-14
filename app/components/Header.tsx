@@ -6,7 +6,7 @@ import ScrollLink from "./ScrollLink";
 const Header = () => {
    return (
       <header className="sticky top-0 z-50 backdrop-blur-lg">
-         <nav className="py-4 flex items-center justify-between">
+         <nav className="p-4 flex items-center justify-between">
             <div className="w-40">
                <Logo />
             </div>
