@@ -15,13 +15,13 @@ const HeroSection = () => {
             className="w-96 h-96 mb-4 absolute left-10 top-1/2 -translate-y-1/2"
             animationData={lottieProgramming}
          />
-         <div className="text-center h-full backdrop-blur-xl dark:backdrop-blur-md grid place-items-center">
+         <div className="text-center h-full backdrop-blur grid place-items-center">
             <div>
-               <h1 className="font-black text-4xl text-indigo-600">
+               <h1 className="font-black text-4xl text-indigo-600 [text-shadow:_0_0_10px_rgb(255_255_255)]">
                   Joshua Dela Cruz
                </h1>
                <hr className="my-6 bg-indigo-600" />
-               <p className="max-w-xl text-lg">
+               <p className="max-w-xl font-medium [text-shadow:_0_0_20px_rgb(255_255_255)]">
                   A {age} years old passionate{" "}
                   <span className="text-indigo-600 font-bold">
                      FRONT-END DEVELOPER
