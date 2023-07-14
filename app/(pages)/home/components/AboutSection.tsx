@@ -1,9 +1,9 @@
-import React from "react";
+import ExperienceTimeline from "@/components/ExperienceTimeline";
 
 const AboutSection = () => {
    return (
       <div>
-         <div className="mb-10">
+         <div>
             <h1 className="text-3xl mb-8 font-black text-indigo-600 bg-indigo-50 p-2 px-4 rounded-lg w-max">
                About Me
             </h1>
@@ -17,7 +17,7 @@ const AboutSection = () => {
                remarkable solutions together!
             </p>
          </div>
-         <div>
+         <div className="my-10">
             <h2 className="text-indigo-600 mb-8 text-2xl font-black">
                Technology Stack
             </h2>
@@ -28,6 +28,14 @@ const AboutSection = () => {
                      className="w-20 h-20 rounded-lg bg-indigo-600"
                   />
                ))}
+            </div>
+         </div>
+         <div>
+            <h2 className="text-indigo-600 mb-8 text-2xl font-black">
+               Experiences
+            </h2>
+            <div>
+               <ExperienceTimeline />
             </div>
          </div>
       </div>
