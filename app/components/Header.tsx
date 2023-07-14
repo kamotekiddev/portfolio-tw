@@ -1,5 +1,4 @@
 import { FaFacebook, FaGithub, FaLinkedin, FaSun } from "react-icons/fa";
-import Link from "next/link";
 import IconButton from "./IconButton";
 import Logo from "./Logo";
 import ScrollLink from "./ScrollLink";
@@ -7,8 +6,8 @@ import ScrollLink from "./ScrollLink";
 const Header = () => {
    return (
       <header className="sticky top-0 bg-white">
-         <nav className="py-4 flex gap-2 justify-between">
-            <div>
+         <nav className="py-4 flex items-center justify-between">
+            <div className="w-40">
                <Logo />
             </div>
             <div className="space-x-4">
@@ -17,7 +16,7 @@ const Header = () => {
                <ScrollLink to="projects">Projects</ScrollLink>
                <ScrollLink to="contact">Contact</ScrollLink>
             </div>
-            <div className="space-x-2 ">
+            <div className="space-x-2">
                <IconButton icon={FaGithub} />
                <IconButton icon={FaFacebook} />
                <IconButton icon={FaLinkedin} />
