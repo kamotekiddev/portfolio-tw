@@ -1,5 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
+import ThemeProvider from "./context/ThemeProvider";
 import { Inter } from "next/font/google";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -16,7 +17,9 @@ interface Props {
 export default function RootLayout({ children }: Props) {
    return (
       <html lang="en">
-         <body className={inter.className}>{children}</body>
+         <body className={inter.className}>
+            <ThemeProvider>{children}</ThemeProvider>
+         </body>
       </html>
    );
 }

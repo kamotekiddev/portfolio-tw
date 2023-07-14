@@ -2,6 +2,7 @@ import { FaFacebook, FaGithub, FaLinkedin, FaSun } from "react-icons/fa";
 import IconButton from "./IconButton";
 import Logo from "./Logo";
 import ScrollLink from "./ScrollLink";
+import DarkModeToggle from "./DarkModeToggle";
 
 const Header = () => {
    return (
@@ -20,7 +21,7 @@ const Header = () => {
                <IconButton icon={FaGithub} />
                <IconButton icon={FaFacebook} />
                <IconButton icon={FaLinkedin} />
-               <IconButton icon={FaSun} />
+               <DarkModeToggle />
             </div>
          </nav>
       </header>
