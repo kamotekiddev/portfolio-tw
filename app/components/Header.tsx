@@ -1,11 +1,14 @@
+import { FaFacebook, FaGithub, FaLinkedin, FaSun } from "react-icons/fa";
 import Link from "next/link";
+import IconButton from "./IconButton";
+import Logo from "./Logo";
 
 const Header = () => {
    return (
-      <header>
+      <header className="sticky top-0 bg-white">
          <nav className="py-4 flex gap-2 justify-between">
             <div>
-               <h1 className="text-2xl font-black">KKD</h1>
+               <Logo />
             </div>
             <div className="space-x-4">
                <Link href="/">Home</Link>
@@ -13,10 +16,11 @@ const Header = () => {
                <Link href="/">Projects</Link>
                <Link href="/">Contact</Link>
             </div>
-            <div className="space-x-4 ">
-               <button>G</button>
-               <button>F</button>
-               <button>L</button>
+            <div className="space-x-2 ">
+               <IconButton icon={FaGithub} />
+               <IconButton icon={FaFacebook} />
+               <IconButton icon={FaLinkedin} />
+               <IconButton icon={FaSun} />
             </div>
          </nav>
       </header>
