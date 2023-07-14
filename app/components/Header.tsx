@@ -5,12 +5,12 @@ import ScrollLink from "./ScrollLink";
 
 const Header = () => {
    return (
-      <header className="sticky top-0 bg-white">
+      <header className="sticky top-0 z-50 backdrop-blur-lg">
          <nav className="py-4 flex items-center justify-between">
             <div className="w-40">
                <Logo />
             </div>
-            <div className="space-x-4">
+            <div>
                <ScrollLink to="home">Home</ScrollLink>
                <ScrollLink to="about">About</ScrollLink>
                <ScrollLink to="projects">Projects</ScrollLink>
