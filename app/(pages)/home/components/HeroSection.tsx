@@ -12,10 +12,10 @@ const HeroSection = () => {
    return (
       <div className="h-full relative">
          <Lottie
-            className="w-96 h-96 mb-4 absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2"
+            className="w-96 h-96 mb-4 absolute left-10 top-1/2 -translate-y-1/2"
             animationData={lottieProgramming}
          />
-         <div className="text-center h-full backdrop-blur-xl grid place-items-center">
+         <div className="text-center h-full backdrop-blur-xl dark:backdrop-blur-md grid place-items-center">
             <div>
                <h1 className="font-black text-4xl text-indigo-600">
                   Joshua Dela Cruz

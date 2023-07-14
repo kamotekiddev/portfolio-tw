@@ -4,7 +4,7 @@ const AboutSection = () => {
    return (
       <div>
          <div>
-            <h1 className="text-3xl mb-8 font-black text-indigo-600 bg-indigo-50 p-2 px-4 rounded-lg w-max">
+            <h1 className="text-3xl font-black mb-8 dark:bg-indigo-600 dark:text-white text-indigo-600 bg-indigo-50 p-2 px-4 rounded-lg w-max">
                About Me
             </h1>
             <p className="text-justify leading-loose">
@@ -18,7 +18,7 @@ const AboutSection = () => {
             </p>
          </div>
          <div className="my-10">
-            <h2 className="text-indigo-600 mb-8 text-2xl font-black">
+            <h2 className="text-indigo-600 dark:text-indigo-500 mb-8 text-2xl font-black">
                Technology Stack
             </h2>
             <div className="flex gap-4 flex-wrap justify-between">
@@ -31,7 +31,7 @@ const AboutSection = () => {
             </div>
          </div>
          <div>
-            <h2 className="text-indigo-600 mb-8 text-2xl font-black">
+            <h2 className="text-indigo-600 dark:text-indigo-500 mb-8 text-2xl font-black">
                Experiences
             </h2>
             <div>

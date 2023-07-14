@@ -18,7 +18,9 @@ export default function RootLayout({ children }: Props) {
    return (
       <html lang="en">
          <body className={inter.className}>
-            <ThemeProvider>{children}</ThemeProvider>
+            <ThemeProvider defaultTheme="dark" attribute="class">
+               {children}
+            </ThemeProvider>
          </body>
       </html>
    );

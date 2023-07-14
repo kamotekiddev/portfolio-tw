@@ -16,7 +16,7 @@ const TimelineCard = ({ isActive, title, datetime, description }: Props) => {
                isActive && "bg-indigo-600"
             )}
          />
-         <h3 className="flex items-center mb-1 text-lg font-semibold text-gray-900">
+         <h3 className="flex items-center mb-1 text-lg font-semibold">
             {title}
          </h3>
          <time className="block mb-2 text-sm font-normal leading-none text-gray-400 dark:text-gray-500">
