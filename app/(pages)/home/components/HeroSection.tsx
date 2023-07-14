@@ -16,23 +16,25 @@ const HeroSection = () => {
             animationData={lottieProgramming}
          />
          <div className="text-center h-full backdrop-blur grid place-items-center">
-            <div>
-               <h1 className="font-black text-4xl text-indigo-600 [text-shadow:_0_0_10px_rgb(255_255_255)]">
-                  Joshua Dela Cruz
-               </h1>
-               <hr className="my-6 bg-indigo-600" />
-               <p className="max-w-xl font-medium [text-shadow:_0_0_20px_rgb(255_255_255)]">
-                  A {age} years old passionate{" "}
-                  <span className="text-indigo-600 font-bold">
-                     FRONT-END DEVELOPER
-                  </span>{" "}
-                  based in San Juan City Metro Manila Philippines
-               </p>
-               <hr className="my-6 bg-indigo-600" />
-               <div className="space-x-4">
-                  <ButtonLink to="about">Me</ButtonLink>
-                  <ButtonLink to="projects">My Projects</ButtonLink>
-                  <ButtonLink to="contact">Connect with Me</ButtonLink>
+            <div className="text-center h-full backdrop-blur grid place-items-center">
+               <div>
+                  <h1 className="font-black text-4xl text-indigo-600 [text-shadow:_0_0_10px_rgb(255_255_255)] dark:[text-shadow:_0_0_10px_black]">
+                     Joshua Dela Cruz
+                  </h1>
+                  <hr className="my-6 bg-indigo-600" />
+                  <p className="max-w-xl font-medium [text-shadow:_0_0_20px_white] dark:[text-shadow:_0_0_20px_black]">
+                     A {age} years old passionate{" "}
+                     <span className="text-indigo-600 font-bold">
+                        Front-End Developer
+                     </span>{" "}
+                     based in San Juan City Metro Manila Philippines
+                  </p>
+                  <hr className="my-6 bg-indigo-600" />
+                  <div className="space-x-4">
+                     <ButtonLink to="about">Me</ButtonLink>
+                     <ButtonLink to="projects">My Projects</ButtonLink>
+                     <ButtonLink to="contact">Connect with Me</ButtonLink>
+                  </div>
                </div>
             </div>
          </div>
