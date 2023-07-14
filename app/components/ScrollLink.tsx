@@ -13,7 +13,7 @@ const ScrollLink = ({ to, children }: Props) => {
       <Link
          to={to}
          activeClass="font-bold text-white bg-indigo-600"
-         className="transition-all w-full p-2 px-4 rounded-lg duration-200 ease-linear cursor-pointer"
+         className="hover:bg-indigo-50 hover:text-indigo-600 transition-all w-full p-2 px-4 rounded-lg duration-200 ease-linear cursor-pointer"
          spy
          smooth
          offset={-100}
