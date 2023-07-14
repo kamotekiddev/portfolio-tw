@@ -2,6 +2,7 @@ import { FaFacebook, FaGithub, FaLinkedin, FaSun } from "react-icons/fa";
 import Link from "next/link";
 import IconButton from "./IconButton";
 import Logo from "./Logo";
+import ScrollLink from "./ScrollLink";
 
 const Header = () => {
    return (
@@ -11,10 +12,10 @@ const Header = () => {
                <Logo />
             </div>
             <div className="space-x-4">
-               <Link href="/">Home</Link>
-               <Link href="/">About</Link>
-               <Link href="/">Projects</Link>
-               <Link href="/">Contact</Link>
+               <ScrollLink to="home">Home</ScrollLink>
+               <ScrollLink to="about">About</ScrollLink>
+               <ScrollLink to="projects">Projects</ScrollLink>
+               <ScrollLink to="contact">Contact</ScrollLink>
             </div>
             <div className="space-x-2 ">
                <IconButton icon={FaGithub} />
