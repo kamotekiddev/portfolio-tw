@@ -20,7 +20,7 @@ const HeroSection = () => {
                <h1 className="font-black text-4xl text-indigo-600">
                   Joshua Dela Cruz
                </h1>
-               <hr className="my-4 bg-indigo-600" />
+               <hr className="my-6 bg-indigo-600" />
                <p className="max-w-xl text-lg">
                   A {age} years old passionate{" "}
                   <span className="text-indigo-600 font-bold">
@@ -28,7 +28,7 @@ const HeroSection = () => {
                   </span>{" "}
                   based in San Juan City Metro Manila Philippines
                </p>
-               <hr className="my-4 bg-indigo-600" />
+               <hr className="my-6 bg-indigo-600" />
                <div className="space-x-4">
                   <ButtonLink to="about">Me</ButtonLink>
                   <ButtonLink to="projects">My Projects</ButtonLink>
