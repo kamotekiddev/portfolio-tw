@@ -12,7 +12,7 @@ const HeroSection = () => {
    return (
       <div className="relative h-full">
          <Lottie
-            className="absolute left-10 top-1/2 mb-4 h-96 w-96 -translate-y-1/2"
+            className="absolute left-10 top-1/2 mb-4 h-72 w-72 -translate-y-1/2 lg:h-96 lg:w-96"
             animationData={lottieProgramming}
          />
          <div className="grid h-full place-items-center text-center backdrop-blur">
@@ -30,7 +30,7 @@ const HeroSection = () => {
                      based in San Juan City Metro Manila Philippines
                   </p>
                   <hr className="my-6 bg-indigo-600" />
-                  <div className="space-x-4">
+                  <div className="flex flex-wrap justify-center gap-4">
                      <ButtonLink to="about">Me</ButtonLink>
                      <ButtonLink to="projects">My Projects</ButtonLink>
                      <ButtonLink to="contact">Connect with Me</ButtonLink>

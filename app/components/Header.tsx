@@ -11,7 +11,7 @@ const Header = () => {
             <div className="w-40">
                <Logo />
             </div>
-            <div>
+            <div className="hidden md:block">
                <ScrollLink to="home">Home</ScrollLink>
                <ScrollLink to="about">About</ScrollLink>
                <ScrollLink to="projects">Projects</ScrollLink>
