@@ -1,11 +1,10 @@
 import ProjectCard from "@/components/ProjectCard";
+import SectionHeader from "./SectionHeader";
 
 const ProjectsSection = () => {
    return (
       <div>
-         <h1 className="mb-8 w-max rounded-lg bg-indigo-50 p-2 px-4 text-3xl font-black text-indigo-600 dark:bg-indigo-600 dark:text-white">
-            Recent Projects
-         </h1>
+         <SectionHeader>Recent Projects</SectionHeader>
          <div className="grid gap-4 md:grid-cols-2">
             <ProjectCard
                title="Kamote Chat"

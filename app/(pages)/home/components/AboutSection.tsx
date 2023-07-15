@@ -1,12 +1,11 @@
 import ExperienceTimeline from "@/components/ExperienceTimeline";
+import SectionHeader from "./SectionHeader";
 
 const AboutSection = () => {
    return (
       <div>
          <div>
-            <h1 className="mb-8 w-max rounded-lg bg-indigo-50 p-2 px-4 text-3xl font-black text-indigo-600 dark:bg-indigo-600 dark:text-white">
-               About Me
-            </h1>
+            <SectionHeader>About Me</SectionHeader>
             <p className="text-justify leading-loose">
                Hello, I&apos;m Joshua Dela Cruz, a passionate software engineer
                specializing in front-end development. With a strong dedication
