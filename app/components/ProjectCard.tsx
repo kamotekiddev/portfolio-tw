@@ -3,16 +3,17 @@
 import { motion } from "framer-motion";
 
 interface Props {
+   delay: number;
    title: string;
    description: string;
    tags: string[];
 }
 
-const ProjectCard = ({ title, description, tags }: Props) => {
+const ProjectCard = ({ delay, title, description, tags }: Props) => {
    return (
       <motion.div
          initial={{ scale: 0 }}
-         transition={{ delay: 0.7 }}
+         transition={{ delay: (delay + 1) / 10 }}
          whileInView={{ scale: 1 }}
          className="cursor-pointer overflow-hidden rounded-lg shadow-md"
       >

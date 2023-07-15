@@ -1,5 +1,6 @@
 "use client";
 
+import { motion } from "framer-motion";
 import { differenceInYears } from "date-fns";
 import ButtonLink from "@/components/ButtonLink";
 
@@ -8,7 +9,12 @@ const HeroSection = () => {
    const age = differenceInYears(new Date(), birthday);
 
    return (
-      <div className="grid h-full place-items-center">
+      <motion.div
+         initial={{ scale: 0 }}
+         whileInView={{ scale: 1 }}
+         transition={{ delay: 0.3, type: "spring" }}
+         className="grid h-full place-items-center"
+      >
          <div className="text-center">
             <h1 className="text-4xl font-black text-indigo-600 sm:text-5xl md:text-6xl lg:text-7xl">
                Joshua Dela Cruz
@@ -28,7 +34,7 @@ const HeroSection = () => {
                <ButtonLink to="contact">Connect with Me</ButtonLink>
             </div>
          </div>
-      </div>
+      </motion.div>
    );
 };
 

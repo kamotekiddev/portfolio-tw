@@ -15,7 +15,7 @@ const Home = () => {
          <div id="projects">
             <ProjectsSection />
          </div>
-         <div id="contact">
+         <div id="contact" className="h-[calc(100vh-64px)]">
             <ContactSection />
          </div>
       </main>
