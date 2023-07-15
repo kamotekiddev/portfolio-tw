@@ -13,7 +13,7 @@ const ButtonLink = ({ children, to }: Props) => {
          to={to}
          smooth
          offset={-100}
-         className="cursor-pointer p-2 px-4 bg-indigo-50 text-indigo-600 hover:bg-indigo-500 hover:text-white transition-colors duration-100 ease-in-out rounded-lg"
+         className="cursor-pointer rounded-lg bg-indigo-50 p-2 px-4 text-indigo-600 transition-colors duration-100 ease-in-out hover:bg-indigo-500 hover:text-white"
       >
          {children}
       </Link>

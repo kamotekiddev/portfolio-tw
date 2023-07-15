@@ -10,21 +10,21 @@ const HeroSection = () => {
    const age = differenceInYears(new Date(), birthday);
 
    return (
-      <div className="h-full relative">
+      <div className="relative h-full">
          <Lottie
-            className="w-96 h-96 mb-4 absolute left-10 top-1/2 -translate-y-1/2"
+            className="absolute left-10 top-1/2 mb-4 h-96 w-96 -translate-y-1/2"
             animationData={lottieProgramming}
          />
-         <div className="text-center h-full backdrop-blur grid place-items-center">
-            <div className="text-center h-full backdrop-blur grid place-items-center">
+         <div className="grid h-full place-items-center text-center backdrop-blur">
+            <div className="grid h-full place-items-center text-center backdrop-blur">
                <div>
-                  <h1 className="font-black text-4xl text-indigo-600 [text-shadow:_0_0_10px_rgb(255_255_255)] dark:[text-shadow:_0_0_10px_black]">
+                  <h1 className="text-4xl font-black text-indigo-600 [text-shadow:_0_0_10px_rgb(255_255_255)] dark:[text-shadow:_0_0_10px_black]">
                      Joshua Dela Cruz
                   </h1>
                   <hr className="my-6 bg-indigo-600" />
                   <p className="max-w-xl font-medium [text-shadow:_0_0_20px_white] dark:[text-shadow:_0_0_20px_black]">
                      A {age} years old passionate{" "}
-                     <span className="text-indigo-600 font-bold">
+                     <span className="font-bold text-indigo-600">
                         Front-End Developer
                      </span>{" "}
                      based in San Juan City Metro Manila Philippines

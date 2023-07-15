@@ -7,7 +7,7 @@ import DarkModeToggle from "./DarkModeToggle";
 const Header = () => {
    return (
       <header className="sticky top-0 z-50 backdrop-blur-lg">
-         <nav className="p-4 flex items-center justify-between">
+         <nav className="flex items-center justify-between p-4">
             <div className="w-40">
                <Logo />
             </div>

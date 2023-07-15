@@ -2,7 +2,7 @@ import TimelineCard from "./TimelineCard";
 
 const ExperienceTimeline = () => {
    return (
-      <ol className="relative border-l ml-3 border-gray-200">
+      <ol className="relative ml-3 border-l border-gray-200">
          <TimelineCard
             isActive
             title="Frontend Developer (React)"

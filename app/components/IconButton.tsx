@@ -8,10 +8,10 @@ interface Props extends ComponentProps<"button"> {
 const IconButton = ({ icon: Icon, ...props }: Props) => {
    return (
       <button
-         className="w-8 h-8 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white inline-grid place-items-center"
+         className="inline-grid h-8 w-8 place-items-center rounded-lg bg-indigo-600 text-white hover:bg-indigo-500"
          {...props}
       >
-         {<Icon className="w-4 h-4" />}
+         {<Icon className="h-4 w-4" />}
       </button>
    );
 };

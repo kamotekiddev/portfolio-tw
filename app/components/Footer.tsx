@@ -4,7 +4,7 @@ import IconButton from "./IconButton";
 
 const Footer = () => {
    return (
-      <div className="p-4 flex justify-between items-center">
+      <div className="flex items-center justify-between p-4">
          <Logo />
          <p>Copyright © 2022 Joshua Dela Cruz - All rights reserved.</p>
          <div className="space-x-2">
