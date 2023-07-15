@@ -14,7 +14,7 @@ const ContactSection = () => {
                achieve your business goals. Just contact me right here.
             </p>
          </div>
-         <hr className="my-6" />
+         <div className="my-6 h-px bg-neutral-500" />
          <div>
             <h2 className="mb-4 text-2xl font-black text-indigo-600 dark:text-indigo-500">
                Email Address
@@ -24,7 +24,7 @@ const ContactSection = () => {
                <CopyButton text="kamotekid.dev@gmail.com" />
             </div>
          </div>
-         <hr className="my-6" />
+         <div className="my-6 h-px bg-neutral-500" />
          <div>
             <h2 className=" mb-4 text-2xl font-black text-indigo-600 dark:text-indigo-500">
                Contact No
