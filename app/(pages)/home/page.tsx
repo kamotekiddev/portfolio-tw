@@ -5,17 +5,17 @@ import ProjectsSection from "./components/ProjectsSection";
 
 const Home = () => {
    return (
-      <main className="px-4">
+      <main className="space-y-20 px-4">
          <div id="home" className="h-[calc(100vh-64px)]">
             <HeroSection />
          </div>
          <div id="about">
             <AboutSection />
          </div>
-         <div id="projects" className="my-20">
+         <div id="projects">
             <ProjectsSection />
          </div>
-         <div id="contact" className="mb-20">
+         <div id="contact">
             <ContactSection />
          </div>
       </main>
