@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import { motion } from "framer-motion";
 
 interface Props {
    title: string;
@@ -8,7 +10,12 @@ interface Props {
 
 const ProjectCard = ({ title, description, tags }: Props) => {
    return (
-      <div className="cursor-pointer overflow-hidden rounded-lg shadow-md">
+      <motion.div
+         initial={{ scale: 0 }}
+         transition={{ delay: 0.7 }}
+         whileInView={{ scale: 1 }}
+         className="cursor-pointer overflow-hidden rounded-lg shadow-md"
+      >
          <div className="h-[250px] w-full bg-indigo-500"></div>
          <div className="p-4">
             <h1 className="mb-4 text-lg font-black">{title}</h1>
@@ -24,7 +31,7 @@ const ProjectCard = ({ title, description, tags }: Props) => {
                ))}
             </div>
          </div>
-      </div>
+      </motion.div>
    );
 };
 
