@@ -21,7 +21,11 @@ const TimelineCard = ({
       <motion.li
          initial={{ x: -1000, opacity: 0 }}
          whileInView={{ x: 0, opacity: 1 }}
-         transition={{ delay: (delay + 1) / 10, type: "tween" }}
+         transition={{
+            delay: (delay + 1) / 10,
+            duration: delay + 1,
+            type: "spring",
+         }}
          className="mb-10 ml-8"
       >
          <span

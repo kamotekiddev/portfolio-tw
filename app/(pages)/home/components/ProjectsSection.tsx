@@ -6,8 +6,8 @@ import SectionHeader from "./SectionHeader";
 const ProjectsSection = () => {
    return (
       <motion.div
-         initial={{ x: -1000 }}
-         whileInView={{ x: 0 }}
+         initial={{ opacity: 0 }}
+         whileInView={{ opacity: 1 }}
          transition={{ delay: 0.3 }}
       >
          <SectionHeader>Recent Projects</SectionHeader>

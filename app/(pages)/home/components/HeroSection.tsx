@@ -12,7 +12,7 @@ const HeroSection = () => {
       <motion.div
          initial={{ scale: 0 }}
          whileInView={{ scale: 1 }}
-         transition={{ delay: 0.3, type: "spring" }}
+         transition={{ delay: 0.3, type: "spring", duration: 1 }}
          className="grid h-full place-items-center"
       >
          <div className="text-center">

@@ -1,5 +1,5 @@
 "use client";
-import { motion } from "framer-motion";
+import { delay, motion } from "framer-motion";
 import ExperienceTimeline from "@/components/ExperienceTimeline";
 import SectionHeader from "./SectionHeader";
 
@@ -9,7 +9,7 @@ const AboutSection = () => {
          <motion.div
             initial={{ scale: 0 }}
             whileInView={{ scale: 1 }}
-            transition={{ delay: 0.3, type: "just" }}
+            transition={{ delay: 0.3, duration: 0.5 }}
          >
             <SectionHeader>About Me</SectionHeader>
             <p className="text-justify leading-loose">
@@ -23,9 +23,9 @@ const AboutSection = () => {
             </p>
          </motion.div>
          <motion.div
-            initial={{ scale: 0 }}
-            whileInView={{ scale: 1 }}
-            transition={{ delay: 0.3, type: "just" }}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ delay: 0.3, type: "spring", duration: 1 }}
          >
             <h2 className="mb-8 text-2xl font-black text-indigo-600 dark:text-indigo-500">
                Technology Stack
@@ -36,7 +36,11 @@ const AboutSection = () => {
                      key={number}
                      initial={{ scale: 0, opacity: 0 }}
                      whileInView={{ scale: 1, opacity: 1 }}
-                     transition={{ delay: (i + 1) / 10, type: "spring" }}
+                     transition={{
+                        delay: (i + 1) / 10,
+                        type: "spring",
+                        duration: delay,
+                     }}
                      className="h-20 w-20 rounded-lg bg-indigo-600"
                   />
                ))}
@@ -45,7 +49,7 @@ const AboutSection = () => {
          <motion.div
             initial={{ translateX: -1000 }}
             whileInView={{ translateX: 0 }}
-            transition={{ delay: 0.3, type: "just" }}
+            transition={{ delay: 0.3, duration: 0.5 }}
          >
             <h2 className="mb-8 text-2xl font-black text-indigo-600 dark:text-indigo-500">
                Experiences
