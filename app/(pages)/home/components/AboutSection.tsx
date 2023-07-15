@@ -47,9 +47,9 @@ const AboutSection = () => {
             </div>
          </motion.div>
          <motion.div
-            initial={{ translateX: -1000 }}
-            whileInView={{ translateX: 0 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
          >
             <h2 className="mb-8 text-2xl font-black text-indigo-600 dark:text-indigo-500">
                Experiences

@@ -8,9 +8,9 @@ const ContactSection = () => {
       <div className="flex h-full flex-col justify-center">
          <div>
             <motion.div
-               initial={{ opacity: 0, scale: 0 }}
-               whileInView={{ opacity: 1, scale: 1 }}
-               transition={{ delay: 0.3, type: "spring" }}
+               initial={{ x: -1000, opacity: 0 }}
+               whileInView={{ x: 0, opacity: 1 }}
+               transition={{ delay: 0.3, type: "just" }}
             >
                <SectionHeader>Contacts</SectionHeader>
                <p className="text-justify leading-loose">
@@ -22,9 +22,9 @@ const ContactSection = () => {
             </motion.div>
             <div className="my-6 h-px bg-neutral-500" />
             <motion.div
-               initial={{ opacity: 0, scale: 0 }}
-               whileInView={{ opacity: 1, scale: 1 }}
-               transition={{ delay: 0.4, type: "spring" }}
+               initial={{ x: -1000, opacity: 0 }}
+               whileInView={{ x: 0, opacity: 1 }}
+               transition={{ delay: 0.4, type: "just" }}
             >
                <h2 className="mb-4 text-2xl font-black text-indigo-600 dark:text-indigo-500">
                   Email Address
@@ -38,9 +38,9 @@ const ContactSection = () => {
             </motion.div>
             <div className="my-6 h-px bg-neutral-500" />
             <motion.div
-               initial={{ opacity: 0, scale: 0 }}
-               whileInView={{ opacity: 1, scale: 1 }}
-               transition={{ delay: 0.5, type: "spring" }}
+               initial={{ x: -1000, opacity: 0 }}
+               whileInView={{ x: 0, opacity: 1 }}
+               transition={{ delay: 0.5, type: "just" }}
             >
                <h2 className=" mb-4 text-2xl font-black text-indigo-600 dark:text-indigo-500">
                   Contact No

@@ -23,8 +23,8 @@ const TimelineCard = ({
          whileInView={{ x: 0, opacity: 1 }}
          transition={{
             delay: (delay + 1) / 10,
-            duration: delay + 1,
-            type: "spring",
+            duration: (delay + 3) / 10,
+            type: "just",
          }}
          className="mb-10 ml-8"
       >

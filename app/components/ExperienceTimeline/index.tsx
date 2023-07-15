@@ -12,13 +12,13 @@ const ExperienceTimeline = () => {
             description="Employed as a frontend developer @KabootekPH Inc."
          />
          <TimelineCard
-            delay={0}
+            delay={1}
             title="Frontend Developer Intern (React)"
             datetime="From April 2022 - July 2022"
             description="Frontend Developer Intern @KabootekPH Inc."
          />
          <TimelineCard
-            delay={0}
+            delay={2}
             title="Freelance Developer"
             datetime="From 2019 - 2022"
             description="Hired to help develop a thesis revision feature. @EARIST"
