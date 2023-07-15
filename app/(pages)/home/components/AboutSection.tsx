@@ -21,7 +21,7 @@ const AboutSection = () => {
             <h2 className="mb-8 text-2xl font-black text-indigo-600 dark:text-indigo-500">
                Technology Stack
             </h2>
-            <div className="flex flex-wrap justify-between gap-4">
+            <div className="grid grid-cols-4 gap-4 sm:grid-cols-6 sm:gap-6 md:flex md:flex-wrap md:justify-between md:gap-4">
                {Array.from(Array(18).keys()).map((number) => (
                   <div
                      key={number}
