@@ -1,3 +1,5 @@
+import CopyButton from "@/components/CopyButton";
+
 const ContactSection = () => {
    return (
       <div className="h-[600px] flex flex-col justify-center">
@@ -14,17 +16,23 @@ const ContactSection = () => {
          </div>
          <hr className="my-6" />
          <div>
-            <h2 className="font-black text-2xl text-indigo-600 dark:text-indigo-500">
+            <h2 className="mb-4 font-black text-2xl text-indigo-600 dark:text-indigo-500">
                Email Address
             </h2>
-            <h3 className="font-medium text-lg">kamotekid.dev@gmail.com</h3>
+            <div className="flex gap-4 items-center">
+               <h3 className="font-medium text-lg ">kamotekid.dev@gmail.com</h3>
+               <CopyButton text="kamotekid.dev@gmail.com" />
+            </div>
          </div>
          <hr className="my-6" />
          <div>
-            <h2 className="font-black text-2xl text-indigo-600 dark:text-indigo-500">
+            <h2 className=" mb-4 font-black text-2xl text-indigo-600 dark:text-indigo-500">
                Contact No
             </h2>
-            <h3 className="text-lg font-medium">09662048118</h3>
+            <div className="flex gap-4 items-center">
+               <h3 className="text-lg font-medium">09662048118</h3>
+               <CopyButton text="09662048118" />
+            </div>
          </div>
       </div>
    );
