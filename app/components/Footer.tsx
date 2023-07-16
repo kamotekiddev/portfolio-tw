@@ -1,6 +1,6 @@
-import { FaFacebook, FaGithub, FaLinkedin } from "react-icons/fa";
 import Logo from "./Logo";
 import IconButton from "./IconButton";
+import socialLinks from "@/data/social-links";
 
 const Footer = () => {
    return (
@@ -8,9 +8,11 @@ const Footer = () => {
          <Logo />
          <p>Copyright © 2022 Joshua Dela Cruz - All rights reserved.</p>
          <div className="space-x-2">
-            <IconButton icon={FaGithub} />
-            <IconButton icon={FaFacebook} />
-            <IconButton icon={FaLinkedin} />
+            {socialLinks.map(({ icon, link }, i) => (
+               <a href={link} target="_black" key={i}>
+                  <IconButton icon={icon} />
+               </a>
+            ))}
          </div>
       </div>
    );

@@ -1,8 +1,8 @@
-import { FaFacebook, FaGithub, FaLinkedin, FaSun } from "react-icons/fa";
 import IconButton from "./IconButton";
 import Logo from "./Logo";
 import ScrollLink from "./ScrollLink";
 import DarkModeToggle from "./DarkModeToggle";
+import socialLinks from "@/data/social-links";
 
 const Header = () => {
    return (
@@ -18,9 +18,11 @@ const Header = () => {
                <ScrollLink to="contact">Contact</ScrollLink>
             </div>
             <div className="space-x-2">
-               <IconButton icon={FaGithub} />
-               <IconButton icon={FaFacebook} />
-               <IconButton icon={FaLinkedin} />
+               {socialLinks.map(({ icon, link }, i) => (
+                  <a href={link} target="_black" key={i}>
+                     <IconButton icon={icon} />
+                  </a>
+               ))}
                <DarkModeToggle />
             </div>
          </nav>
