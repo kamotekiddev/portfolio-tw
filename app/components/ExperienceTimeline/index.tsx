@@ -9,11 +9,12 @@ const ExperienceTimeline = () => {
          {experiences.map((experience, i) => (
             <motion.div
                key={i}
-               initial={{ x: -1000, opacity: 0 }}
-               whileInView={{ x: 0, opacity: 1 }}
+               initial={{ scale: 0, opacity: 0 }}
+               whileInView={{ scale: 1, opacity: 1 }}
                transition={{
                   delay: (i + 2) / 10,
-                  type: "just",
+                  type: "spring",
+                  duration: 2,
                }}
             >
                <TimelineCard
