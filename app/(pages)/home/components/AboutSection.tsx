@@ -1,5 +1,5 @@
 "use client";
-import { delay, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import ExperienceTimeline from "@/components/ExperienceTimeline";
 import SectionHeader from "./SectionHeader";
 
@@ -39,7 +39,7 @@ const AboutSection = () => {
                      transition={{
                         delay: (i + 1) / 10,
                         type: "spring",
-                        duration: delay,
+                        duration: (i + 1) / 10,
                      }}
                      className="h-20 w-20 rounded-lg bg-indigo-600"
                   />
