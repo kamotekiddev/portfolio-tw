@@ -3,45 +3,35 @@
 import { motion } from "framer-motion";
 import { differenceInYears } from "date-fns";
 
-import heroImage from "@/assets/heroimage.png";
-import ButtonLink from "@/components/ButtonLink";
+import avataars from "@/assets/avataaars.png";
 import Image from "next/image";
+import Button from "@/components/Button";
 
 const HeroSection = () => {
    const birthday = new Date("2000-07-02");
    const age = differenceInYears(new Date(), birthday);
 
    return (
-      <motion.div
-         initial={{ scale: 0 }}
-         whileInView={{ scale: 1 }}
-         transition={{ delay: 0.3, type: "spring", duration: 1 }}
-         className="grid h-full place-items-center"
-      >
-         <div className="space-y-6 text-center">
-            <div className="mx-auto h-[200px] w-[200px] overflow-hidden rounded-full bg-white">
-               <Image
-                  src={heroImage}
-                  alt="hero image"
-                  className="origin-top scale-[1.2]"
-               />
+      <motion.div className="grid h-full place-items-center bg-white-primary dark:bg-black-primary">
+         <div className="mx-auto max-w-4xl text-center">
+            <div className="mx-auto h-[150px] w-[150px] overflow-hidden rounded-full bg-white">
+               <Image src={avataars} alt="hero image" />
             </div>
-            <h1 className="text-4xl font-black text-indigo-600 sm:text-5xl md:text-6xl lg:text-7xl">
+            <h1 className="inline-block bg-custom-gradient bg-clip-text text-cta-heading font-bold text-transparent">
                Joshua Dela Cruz
             </h1>
-            <div className="my-6 h-px bg-neutral-500" />
-            <p className="mx-auto max-w-xl font-medium">
-               A {age} years old passionate{" "}
-               <span className="font-bold text-indigo-600">
-                  Front-End Developer
-               </span>{" "}
-               based in San Juan City Metro Manila Philippines
+            <p className="text-paragraph-1 font-light leading-relaxed tracking-wide">
+               A {age}-year-old, passionate
+               <span className="mx-1 bg-custom-gradient bg-clip-text font-semibold text-transparent">
+                  Frontend Developer
+               </span>
+               based in San Juan City, Metro Manila, Philippines. An experienced
+               Frontend Developer with a proven track record of crafting
+               visually appealing and user-centric web applications.
             </p>
-            <div className="my-6 h-px bg-neutral-500" />
-            <div className="flex flex-wrap justify-center gap-4">
-               <ButtonLink to="about">Me</ButtonLink>
-               <ButtonLink to="projects">My Projects</ButtonLink>
-               <ButtonLink to="contact">Connect with Me</ButtonLink>
+            <div className="mt-10 space-x-6">
+               <Button variant="outline">Get In Touch</Button>
+               <Button variant="solid">View all Works</Button>
             </div>
          </div>
       </motion.div>

@@ -8,7 +8,7 @@ interface Props {
 
 const Layout = ({ children }: Props) => {
    return (
-      <main className="relative mx-auto min-h-screen max-w-4xl">
+      <main className=" min-h-screen">
          <Header />
          <div className="h-full">{children}</div>
          <Footer />
