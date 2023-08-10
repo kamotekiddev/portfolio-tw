@@ -2,7 +2,10 @@
 
 import { motion } from "framer-motion";
 import { differenceInYears } from "date-fns";
+
+import heroImage from "@/assets/heroimage.png";
 import ButtonLink from "@/components/ButtonLink";
+import Image from "next/image";
 
 const HeroSection = () => {
    const birthday = new Date("2000-07-02");
@@ -15,7 +18,14 @@ const HeroSection = () => {
          transition={{ delay: 0.3, type: "spring", duration: 1 }}
          className="grid h-full place-items-center"
       >
-         <div className="text-center">
+         <div className="space-y-6 text-center">
+            <div className="mx-auto h-[200px] w-[200px] overflow-hidden rounded-full bg-white">
+               <Image
+                  src={heroImage}
+                  alt="hero image"
+                  className="origin-top scale-[1.2]"
+               />
+            </div>
             <h1 className="text-4xl font-black text-indigo-600 sm:text-5xl md:text-6xl lg:text-7xl">
                Joshua Dela Cruz
             </h1>
