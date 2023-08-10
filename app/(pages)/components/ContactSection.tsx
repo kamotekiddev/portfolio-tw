@@ -5,7 +5,7 @@ import SectionHeader from "./SectionHeader";
 
 const ContactSection = () => {
    return (
-      <div className="flex h-full flex-col justify-center">
+      <div className="mx-auto flex h-full max-w-7xl flex-col justify-center">
          <div>
             <motion.div
                initial={{ scale: 0, opacity: 0 }}

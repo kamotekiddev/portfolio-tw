@@ -9,33 +9,36 @@ const ProjectsSection = () => {
          initial={{ opacity: 0 }}
          whileInView={{ opacity: 1 }}
          transition={{ delay: 0.3 }}
+         className="bg-black-primary py-10"
       >
-         <SectionHeader>Recent Projects</SectionHeader>
-         <div className="grid gap-4 md:grid-cols-2">
-            <ProjectCard
-               delay={0}
-               title="Kamote Chat"
-               description="Lorem ipsum dolor sit amet consectetur adipisicing elit. Itaque quam natus quasi dolorem nesciunt? Commodi possimus quam earum nulla ab?"
-               tags={["Javascript", "Next Js", "React", "Tailwind Css"]}
-            />
-            <ProjectCard
-               delay={1}
-               title="Kamote Chat"
-               description="Lorem ipsum dolor sit amet consectetur adipisicing elit. Itaque quam natus quasi dolorem nesciunt? Commodi possimus quam earum nulla ab?"
-               tags={["Javascript", "Next Js", "React", "Tailwind Css"]}
-            />
-            <ProjectCard
-               delay={3}
-               title="Kamote Chat"
-               description="Lorem ipsum dolor sit amet consectetur adipisicing elit. Itaque quam natus quasi dolorem nesciunt? Commodi possimus quam earum nulla ab?"
-               tags={["Javascript", "Next Js", "React", "Tailwind Css"]}
-            />
-            <ProjectCard
-               delay={4}
-               title="Kamote Chat"
-               description="Lorem ipsum dolor sit amet consectetur adipisicing elit. Itaque quam natus quasi dolorem nesciunt? Commodi possimus quam earum nulla ab?"
-               tags={["Javascript", "Next Js", "React", "Tailwind Css"]}
-            />
+         <div className="mx-auto max-w-7xl">
+            <SectionHeader>Recent Projects</SectionHeader>
+            <div className="grid gap-4 md:grid-cols-2">
+               <ProjectCard
+                  delay={0}
+                  title="Kamote Chat"
+                  description="Lorem ipsum dolor sit amet consectetur adipisicing elit. Itaque quam natus quasi dolorem nesciunt? Commodi possimus quam earum nulla ab?"
+                  tags={["Javascript", "Next Js", "React", "Tailwind Css"]}
+               />
+               <ProjectCard
+                  delay={1}
+                  title="Kamote Chat"
+                  description="Lorem ipsum dolor sit amet consectetur adipisicing elit. Itaque quam natus quasi dolorem nesciunt? Commodi possimus quam earum nulla ab?"
+                  tags={["Javascript", "Next Js", "React", "Tailwind Css"]}
+               />
+               <ProjectCard
+                  delay={3}
+                  title="Kamote Chat"
+                  description="Lorem ipsum dolor sit amet consectetur adipisicing elit. Itaque quam natus quasi dolorem nesciunt? Commodi possimus quam earum nulla ab?"
+                  tags={["Javascript", "Next Js", "React", "Tailwind Css"]}
+               />
+               <ProjectCard
+                  delay={4}
+                  title="Kamote Chat"
+                  description="Lorem ipsum dolor sit amet consectetur adipisicing elit. Itaque quam natus quasi dolorem nesciunt? Commodi possimus quam earum nulla ab?"
+                  tags={["Javascript", "Next Js", "React", "Tailwind Css"]}
+               />
+            </div>
          </div>
       </motion.div>
    );

@@ -5,7 +5,7 @@ import SectionHeader from "./SectionHeader";
 
 const AboutSection = () => {
    return (
-      <div className="space-y-20">
+      <div className="mx-auto max-w-7xl space-y-20">
          <motion.div
             initial={{ scale: 0 }}
             whileInView={{ scale: 1 }}
