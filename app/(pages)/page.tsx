@@ -5,19 +5,19 @@ import ProjectsSection from "./components/ProjectsSection";
 
 const Home = () => {
    return (
-      <main className="space-y-20">
-         <div id="home" className="h-[calc(100vh-64px)]">
+      <main className="space-y-10">
+         <section id="home" className="h-[calc(100vh-64px)]">
             <HeroSection />
-         </div>
-         <div id="about">
+         </section>
+         <section id="about">
             <AboutSection />
-         </div>
-         <div id="projects">
+         </section>
+         <section id="projects">
             <ProjectsSection />
-         </div>
-         <div id="contact" className="h-[calc(100vh-64px)]">
+         </section>
+         <section id="contact" className="h-[calc(100vh-64px)]">
             <ContactSection />
-         </div>
+         </section>
       </main>
    );
 };
