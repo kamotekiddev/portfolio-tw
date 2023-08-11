@@ -20,7 +20,7 @@ const CopyButton = ({ text }: Props) => {
       <CopyToClipboard text={text} onCopy={handleCopy}>
          <button
             className={twMerge(
-               "rounded-lg bg-indigo-600 px-4 py-px text-white",
+               "rounded-lg bg-accent-orange px-4 py-px text-white",
                copied && "bg-green-500"
             )}
          >

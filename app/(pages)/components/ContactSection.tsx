@@ -6,7 +6,7 @@ import SectionHeader from "./SectionHeader";
 const ContactSection = () => {
    return (
       <div className="mx-auto flex h-full max-w-7xl flex-col justify-center">
-         <div className="space-y-20">
+         <div className="space-y-10">
             <motion.div
                initial={{ opacity: 0 }}
                whileInView={{ opacity: 1 }}
@@ -25,14 +25,20 @@ const ContactSection = () => {
                whileInView={{ opacity: 1 }}
                transition={{ delay: 0.5, duration: 0.5 }}
             >
-               <h2 className="mb-4 text-2xl font-black text-indigo-600 dark:text-indigo-500">
-                  Email Address
-               </h2>
-               <div className="flex items-center gap-4">
-                  <h3 className="text-lg font-medium ">
-                     kamotekid.dev@gmail.com
-                  </h3>
-                  <CopyButton text="kamotekid.dev@gmail.com" />
+               <h2 className="mb-4 text-heading-4 font-black">Email Address</h2>
+               <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                     <h3 className="text-lg font-medium ">
+                        kamotekid.dev@gmail.com
+                     </h3>
+                     <CopyButton text="kamotekid.dev@gmail.com" />
+                  </div>
+                  <div className="flex items-center gap-4">
+                     <h3 className="text-lg font-medium ">
+                        delacruz.joshua.dev@gmail.com
+                     </h3>
+                     <CopyButton text="delacruz.joshua.dev@gmail.com" />
+                  </div>
                </div>
             </motion.div>
             <motion.div
@@ -40,9 +46,7 @@ const ContactSection = () => {
                whileInView={{ opacity: 1 }}
                transition={{ delay: 0.5, duration: 0.5 }}
             >
-               <h2 className=" mb-4 text-2xl font-black text-indigo-600 dark:text-indigo-500">
-                  Contact No
-               </h2>
+               <h2 className="mb-4 text-heading-4 font-black">Contact No.</h2>
                <div className="flex items-center gap-4">
                   <h3 className="text-lg font-medium">09662048118</h3>
                   <CopyButton text="09662048118" />

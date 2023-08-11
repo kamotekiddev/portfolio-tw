@@ -12,8 +12,8 @@ const TimelineCard = ({ isActive, title, datetime, description }: Props) => {
       <div className="mb-10 ml-8">
          <span
             className={twMerge(
-               "absolute -left-3 flex h-6 w-6 items-center justify-center rounded-full bg-indigo-100 ring-8 ring-white",
-               isActive && "bg-indigo-600"
+               "absolute -left-3 flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 ring-8 ring-white",
+               isActive && "bg-accent-orange"
             )}
          />
          <h3 className="mb-1 flex items-center text-lg font-semibold">

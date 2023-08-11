@@ -17,7 +17,7 @@ const ProjectCard = ({ delay, title, description, tags }: Props) => {
          transition={{ delay: (delay + 1) / 10, type: "just" }}
          className="cursor-pointer overflow-hidden rounded-lg shadow-md"
       >
-         <div className="h-[250px] w-full bg-indigo-500"></div>
+         <div className="h-[250px] w-full bg-accent-orange"></div>
          <div className="p-4">
             <h1 className="mb-4 text-lg font-black">{title}</h1>
             <p className="text-justify">{description}</p>
@@ -25,7 +25,7 @@ const ProjectCard = ({ delay, title, description, tags }: Props) => {
                {tags.map((tag, i) => (
                   <div
                      key={i}
-                     className="flex-shrink-0 rounded-lg bg-indigo-50 p-1 px-2 text-sm font-medium text-indigo-600"
+                     className="flex-shrink-0 rounded-lg bg-white-primary p-1 px-2 text-sm font-medium text-accent-orange dark:bg-white-secondary"
                   >
                      {tag}
                   </div>

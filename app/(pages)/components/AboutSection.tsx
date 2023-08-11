@@ -28,7 +28,7 @@ const AboutSection = () => {
             whileInView={{ opacity: 1 }}
             transition={{ delay: 0.3, type: "spring", duration: 1 }}
          >
-            <h2 className="mb-8 text-2xl font-black text-indigo-600 dark:text-indigo-500">
+            <h2 className="mb-8 inline-block text-heading-4 font-black">
                Technology Stack
             </h2>
             <div className="flex flex-wrap gap-4">
@@ -42,7 +42,7 @@ const AboutSection = () => {
                         type: "spring",
                         duration: (i + 1) / 10,
                      }}
-                     className="rounded-full bg-gradient-to-r from-indigo-400 via-indigo-500 to-indigo-600 p-2 px-4 text-white-primary"
+                     className="rounded-full bg-white-secondary p-2 px-4 dark:bg-accent-orange"
                   >
                      {techStack}
                   </motion.div>
@@ -50,9 +50,7 @@ const AboutSection = () => {
             </div>
          </motion.div>
          <div>
-            <h2 className="mb-8 text-2xl font-black text-indigo-600 dark:text-indigo-500">
-               Experiences
-            </h2>
+            <h2 className="mb-8 text-heading-4 font-black">Experiences</h2>
             <div>
                <ExperienceTimeline />
             </div>
