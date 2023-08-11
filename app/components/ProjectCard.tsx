@@ -12,12 +12,9 @@ interface Props {
 const ProjectCard = ({ delay, title, description, tags }: Props) => {
    return (
       <motion.div
-         initial={{ scale: 0, opacity: 0 }}
-         whileInView={{ scale: 1, opacity: 1 }}
-         transition={{
-            delay: (delay + 1) / 10,
-            duration: (delay + 1) / 10,
-         }}
+         initial={{ opacity: 0 }}
+         whileInView={{ opacity: 1 }}
+         transition={{ delay: (delay + 1) / 10, type: "just" }}
          className="cursor-pointer overflow-hidden rounded-lg shadow-md"
       >
          <div className="h-[250px] w-full bg-indigo-500"></div>

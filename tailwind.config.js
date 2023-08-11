@@ -13,10 +13,16 @@ module.exports = {
             "black-secondary": "#1C1C22",
             "white-primary": "#F0F2F5",
             "white-secondary": "#FFFFFF",
+            "accent-pink": "#FF5E69",
+            "accent-orange": "#FF8A56",
          },
          backgroundImage: {
             "custom-gradient":
                "linear-gradient(90deg, rgba(177,108,234,1) 25%, rgba(255,94,105,1) 50%, rgba(255,138,86,1) 75%, rgba(255,168,75,1) 100%, rgba(9,9,121,1) 100%)",
+            "hero-bg-dark":
+               "radial-gradient(circle, rgba(22,21,19,1) 0%, rgba(28,28,34,1) 35%, rgba(32,32,48,1) 60%, rgba(0,0,0,1) 100%)",
+            "hero-bg-white":
+               "radial-gradient(circle, rgba(235,235,255,1) 25%, rgba(240,242,245,1) 50%, rgba(212,212,212,1) 75%, rgba(255,255,255,1) 100%)",
          },
          fontSize: {
             "cta-heading": "84px",

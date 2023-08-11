@@ -9,7 +9,6 @@ const ProjectsSection = () => {
          initial={{ opacity: 0 }}
          whileInView={{ opacity: 1 }}
          transition={{ delay: 0.3 }}
-         className="bg-black-primary py-10"
       >
          <div className="mx-auto max-w-7xl">
             <SectionHeader>Recent Projects</SectionHeader>

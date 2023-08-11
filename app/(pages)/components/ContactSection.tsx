@@ -6,11 +6,11 @@ import SectionHeader from "./SectionHeader";
 const ContactSection = () => {
    return (
       <div className="mx-auto flex h-full max-w-7xl flex-col justify-center">
-         <div>
+         <div className="space-y-20">
             <motion.div
-               initial={{ scale: 0, opacity: 0 }}
-               whileInView={{ scale: 1, opacity: 1 }}
-               transition={{ delay: 0.5, type: "spring", duration: 0.5 }}
+               initial={{ opacity: 0 }}
+               whileInView={{ opacity: 1 }}
+               transition={{ delay: 0.5, duration: 0.5 }}
             >
                <SectionHeader>Contacts</SectionHeader>
                <p className="text-justify leading-loose">
@@ -20,11 +20,10 @@ const ContactSection = () => {
                   you achieve your business goals. Just contact me right here.
                </p>
             </motion.div>
-            <div className="my-6 h-px bg-neutral-500" />
             <motion.div
-               initial={{ scale: 0, opacity: 0 }}
-               whileInView={{ scale: 1, opacity: 1 }}
-               transition={{ delay: 0.5, type: "spring", duration: 0.5 }}
+               initial={{ opacity: 0 }}
+               whileInView={{ opacity: 1 }}
+               transition={{ delay: 0.5, duration: 0.5 }}
             >
                <h2 className="mb-4 text-2xl font-black text-indigo-600 dark:text-indigo-500">
                   Email Address
@@ -36,11 +35,10 @@ const ContactSection = () => {
                   <CopyButton text="kamotekid.dev@gmail.com" />
                </div>
             </motion.div>
-            <div className="my-6 h-px bg-neutral-500" />
             <motion.div
-               initial={{ scale: 0, opacity: 0 }}
-               whileInView={{ scale: 1, opacity: 1 }}
-               transition={{ delay: 0.5, type: "spring", duration: 0.5 }}
+               initial={{ opacity: 0 }}
+               whileInView={{ opacity: 1 }}
+               transition={{ delay: 0.5, duration: 0.5 }}
             >
                <h2 className=" mb-4 text-2xl font-black text-indigo-600 dark:text-indigo-500">
                   Contact No

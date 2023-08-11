@@ -9,13 +9,9 @@ const ExperienceTimeline = () => {
          {experiences.map((experience, i) => (
             <motion.div
                key={i}
-               initial={{ scale: 0, opacity: 0 }}
-               whileInView={{ scale: 1, opacity: 1 }}
-               transition={{
-                  delay: (i + 2) / 10,
-                  type: "spring",
-                  duration: 2,
-               }}
+               initial={{ opacity: 0 }}
+               whileInView={{ opacity: 1 }}
+               transition={{ delay: (i + 2) / 10, ease: "linear" }}
             >
                <TimelineCard
                   isActive={i === 0}

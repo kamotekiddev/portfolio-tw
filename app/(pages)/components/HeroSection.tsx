@@ -12,7 +12,7 @@ const HeroSection = () => {
    const age = differenceInYears(new Date(), birthday);
 
    return (
-      <motion.div className="h-full bg-white-primary dark:bg-black-primary">
+      <motion.div className="h-full">
          <div className="mx-auto grid h-full max-w-7xl place-items-center">
             <div className="mx-auto max-w-4xl text-center">
                <div className="mx-auto h-[150px] w-[150px] overflow-hidden rounded-full bg-white">
@@ -26,9 +26,8 @@ const HeroSection = () => {
                   <span className="mx-1 bg-custom-gradient bg-clip-text font-semibold text-transparent">
                      Frontend Developer
                   </span>
-                  based in San Juan City, Metro Manila, Philippines. An
-                  experienced Frontend Developer with a proven track record of
-                  crafting visually appealing and user-centric web applications.
+                  based in San Juan City, Metro Manila, Philippines. with over 3
+                  years of actual and over 1 year of work experience
                </p>
                <div className="mt-10 space-x-6">
                   <Button variant="outline">Get In Touch</Button>
