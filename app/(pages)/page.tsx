@@ -5,7 +5,7 @@ import ProjectsSection from "./components/ProjectsSection";
 
 const Home = () => {
    return (
-      <main className="space-y-10">
+      <main className="mb-20 space-y-10">
          <section id="home" className="h-[calc(100vh-64px)]">
             <HeroSection />
          </section>
@@ -15,7 +15,7 @@ const Home = () => {
          <section id="projects">
             <ProjectsSection />
          </section>
-         <section id="contact" className="h-[calc(100vh-64px)]">
+         <section id="contact">
             <ContactSection />
          </section>
       </main>
