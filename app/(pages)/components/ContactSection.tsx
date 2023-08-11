@@ -5,7 +5,7 @@ import SectionHeader from "./SectionHeader";
 
 const ContactSection = () => {
    return (
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto max-w-7xl px-4">
          <div className="space-y-10">
             <motion.div
                initial={{ opacity: 0 }}

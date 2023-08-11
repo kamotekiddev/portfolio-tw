@@ -6,7 +6,7 @@ interface Props {
 }
 const SectionHeader = ({ children: chidlren }: Props) => {
    return (
-      <h1 className="mb-8 inline-block w-max rounded-lg text-heading-1 font-black text-accent-orange">
+      <h1 className="mb-8 inline-block rounded-lg text-heading-1 font-black text-accent-orange">
          {chidlren}
       </h1>
    );

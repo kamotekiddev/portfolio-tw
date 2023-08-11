@@ -6,7 +6,7 @@ import SectionHeader from "./SectionHeader";
 
 const AboutSection = () => {
    return (
-      <div className="mx-auto max-w-7xl space-y-20">
+      <div className="mx-auto max-w-7xl space-y-20 px-4">
          <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}

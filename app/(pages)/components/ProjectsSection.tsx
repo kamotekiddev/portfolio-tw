@@ -10,9 +10,9 @@ const ProjectsSection = () => {
          whileInView={{ opacity: 1 }}
          transition={{ delay: 0.3 }}
       >
-         <div className="mx-auto max-w-7xl">
+         <div className="mx-auto max-w-7xl px-4">
             <SectionHeader>Recent Projects</SectionHeader>
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                <ProjectCard
                   delay={0}
                   title="Kamote Chat"
@@ -33,6 +33,18 @@ const ProjectsSection = () => {
                />
                <ProjectCard
                   delay={4}
+                  title="Kamote Chat"
+                  description="Lorem ipsum dolor sit amet consectetur adipisicing elit. Itaque quam natus quasi dolorem nesciunt? Commodi possimus quam earum nulla ab?"
+                  tags={["Javascript", "Next Js", "React", "Tailwind Css"]}
+               />
+               <ProjectCard
+                  delay={5}
+                  title="Kamote Chat"
+                  description="Lorem ipsum dolor sit amet consectetur adipisicing elit. Itaque quam natus quasi dolorem nesciunt? Commodi possimus quam earum nulla ab?"
+                  tags={["Javascript", "Next Js", "React", "Tailwind Css"]}
+               />
+               <ProjectCard
+                  delay={6}
                   title="Kamote Chat"
                   description="Lorem ipsum dolor sit amet consectetur adipisicing elit. Itaque quam natus quasi dolorem nesciunt? Commodi possimus quam earum nulla ab?"
                   tags={["Javascript", "Next Js", "React", "Tailwind Css"]}
