@@ -40,7 +40,7 @@ const ProjectGridItem = ({
       <motion.article
          initial={{ opacity: 0 }}
          whileInView={{ opacity: 1 }}
-         transition={{ delay: (delay + 1) / 10, type: "just" }}
+         transition={{ delay: (delay + 1) / 10, type: "spring" }}
          className="dark:bg-gradient h-max cursor-pointer overflow-hidden rounded-lg shadow-lg"
       >
          <div className="relative h-[250px] w-full">
