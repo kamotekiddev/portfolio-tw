@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import CopyToClipboard from "react-copy-to-clipboard";
+import { BiCopy, BiSolidCopy } from "react-icons/bi";
 import { twMerge } from "tailwind-merge";
 
 interface Props {
@@ -20,11 +21,11 @@ const CopyButton = ({ text }: Props) => {
       <CopyToClipboard text={text} onCopy={handleCopy}>
          <button
             className={twMerge(
-               "rounded-lg bg-accent-orange px-4 py-px text-white",
+               "grid h-7 w-7 place-items-center rounded-lg bg-accent-orange text-white",
                copied && "bg-green-500"
             )}
          >
-            {copied ? "Copied" : "Copy"}
+            {copied ? <BiSolidCopy /> : <BiCopy />}
          </button>
       </CopyToClipboard>
    );
