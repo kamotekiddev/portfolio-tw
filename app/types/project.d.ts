@@ -7,5 +7,5 @@ interface Project {
    projectImageBanner: string;
    projectImages: string[];
    "github-link": string;
-   "live-link": string;
+   "live-link"?: string;
 }

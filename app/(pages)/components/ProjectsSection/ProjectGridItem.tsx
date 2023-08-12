@@ -11,7 +11,25 @@ interface Props {
    tags: string[];
 }
 
-const ProjectCard = ({
+const Tag = ({ tag }: { tag: string }) => {
+   return (
+      <span className="flex-shrink-0 rounded-lg bg-white-primary p-1 px-2 text-sm font-medium text-accent-orange dark:bg-white-secondary">
+         {tag}
+      </span>
+   );
+};
+
+const Tags = ({ tags }: { tags: string[] }) => {
+   return (
+      <section className="mt-4 flex flex-wrap gap-2">
+         {tags.map((tag, i) => (
+            <Tag key={i} tag={tag} />
+         ))}
+      </section>
+   );
+};
+
+const ProjectGridItem = ({
    image,
    delay,
    title,
@@ -19,7 +37,7 @@ const ProjectCard = ({
    tags = [],
 }: Props) => {
    return (
-      <motion.div
+      <motion.article
          initial={{ opacity: 0 }}
          whileInView={{ opacity: 1 }}
          transition={{ delay: (delay + 1) / 10, type: "just" }}
@@ -31,19 +49,10 @@ const ProjectCard = ({
          <div className="p-4">
             <h1 className="mb-4 text-lg font-black">{title}</h1>
             <p className="text-justify">{description}</p>
-            <div className="mt-4 flex flex-wrap gap-2">
-               {tags.map((tag, i) => (
-                  <div
-                     key={i}
-                     className="flex-shrink-0 rounded-lg bg-white-primary p-1 px-2 text-sm font-medium text-accent-orange dark:bg-white-secondary"
-                  >
-                     {tag}
-                  </div>
-               ))}
-            </div>
+            <Tags tags={tags} />
          </div>
-      </motion.div>
+      </motion.article>
    );
 };
 
-export default ProjectCard;
+export default ProjectGridItem;

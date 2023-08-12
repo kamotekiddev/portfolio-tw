@@ -1,4 +1,4 @@
-const projects = [
+const projects: Project[] = [
    {
       id: 1,
       projectTitle: "Loops Studios Landing Page",
