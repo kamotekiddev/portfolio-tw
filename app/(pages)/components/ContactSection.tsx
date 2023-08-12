@@ -5,7 +5,7 @@ import SectionHeader from "./SectionHeader";
 
 const ContactSection = () => {
    return (
-      <div className="mx-auto max-w-7xl px-4 py-20">
+      <div className="mx-auto max-w-7xl px-4 pb-40 pt-20">
          <div className="space-y-10">
             <motion.div
                initial={{ opacity: 0 }}
@@ -13,7 +13,7 @@ const ContactSection = () => {
                transition={{ delay: 0.5, duration: 0.5 }}
             >
                <SectionHeader>Contacts</SectionHeader>
-               <p className="text-justify leading-loose">
+               <p className="text-justify text-paragraph-1 leading-loose">
                   Are you in search of a talented and experienced Frontend
                   Developer to elevate your digital presence? Look no further! I
                   am here to bring my skills and expertise to the table and help
