@@ -5,7 +5,7 @@ import ProjectsSection from "./components/ProjectsSection";
 
 const Home = () => {
    return (
-      <main className="mb-20 space-y-10">
+      <main>
          <section id="home" className="h-[calc(100vh-64px)]">
             <HeroSection />
          </section>

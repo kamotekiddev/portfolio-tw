@@ -1,23 +1,33 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 interface Props {
    delay: number;
+   image: string;
    title: string;
    description: string;
    tags: string[];
 }
 
-const ProjectCard = ({ delay, title, description, tags }: Props) => {
+const ProjectCard = ({
+   image,
+   delay,
+   title,
+   description,
+   tags = [],
+}: Props) => {
    return (
       <motion.div
          initial={{ opacity: 0 }}
          whileInView={{ opacity: 1 }}
          transition={{ delay: (delay + 1) / 10, type: "just" }}
-         className="cursor-pointer overflow-hidden rounded-lg shadow-md"
+         className="h-max cursor-pointer overflow-hidden rounded-lg shadow-md"
       >
-         <div className="h-[250px] w-full bg-accent-orange"></div>
+         <div className="relative h-[250px] w-full bg-accent-orange">
+            <Image src={image} fill alt="Project Banner" />
+         </div>
          <div className="p-4">
             <h1 className="mb-4 text-lg font-black">{title}</h1>
             <p className="text-justify">{description}</p>

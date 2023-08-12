@@ -2,6 +2,7 @@
 import { motion } from "framer-motion";
 import ProjectCard from "@/components/ProjectCard";
 import SectionHeader from "./SectionHeader";
+import projects from "@/data/projects";
 
 const ProjectsSection = () => {
    return (
@@ -9,46 +10,21 @@ const ProjectsSection = () => {
          initial={{ opacity: 0 }}
          whileInView={{ opacity: 1 }}
          transition={{ delay: 0.3 }}
+         className="py-20"
       >
          <div className="mx-auto max-w-7xl px-4">
             <SectionHeader>Recent Projects</SectionHeader>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-               <ProjectCard
-                  delay={0}
-                  title="Kamote Chat"
-                  description="Lorem ipsum dolor sit amet consectetur adipisicing elit. Itaque quam natus quasi dolorem nesciunt? Commodi possimus quam earum nulla ab?"
-                  tags={["Javascript", "Next Js", "React", "Tailwind Css"]}
-               />
-               <ProjectCard
-                  delay={1}
-                  title="Kamote Chat"
-                  description="Lorem ipsum dolor sit amet consectetur adipisicing elit. Itaque quam natus quasi dolorem nesciunt? Commodi possimus quam earum nulla ab?"
-                  tags={["Javascript", "Next Js", "React", "Tailwind Css"]}
-               />
-               <ProjectCard
-                  delay={3}
-                  title="Kamote Chat"
-                  description="Lorem ipsum dolor sit amet consectetur adipisicing elit. Itaque quam natus quasi dolorem nesciunt? Commodi possimus quam earum nulla ab?"
-                  tags={["Javascript", "Next Js", "React", "Tailwind Css"]}
-               />
-               <ProjectCard
-                  delay={4}
-                  title="Kamote Chat"
-                  description="Lorem ipsum dolor sit amet consectetur adipisicing elit. Itaque quam natus quasi dolorem nesciunt? Commodi possimus quam earum nulla ab?"
-                  tags={["Javascript", "Next Js", "React", "Tailwind Css"]}
-               />
-               <ProjectCard
-                  delay={5}
-                  title="Kamote Chat"
-                  description="Lorem ipsum dolor sit amet consectetur adipisicing elit. Itaque quam natus quasi dolorem nesciunt? Commodi possimus quam earum nulla ab?"
-                  tags={["Javascript", "Next Js", "React", "Tailwind Css"]}
-               />
-               <ProjectCard
-                  delay={6}
-                  title="Kamote Chat"
-                  description="Lorem ipsum dolor sit amet consectetur adipisicing elit. Itaque quam natus quasi dolorem nesciunt? Commodi possimus quam earum nulla ab?"
-                  tags={["Javascript", "Next Js", "React", "Tailwind Css"]}
-               />
+               {projects.map((project) => (
+                  <ProjectCard
+                     key={project.id}
+                     image={project.projectImageBanner}
+                     delay={project.id}
+                     title={project.projectTitle}
+                     description={project.projectDescription}
+                     tags={project.toolsUsed}
+                  />
+               ))}
             </div>
          </div>
       </motion.div>

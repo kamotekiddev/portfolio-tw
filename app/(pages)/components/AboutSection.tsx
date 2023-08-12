@@ -6,7 +6,7 @@ import SectionHeader from "./SectionHeader";
 
 const AboutSection = () => {
    return (
-      <div className="mx-auto max-w-7xl space-y-20 px-4">
+      <div className="mx-auto max-w-7xl space-y-20 px-4 py-20">
          <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
@@ -28,7 +28,7 @@ const AboutSection = () => {
             whileInView={{ opacity: 1 }}
             transition={{ delay: 0.3, type: "spring", duration: 1 }}
          >
-            <h2 className="mb-8 inline-block text-heading-4 font-black">
+            <h2 className="mb-8 inline-block text-heading-4 font-black leading-none">
                Technology Stack
             </h2>
             <div className="flex flex-wrap gap-4">
@@ -50,7 +50,9 @@ const AboutSection = () => {
             </div>
          </motion.div>
          <div>
-            <h2 className="mb-8 text-heading-4 font-black">Experiences</h2>
+            <h2 className="mb-8 text-heading-4 font-black leading-none">
+               Experiences
+            </h2>
             <div>
                <ExperienceTimeline />
             </div>
