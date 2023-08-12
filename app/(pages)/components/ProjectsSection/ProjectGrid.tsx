@@ -6,7 +6,7 @@ interface Props {
 }
 const ProjectGrid = ({ projects }: Props) => {
    return (
-      <ResponsiveMasonry columnsCountBreakPoints={{ 350: 2, 750: 2, 900: 3 }}>
+      <ResponsiveMasonry columnsCountBreakPoints={{ 350: 1, 750: 2, 900: 3 }}>
          <Masonry gutter="1.5rem">
             {projects.map((project) => (
                <ProjectGridItem
