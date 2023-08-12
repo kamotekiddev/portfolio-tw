@@ -1,5 +1,7 @@
 "use client";
+
 import { motion } from "framer-motion";
+import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 import ProjectCard from "@/components/ProjectCard";
 import SectionHeader from "./SectionHeader";
 import projects from "@/data/projects";
@@ -14,18 +16,22 @@ const ProjectsSection = () => {
       >
          <div className="mx-auto max-w-7xl px-4">
             <SectionHeader>Recent Projects</SectionHeader>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-               {projects.map((project) => (
-                  <ProjectCard
-                     key={project.id}
-                     image={project.projectImageBanner}
-                     delay={project.id}
-                     title={project.projectTitle}
-                     description={project.projectDescription}
-                     tags={project.toolsUsed}
-                  />
-               ))}
-            </div>
+            <ResponsiveMasonry
+               columnsCountBreakPoints={{ 350: 2, 750: 2, 900: 3 }}
+            >
+               <Masonry gutter="1.5rem">
+                  {projects.map((project) => (
+                     <ProjectCard
+                        key={project.id}
+                        image={project.projectImageBanner}
+                        delay={project.id}
+                        title={project.projectTitle}
+                        description={project.projectDescription}
+                        tags={project.toolsUsed}
+                     />
+                  ))}
+               </Masonry>
+            </ResponsiveMasonry>
          </div>
       </motion.div>
    );

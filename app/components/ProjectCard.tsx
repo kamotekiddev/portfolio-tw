@@ -26,7 +26,7 @@ const ProjectCard = ({
          className="h-max cursor-pointer overflow-hidden rounded-lg shadow-md"
       >
          <div className="relative h-[250px] w-full bg-accent-orange">
-            <Image src={image} fill alt="Project Banner" />
+            <Image src={image} objectFit="cover" fill alt="Project Banner" />
          </div>
          <div className="p-4">
             <h1 className="mb-4 text-lg font-black">{title}</h1>
