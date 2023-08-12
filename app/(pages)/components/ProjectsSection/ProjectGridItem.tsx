@@ -41,7 +41,7 @@ const ProjectGridItem = ({
          initial={{ opacity: 0 }}
          whileInView={{ opacity: 1 }}
          transition={{ delay: (delay + 1) / 10, type: "spring" }}
-         className="dark:bg-gradient h-max cursor-pointer overflow-hidden rounded-lg shadow-lg"
+         className="h-max cursor-pointer overflow-hidden rounded-lg shadow-lg"
       >
          <div className="relative h-[250px] w-full">
             <Image src={image} objectFit="cover" fill alt="Project Banner" />
