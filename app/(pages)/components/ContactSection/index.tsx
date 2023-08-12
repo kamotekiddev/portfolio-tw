@@ -1,11 +1,12 @@
 "use client";
 import { motion } from "framer-motion";
 import CopyButton from "@/components/CopyButton";
-import SectionHeader from "./SectionHeader";
+import SectionHeader from "../SectionHeader";
+import CopyableItem from "./CopyableItem";
 
 const ContactSection = () => {
    return (
-      <div className="mx-auto max-w-7xl px-4 pb-40 pt-20">
+      <section className="mx-auto max-w-7xl px-4 pb-40 pt-20">
          <div className="space-y-10">
             <motion.div
                initial={{ opacity: 0 }}
@@ -27,18 +28,8 @@ const ContactSection = () => {
             >
                <h2 className="mb-4 text-heading-4 font-black">Email Address</h2>
                <div className="space-y-4">
-                  <div className="flex items-center gap-4">
-                     <h3 className="text-lg font-medium ">
-                        kamotekid.dev@gmail.com
-                     </h3>
-                     <CopyButton text="kamotekid.dev@gmail.com" />
-                  </div>
-                  <div className="flex items-center gap-4">
-                     <h3 className="text-lg font-medium ">
-                        delacruz.joshua.dev@gmail.com
-                     </h3>
-                     <CopyButton text="delacruz.joshua.dev@gmail.com" />
-                  </div>
+                  <CopyableItem label="kamotekid.dev@gmail.com" />
+                  <CopyableItem label="delacruzjoshua691@gmail.com" />
                </div>
             </motion.div>
             <motion.div
@@ -47,13 +38,10 @@ const ContactSection = () => {
                transition={{ delay: 0.5, duration: 0.5 }}
             >
                <h2 className="mb-4 text-heading-4 font-black">Contact No.</h2>
-               <div className="flex items-center gap-4">
-                  <h3 className="text-lg font-medium">09662048118</h3>
-                  <CopyButton text="09662048118" />
-               </div>
+               <CopyableItem label="+63 966 2048 118" />
             </motion.div>
          </div>
-      </div>
+      </section>
    );
 };
 
