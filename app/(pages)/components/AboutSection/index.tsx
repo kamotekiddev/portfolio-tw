@@ -1,19 +1,21 @@
 "use client";
+
 import { motion } from "framer-motion";
 import techstacks from "@/data/techstacks";
-import ExperienceTimeline from "@/components/ExperienceTimeline";
-import SectionHeader from "./SectionHeader";
+import experiences from "@/data/experiences";
+import ExperienceTimeline from "./ExperienceTimeline";
+import SectionHeader from "../SectionHeader";
 
 const AboutSection = () => {
    return (
-      <div className="mx-auto max-w-7xl space-y-20 px-4 py-20">
+      <section className="mx-auto max-w-7xl space-y-20 px-4 py-20">
          <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.5 }}
          >
             <SectionHeader>About Me</SectionHeader>
-            <p className="text-justify leading-loose">
+            <p className="text-justify text-paragraph-1 leading-loose">
                Hello, I&apos;m Joshua Dela Cruz, a passionate software engineer
                specializing in front-end development. With a strong dedication
                to detail and a focus on continuous growth, I am excited to
@@ -40,9 +42,8 @@ const AboutSection = () => {
                      transition={{
                         delay: (i + 1) / 10,
                         type: "spring",
-                        duration: (i + 1) / 10,
                      }}
-                     className="rounded-full bg-white-secondary p-2 px-4 dark:bg-accent-orange"
+                     className="rounded-full bg-white-secondary p-2 px-4 text-paragraph-1 dark:bg-accent-orange"
                   >
                      {techStack}
                   </motion.div>
@@ -53,11 +54,9 @@ const AboutSection = () => {
             <h2 className="mb-8 text-heading-4 font-black leading-none">
                Experiences
             </h2>
-            <div>
-               <ExperienceTimeline />
-            </div>
+            <ExperienceTimeline experiences={experiences} />
          </div>
-      </div>
+      </section>
    );
 };
 

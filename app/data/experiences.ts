@@ -1,4 +1,4 @@
-const experiences = [
+const experiences: Experience[] = [
    {
       title: "Frontend Developer (React)",
       datetime: "From September 2022 - Present",

@@ -1,11 +1,12 @@
-"use client";
 import { motion } from "framer-motion";
 import TimelineCard from "./TimelineCard";
-import experiences from "@/data/experiences";
 
-const ExperienceTimeline = () => {
+interface Props {
+   experiences: Experience[];
+}
+const ExperienceTimeline = ({ experiences }: Props) => {
    return (
-      <div className="relative ml-3 border-l border-gray-200">
+      <section className="relative ml-3 border-l border-accent-orange">
          {experiences.map((experience, i) => (
             <motion.div
                key={i}
@@ -21,7 +22,7 @@ const ExperienceTimeline = () => {
                />
             </motion.div>
          ))}
-      </div>
+      </section>
    );
 };
 
