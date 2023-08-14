@@ -6,13 +6,13 @@ interface Props {
 }
 const ExperienceTimeline = ({ experiences }: Props) => {
    return (
-      <section className="relative ml-3 border-l border-accent-orange">
+      <section className="ml-4">
          {experiences.map((experience, i) => (
             <motion.div
                key={i}
                initial={{ opacity: 0 }}
                whileInView={{ opacity: 1 }}
-               transition={{ delay: (i + 2) / 10, ease: "linear" }}
+               transition={{ delay: 0.5, type: "spring" }}
             >
                <TimelineCard
                   isActive={i === 0}

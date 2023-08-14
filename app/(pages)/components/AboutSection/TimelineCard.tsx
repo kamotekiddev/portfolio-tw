@@ -9,7 +9,7 @@ interface Props {
 
 const TimelineCard = ({ isActive, title, datetime, description }: Props) => {
    return (
-      <article className="mb-10 ml-8">
+      <article className="relative border-l border-accent-orange py-10 pl-10">
          <span
             className={twMerge(
                "absolute -left-3 flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 ring-8 ring-white",

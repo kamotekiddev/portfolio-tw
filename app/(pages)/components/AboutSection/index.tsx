@@ -51,7 +51,7 @@ const AboutSection = () => {
             </div>
          </motion.div>
          <div>
-            <h2 className="mb-8 text-heading-4 font-black leading-none">
+            <h2 className="mb-10 text-heading-4 font-black leading-none">
                Experiences
             </h2>
             <ExperienceTimeline experiences={experiences} />
