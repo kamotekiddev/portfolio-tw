@@ -1,12 +1,12 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { differenceInYears } from "date-fns";
 
 import avataars from "@/assets/avataaars.png";
 import Image from "next/image";
 import Button from "@/components/Button";
 import Link from "next/link";
+import ScrollLink from "@/components/ScrollLink";
 
 const HeroSection = () => {
    const birthday = new Date("2000-07-02");
@@ -14,9 +14,6 @@ const HeroSection = () => {
 
    return (
       <article className="mx-auto grid h-full max-w-7xl place-items-center p-4">
-         <h1 className="rounded-lg bg-accent-pink p-4 text-paragraph-1">
-            This website is under development
-         </h1>
          <div className="mx-auto max-w-4xl text-center">
             <div className="mx-auto mb-6 h-[150px] w-[150px] overflow-hidden rounded-full bg-white">
                <Image src={avataars} alt="hero image" />
@@ -33,7 +30,9 @@ const HeroSection = () => {
                years of actual and over 1 year of work experience
             </p>
             <div className="mt-10 flex flex-wrap justify-center gap-4">
-               <Button variant="outline">Get In Touch</Button>
+               <ScrollLink to="contact">
+                  <Button variant="outline">Get In Touch</Button>
+               </ScrollLink>
                <Link href="/projects">
                   <Button variant="solid">View all Works</Button>
                </Link>
