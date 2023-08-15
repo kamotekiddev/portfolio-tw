@@ -6,13 +6,14 @@ import { differenceInYears } from "date-fns";
 import avataars from "@/assets/avataaars.png";
 import Image from "next/image";
 import Button from "@/components/Button";
+import Link from "next/link";
 
 const HeroSection = () => {
    const birthday = new Date("2000-07-02");
    const age = differenceInYears(new Date(), birthday);
 
    return (
-      <div className="mx-auto grid h-full max-w-7xl place-items-center p-4">
+      <article className="mx-auto grid h-full max-w-7xl place-items-center p-4">
          <h1 className="rounded-lg bg-accent-pink p-4 text-paragraph-1">
             This website is under development
          </h1>
@@ -33,10 +34,12 @@ const HeroSection = () => {
             </p>
             <div className="mt-10 flex flex-wrap justify-center gap-4">
                <Button variant="outline">Get In Touch</Button>
-               <Button variant="solid">View all Works</Button>
+               <Link href="/projects">
+                  <Button variant="solid">View all Works</Button>
+               </Link>
             </div>
          </div>
-      </div>
+      </article>
    );
 };
 
