@@ -12,7 +12,6 @@ const ProjectGrid = ({ projects }: Props) => {
                <ProjectGridItem
                   key={project.id}
                   image={project.projectImageBanner}
-                  delay={project.id}
                   title={project.projectTitle}
                   description={project.projectDescription}
                   tags={project.toolsUsed}

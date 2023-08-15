@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 
 interface Props {
-   delay: number;
    image: string;
    title: string;
    description: string;
@@ -30,13 +29,7 @@ const Tags = ({ tags }: { tags: string[] }) => {
    );
 };
 
-const ProjectGridItem = ({
-   image,
-   delay,
-   title,
-   description,
-   tags = [],
-}: Props) => {
+const ProjectGridItem = ({ image, title, description, tags = [] }: Props) => {
    return (
       <motion.article
          initial={{ opacity: 0 }}
