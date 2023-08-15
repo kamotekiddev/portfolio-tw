@@ -30,7 +30,7 @@ const AboutSection = () => {
             whileInView={{ opacity: 1 }}
             transition={{ delay: 0.3, type: "spring", duration: 1 }}
          >
-            <h2 className="mb-8 inline-block text-heading-4 font-black leading-none">
+            <h2 className="mb-8 inline-block text-heading-5 font-black leading-none">
                Technology Stack
             </h2>
             <div className="flex flex-wrap gap-4">
@@ -51,7 +51,7 @@ const AboutSection = () => {
             </div>
          </motion.div>
          <div>
-            <h2 className="mb-10 text-heading-4 font-black leading-none">
+            <h2 className="mb-10 text-heading-5 font-black leading-none">
                Experiences
             </h2>
             <ExperienceTimeline experiences={experiences} />

@@ -27,14 +27,14 @@ const ContactSection = () => {
             className="space-y-10 rounded-md bg-white-primary p-10  dark:bg-black-secondary"
          >
             <div>
-               <h2 className="mb-4 text-heading-5 font-black">Email Address</h2>
+               <h2 className="mb-4 text-heading-6 font-black">Email Address</h2>
                <div className="space-y-4">
                   <CopyableItem label="kamotekid.dev@gmail.com" />
                   <CopyableItem label="delacruzjoshua691@gmail.com" />
                </div>
             </div>
             <div>
-               <h2 className="mb-4 text-heading-5 font-black">Contact No.</h2>
+               <h2 className="mb-4 text-heading-6 font-black">Contact No.</h2>
                <CopyableItem label="+63 966 2048 118" />
             </div>
          </motion.div>
