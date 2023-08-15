@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import projects from "@/data/projects";
 import SectionHeader from "../SectionHeader";
 import ProjectGrid from "./ProjectGrid";
+import Button from "@/components/Button";
 
 const ProjectsSection = () => {
    return (
@@ -13,8 +14,11 @@ const ProjectsSection = () => {
          transition={{ delay: 0.3 }}
          className="py-20"
       >
-         <div className="mx-auto max-w-7xl px-4">
-            <SectionHeader>My Projects</SectionHeader>
+         <div className="relative mx-auto max-w-7xl px-4">
+            <div className="mb-10 flex flex-wrap items-center justify-between gap-4">
+               <SectionHeader className="mb-0">Recent Projects</SectionHeader>
+               <Button variant="outline">View All</Button>
+            </div>
             <ProjectGrid projects={projects} />
          </div>
       </motion.section>
