@@ -8,7 +8,7 @@ const ProjectGrid = ({ projects }: Props) => {
    return (
       <ResponsiveMasonry columnsCountBreakPoints={{ 350: 1, 750: 2, 900: 3 }}>
          <Masonry gutter="1.5rem">
-            {projects.map((project) => (
+            {projects.slice(0, 6).map((project) => (
                <ProjectGridItem
                   key={project.id}
                   image={project.projectImageBanner}
