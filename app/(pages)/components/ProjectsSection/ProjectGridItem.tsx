@@ -1,5 +1,6 @@
 "use client";
 
+import Button from "@/components/Button";
 import { motion } from "framer-motion";
 import Image from "next/image";
 
@@ -41,7 +42,7 @@ const ProjectGridItem = ({
          initial={{ opacity: 0 }}
          whileInView={{ opacity: 1 }}
          transition={{ delay: 0.5, type: "spring" }}
-         className="h-max cursor-pointer overflow-hidden rounded-lg shadow-lg"
+         className="group relative h-max cursor-pointer overflow-hidden rounded-lg shadow-lg"
       >
          <div className="relative h-[250px] w-full">
             <Image src={image} objectFit="cover" fill alt="Project Banner" />
@@ -50,6 +51,16 @@ const ProjectGridItem = ({
             <h1 className="text-heading-6 font-black">{title}</h1>
             <p className="text-justify text-paragraph-1">{description}</p>
             <Tags tags={tags} />
+         </div>
+         <div className="absolute inset-0 grid place-items-center opacity-0 backdrop-blur-xl transition-all duration-300 ease-in-out group-hover:opacity-100">
+            <div className="space-x-4">
+               <Button size="medium" variant="outline">
+                  View Live
+               </Button>
+               <Button size="medium" variant="outline">
+                  View Source
+               </Button>
+            </div>
          </div>
       </motion.article>
    );
