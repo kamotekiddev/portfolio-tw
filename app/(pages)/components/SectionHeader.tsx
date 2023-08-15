@@ -2,18 +2,24 @@
 import { motion } from "framer-motion";
 import { ReactNode } from "react";
 
+import { cn } from "@/libs/utils";
+
 interface Props {
    children: ReactNode;
+   className?: string;
 }
-const SectionHeader = ({ children: chidlren }: Props) => {
+const SectionHeader = ({ children, className }: Props) => {
    return (
       <motion.h1
          initial={{ opacity: 0 }}
          whileInView={{ opacity: 1 }}
          transition={{ type: "spring", delay: 0.5 }}
-         className="mb-10 inline-block rounded-lg text-heading-1 font-black leading-none text-accent-orange"
+         className={cn(
+            `mb-10 inline-block rounded-lg  text-7xl font-black leading-none text-accent-orange`,
+            className
+         )}
       >
-         {chidlren}
+         {children}
       </motion.h1>
    );
 };
