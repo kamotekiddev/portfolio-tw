@@ -5,10 +5,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 
 interface Props {
-   image: string;
-   title: string;
-   description: string;
-   tags: string[];
+   project: Project;
 }
 
 const Tag = ({ tag }: { tag: string }) => {
@@ -29,7 +26,7 @@ const Tags = ({ tags }: { tags: string[] }) => {
    );
 };
 
-const ProjectGridItem = ({ image, title, description, tags = [] }: Props) => {
+const ProjectGridItem = ({ project }: Props) => {
    return (
       <motion.article
          initial={{ opacity: 0 }}
@@ -38,21 +35,42 @@ const ProjectGridItem = ({ image, title, description, tags = [] }: Props) => {
          className="group relative h-max cursor-pointer overflow-hidden rounded-lg shadow-lg"
       >
          <div className="relative h-[250px] w-full">
-            <Image src={image} objectFit="cover" fill alt="Project Banner" />
+            <Image
+               src={project.projectImageBanner}
+               objectFit="cover"
+               fill
+               alt="Project Banner"
+            />
          </div>
          <div className="space-y-4 p-4">
-            <h1 className="text-heading-6 font-black">{title}</h1>
-            <p className="text-justify text-paragraph-1">{description}</p>
-            <Tags tags={tags} />
+            <h1 className="text-heading-6 font-black">
+               {project.projectTitle}
+            </h1>
+            <p className="text-justify text-paragraph-1">
+               {project.projectDescription}
+            </p>
+            <Tags tags={project.toolsUsed} />
          </div>
          <div className="absolute inset-0 grid place-items-center opacity-0 backdrop-blur-xl transition-all duration-300 ease-in-out group-hover:opacity-100">
             <div className="space-x-4">
-               <Button size="medium" variant="outline">
-                  View Live
-               </Button>
-               <Button size="medium" variant="outline">
-                  View Source
-               </Button>
+               <a href={project["live-link"]} target="_blank">
+                  <Button
+                     size="medium"
+                     variant="outline"
+                     disabled={!project["live-link"]}
+                  >
+                     View Live
+                  </Button>
+               </a>
+               <a href={project["github-link"]} target="_blank">
+                  <Button
+                     size="medium"
+                     variant="outline"
+                     disabled={!project["github-link"]}
+                  >
+                     View Source
+                  </Button>
+               </a>
             </div>
          </div>
       </motion.article>

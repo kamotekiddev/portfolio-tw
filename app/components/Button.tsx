@@ -4,7 +4,7 @@ import { ComponentPropsWithRef, forwardRef } from "react";
 import { cn } from "@/libs/utils";
 
 export const buttonVariants = cva(
-   "rounded-full uppercase p-2 px-4 h-max transition-colors duration-200 ease bg-black-primary text-white-primary hover:bg-black-secondary",
+   "rounded-full uppercase p-2 px-4 h-max transition-colors duration-200 ease bg-black-primary text-white-primary hover:bg-black-secondary disabled:cursor-not-allowed disabled:opacity-50",
    {
       variants: {
          variant: {
