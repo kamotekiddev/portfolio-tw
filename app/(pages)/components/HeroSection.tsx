@@ -13,6 +13,9 @@ const HeroSection = () => {
 
    return (
       <div className="mx-auto grid h-full max-w-7xl place-items-center p-4">
+         <h1 className="rounded-lg bg-accent-pink p-4 text-paragraph-1">
+            This website is under development
+         </h1>
          <div className="mx-auto max-w-4xl text-center">
             <div className="mx-auto mb-6 h-[150px] w-[150px] overflow-hidden rounded-full bg-white">
                <Image src={avataars} alt="hero image" />
