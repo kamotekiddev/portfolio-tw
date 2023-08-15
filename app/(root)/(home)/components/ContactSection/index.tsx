@@ -5,7 +5,7 @@ import CopyableItem from "./CopyableItem";
 
 const ContactSection = () => {
    return (
-      <section className="mx-auto max-w-7xl px-4 py-20">
+      <section className="mx-auto max-w-7xl px-4 py-20 pb-40">
          <div className="mb-10">
             <SectionHeader>Contacts</SectionHeader>
             <motion.p
