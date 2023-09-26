@@ -4,7 +4,7 @@ import ProjectGrid from "./components/ProjectGrid";
 
 const Projects = () => {
    return (
-      <section className="mx-auto max-w-7xl p-4">
+      <section className="mx-auto max-w-5xl p-4">
          <h1 className="mb-10 text-heading-4 font-black leading-none text-accent-orange">
             My Projects
          </h1>

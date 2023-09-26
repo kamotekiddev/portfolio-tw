@@ -14,7 +14,7 @@ const Layout = ({ children }: Props) => {
    return (
       <main className="bg-hero-bg-white dark:bg-hero-bg-dark">
          <header className="sticky top-0 z-[1000] backdrop-blur-lg">
-            <div className="mx-auto flex max-w-7xl justify-between p-4">
+            <div className="mx-auto flex max-w-5xl justify-between p-4">
                <Link href="/">
                   <Button variant="outline" size="medium">
                      Go back
