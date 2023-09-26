@@ -8,12 +8,8 @@ const Home = () => {
          <section id="home" className="h-[calc(100vh-64px)]">
             <HeroSection />
          </section>
-         <section id="about">
-            <AboutSection />
-         </section>
-         <section id="projects">
-            <ProjectsSection />
-         </section>
+         <AboutSection />
+         <ProjectsSection />
       </main>
    );
 };

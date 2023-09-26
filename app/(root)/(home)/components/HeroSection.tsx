@@ -1,11 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { motion } from "framer-motion";
 import avataars from "@/assets/avataaars.png";
 import Image from "next/image";
 import Button from "@/components/Button";
-import Link from "next/link";
-import ScrollLink from "@/components/ScrollLink";
 
 const HeroSection = () => {
    return (
@@ -47,9 +46,6 @@ const HeroSection = () => {
                transition={{ delay: 1 }}
                className="mt-10 flex flex-wrap justify-center gap-4"
             >
-               <ScrollLink to="contact">
-                  <Button variant="outline">Get In Touch</Button>
-               </ScrollLink>
                <Link href="/projects">
                   <Button variant="solid">View all Works</Button>
                </Link>
