@@ -14,7 +14,6 @@ const Header = () => {
             <div className="hidden space-x-8 md:block">
                <ScrollLink to="about">About</ScrollLink>
                <ScrollLink to="projects">Projects</ScrollLink>
-               <ScrollLink to="contact">Contact</ScrollLink>
             </div>
             <div className="space-x-2">
                {socialLinks.map(({ icon, link }, i) => (
