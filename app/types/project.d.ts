@@ -5,7 +5,6 @@ interface Project {
    category: string;
    toolsUsed: string[];
    projectImageBanner: string;
-   projectImages: string[];
    "github-link": string;
    "live-link"?: string;
 }

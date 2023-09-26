@@ -1,18 +1,66 @@
 const projects: Project[] = [
    {
       id: 1,
+      projectTitle: "Chatio",
+      projectDescription:
+         "A realtime web application for text chat using realtime technology pusher.",
+      category: "Front-End",
+      toolsUsed: [
+         "Next Js",
+         "Typescript",
+         "Pusher",
+         "Prisma",
+         "Next-Auth",
+         "Tailwind CSS",
+      ],
+      projectImageBanner: "/images/project-image/chatio-banner.png",
+      "github-link": "https://github.com/kamotekiddev/kamote-chat",
+      "live-link": "https://kamote-chat.vercel.app/",
+   },
+   {
+      id: 1,
+      projectTitle: "WiseBites",
+      projectDescription:
+         "Web app for tracking calories, by inputting the target calorie this will calculate your total calorie per day based on inputs.",
+      category: "Front-End",
+      toolsUsed: [
+         "Next Js",
+         "Typescript",
+         "Shadcn UI",
+         "Prisma",
+         "Next-Auth",
+         "Tailwind CSS",
+      ],
+      projectImageBanner: "/images/project-image/wise-bites-banner.png",
+      "github-link": "https://github.com/kamotekiddev/calorie-tracker",
+      "live-link": "https://calorie-tracker-two.vercel.app",
+   },
+   {
+      id: 1,
+      projectTitle: "Jobseek",
+      projectDescription:
+         "Web App for finding, creating and applying for jobs. built on top of cutting edge stack.",
+      category: "Front-End",
+      toolsUsed: [
+         "Next Js",
+         "Typescript",
+         "Shadcn UI",
+         "Prisma",
+         "Next-Auth",
+         "Tailwind CSS",
+      ],
+      projectImageBanner: "/images/project-image/job-seek-banner.png",
+      "github-link": "https://github.com/kamotekiddev/kamote-jobs",
+      "live-link": "https://jobseek-three.vercel.app/",
+   },
+   {
+      id: 1,
       projectTitle: "Loops Studios Landing Page",
       projectDescription:
          "A Front-End Mentor challenge which transforms a UI/UX design into code using their provided starter kit.",
       category: "Front-End",
       toolsUsed: ["HTML", "CSS", "JavaScript"],
       projectImageBanner: "/images/project-image/loop-studios-landing-page.png",
-      projectImages: [
-         "/images/loop-studios-asset/1.png",
-         "/images/loop-studios-asset/2.png",
-         "/images/loop-studios-asset/3.png",
-         "/images/loop-studios-asset/4.png",
-      ],
       "github-link":
          "https://github.com/kamotekiddev/frontend-mentor.loopstudios-landing-page.github.io",
       "live-link":
@@ -26,12 +74,6 @@ const projects: Project[] = [
       category: "Front-End",
       toolsUsed: ["HTML", "CSS", "JavaScript", "Animate on Scroll"],
       projectImageBanner: "/images/project-image/chirp-landing-page.png",
-      projectImages: [
-         "/images/chirp-asset/1.png",
-         "/images/chirp-asset/2.png",
-         "/images/chirp-asset/3.png",
-         "/images/chirp-asset/4.png",
-      ],
       "github-link":
          "https://github.com/kamotekiddev/codewell.cc.chirp-landing-page",
       "live-link":
@@ -45,13 +87,6 @@ const projects: Project[] = [
       category: "Front-End",
       toolsUsed: ["HTML", "CSS", "JavaScript"],
       projectImageBanner: "/images/project-image/blogr-landing-page.png",
-      projectImages: [
-         "/images/blogr-asset/1.png",
-         "/images/blogr-asset/3.png",
-         "/images/blogr-asset/2.png",
-         "/images/blogr-asset/4.png",
-         "/images/blogr-asset/5.png",
-      ],
       "github-link":
          "https://github.com/kamotekiddev/nd-ice-front-end-mentor.blogr-landing-page.github.io",
       "live-link":
@@ -65,14 +100,6 @@ const projects: Project[] = [
       category: "Front-End",
       toolsUsed: ["HTML", "CSS", "JavaScript", "Animate on Scroll"],
       projectImageBanner: "/images/project-image/sunnyside-landing-page.png",
-      projectImages: [
-         "/images/sunnyside-asset/1.png",
-         "/images/sunnyside-asset/3.png",
-         "/images/sunnyside-asset/2.png",
-         "/images/sunnyside-asset/4.png",
-         "/images/sunnyside-asset/5.png",
-         "/images/sunnyside-asset/6.png",
-      ],
       "github-link":
          "https://github.com/kamotekiddev/nd-ice.sunnyside-agency-landing-page-front-end-mentor.github.io",
       "live-link":
@@ -86,12 +113,6 @@ const projects: Project[] = [
       category: "Front-End",
       toolsUsed: ["Next Js", "Chakra UI", "External API"],
       projectImageBanner: "/images/project-image/movie-matters-banner.png",
-      projectImages: [
-         "/images/movie-matters-asset/1.png",
-         "/images/movie-matters-asset/3.png",
-         "/images/movie-matters-asset/2.png",
-         "/images/movie-matters-asset/4.png",
-      ],
       "github-link": "https://github.com/ND-Ice/movie-matters",
       "live-link": "https://movie-matters.vercel.app",
    },
