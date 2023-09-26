@@ -7,7 +7,7 @@ import socialLinks from "@/data/social-links";
 const Header = () => {
    return (
       <header className="sticky top-0 z-50 backdrop-blur-lg">
-         <nav className="mx-auto flex max-w-7xl items-center justify-between p-4">
+         <nav className="mx-auto flex max-w-5xl items-center justify-between p-4">
             <div className="w-40">
                <Logo />
             </div>

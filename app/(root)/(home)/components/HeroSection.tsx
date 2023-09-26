@@ -1,7 +1,5 @@
 "use client";
 
-import { differenceInYears } from "date-fns";
-
 import { motion } from "framer-motion";
 import avataars from "@/assets/avataaars.png";
 import Image from "next/image";
@@ -10,9 +8,6 @@ import Link from "next/link";
 import ScrollLink from "@/components/ScrollLink";
 
 const HeroSection = () => {
-   const birthday = new Date("2000-07-02");
-   const age = differenceInYears(new Date(), birthday);
-
    return (
       <article className="mx-auto grid h-full max-w-7xl place-items-center p-4">
          <div className="mx-auto max-w-4xl text-center">
@@ -37,12 +32,14 @@ const HeroSection = () => {
                transition={{ delay: 0.7 }}
                className="text-paragraph-1 font-light leading-relaxed tracking-wide"
             >
-               A {age}-year-old, passionate
-               <span className="mx-1 bg-custom-gradient bg-clip-text font-semibold text-transparent">
+               Experienced{" "}
+               <span className="inline-block bg-custom-gradient bg-clip-text text-transparent">
                   Frontend Developer
-               </span>
-               based in San Juan City, Metro Manila, Philippines. with over 3
-               years of actual and over 1 year of work experience
+               </span>{" "}
+               skilled in crafting user-friendly web apps, translating designs
+               to efficient code, and optimizing performance. Committed to
+               staying updated on frontend trends and contributing to innovative
+               teams.
             </motion.p>
             <motion.div
                initial={{ opacity: 0 }}

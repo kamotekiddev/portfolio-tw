@@ -10,7 +10,7 @@ const Layout = ({ children }: Props) => {
    return (
       <main className=" min-h-screen select-none bg-hero-bg-white dark:bg-hero-bg-dark">
          <Header />
-         <div className="h-full">{children}</div>
+         <div className="mx-auto h-full max-w-5xl">{children}</div>
          <Footer />
       </main>
    );
