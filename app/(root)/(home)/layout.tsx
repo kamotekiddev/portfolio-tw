@@ -28,13 +28,13 @@ const Layout = ({ children }: Props) => {
    return (
       <main
          onMouseMove={handleMouseMove}
-         className="group relative min-h-screen select-none bg-hero-bg-white dark:bg-hero-bg-dark"
+         className="group/container relative min-h-screen select-none bg-hero-bg-white dark:bg-hero-bg-dark"
       >
          <Header />
          <div className="mx-auto h-full max-w-5xl">{children}</div>
          <Footer />
          <motion.div
-            className="pointer-events-none absolute inset-0 z-[1000] rounded-xl opacity-0 transition duration-300 group-hover:opacity-100"
+            className="pointer-events-none absolute inset-0 z-[1000] rounded-xl opacity-0 transition duration-300 group-hover/container:opacity-100"
             style={{
                background:
                   theme === "dark"

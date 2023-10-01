@@ -31,7 +31,7 @@ const ProjectGridItem = ({ project }: Props) => {
       <motion.article
          initial={{ opacity: 0 }}
          whileInView={{ opacity: 1 }}
-         className="group relative h-max cursor-pointer overflow-hidden rounded-lg shadow-lg"
+         className="group/project-grid relative h-max cursor-pointer overflow-hidden rounded-lg shadow-lg"
       >
          <div className="relative h-[250px] w-full">
             <Image
@@ -50,7 +50,7 @@ const ProjectGridItem = ({ project }: Props) => {
             </p>
             <Tags tags={project.toolsUsed} />
          </div>
-         <div className="absolute inset-0 grid place-items-center opacity-0 backdrop-blur-xl transition-all duration-300 ease-in-out group-hover:opacity-100">
+         <div className="absolute inset-0 grid place-items-center opacity-0 backdrop-blur-xl transition-all duration-300 ease-in-out group-hover/project-grid:hover:opacity-100">
             <div className="space-x-4">
                <a href={project["live-link"]} target="_blank">
                   <Button
