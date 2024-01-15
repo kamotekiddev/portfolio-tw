@@ -18,7 +18,7 @@ const ExperienceTimeline = ({ experiences }: Props) => {
                   isActive={i === 0}
                   title={experience.title}
                   datetime={experience.datetime}
-                  description={experience.description}
+                  responsiblities={experience.responsibilities}
                />
             </motion.div>
          ))}

@@ -4,10 +4,15 @@ interface Props {
    isActive?: boolean;
    title: string;
    datetime: string;
-   description: string;
+   responsiblities: string[];
 }
 
-const TimelineCard = ({ isActive, title, datetime, description }: Props) => {
+const TimelineCard = ({
+   isActive,
+   title,
+   datetime,
+   responsiblities,
+}: Props) => {
    return (
       <article className="relative border-l border-accent-orange py-10 pl-10">
          <span
@@ -22,9 +27,16 @@ const TimelineCard = ({ isActive, title, datetime, description }: Props) => {
          <time className="mb-4 block text-sm font-normal leading-none text-gray-400 dark:text-gray-500">
             {datetime}
          </time>
-         <p className="text-paragraph-1 font-normal text-gray-500 dark:text-gray-400">
-            {description}
-         </p>
+         <ul className="list-disc space-y-2">
+            {responsiblities.map((responsibility, idx) => (
+               <li
+                  key={idx}
+                  className="text-paragraph-1 font-normal text-gray-500 dark:text-gray-400"
+               >
+                  {responsibility}
+               </li>
+            ))}
+         </ul>
       </article>
    );
 };

@@ -1,21 +1,21 @@
 const experiences: Experience[] = [
    {
-      title: "Frontend Developer (React)",
-      datetime: "From September 2022 - Present",
-      description:
-         "During my tenure as a junior Front-End Developer at KabootekPH Inc., I successfully converted numerous Figma designs into fully functional, interactive, and mobile-responsive web applications. Additionally, I adeptly integrated multiple REST APIs into these projects.",
+      title: "Frontend Developer",
+      datetime: "From September 2022 - January 2024",
+      responsibilities: [
+         "Orchestrated the translation of Figma design specifications into functional, screen-responsive web applications, ensuring a seamless and pixel-perfect user interface.",
+         "Integrated external APIs and third-party APIs into web applications, enhancing functionality and enabling dynamic data exchange to meet project requirements.",
+         "Undertook the responsibility of maintaining and updating existing web applications, employing a meticulous approach to ensure continuous optimization, scalability, and adherence to evolving industry standards.",
+      ],
    },
    {
-      title: "Frontend Developer Intern (React)",
+      title: "Frontend Developer Intern",
       datetime: "From April 2022 - July 2022",
-      description:
-         "As an intern Front-End Developer at KabootekPH Inc., I had the opportunity to transform several Figma designs into fully functional, interactive, and mobile-responsive web applications. Throughout my internship, I gained hands-on experience in integrating REST APIs into these projects.",
-   },
-   {
-      title: "Freelance Developer",
-      datetime: "From 2019 - 2022",
-      description:
-         "As a student at EARIST, I accepted a lot on thesis revision tasks for multiple groups. My main focus was on the backend development, where I implemented rules and permissions, handled pagination, sorting, and filtering of data, and enabled data export to Excel sheets.",
+      responsibilities: [
+         "Collaborated with the development team to design and implement new features.",
+         "Assisted in comprehensive end-to-end testing procedures for applications developed within the company, contributing to the assurance of robust functionality and the delivery of high-quality software solutions.",
+         "Assisted in debugging and troubleshooting issues, resulting in increasing system stability.",
+      ],
    },
 ];
 export default experiences;

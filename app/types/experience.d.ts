@@ -1,5 +1,5 @@
 interface Experience {
    title: string;
    datetime: string;
-   description: string;
+   responsibilities: string[];
 }
