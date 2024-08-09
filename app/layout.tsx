@@ -32,6 +32,7 @@ export const metadata: Metadata = {
       "Frontend Development Services Kamote Dev",
       "Kamote Dev Coding Projects",
    ],
+   icons: "favicon.png",
 };
 
 interface Props {
