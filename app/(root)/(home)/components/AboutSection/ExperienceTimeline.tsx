@@ -14,12 +14,7 @@ const ExperienceTimeline = ({ experiences }: Props) => {
                whileInView={{ opacity: 1 }}
                transition={{ delay: 0.5, type: "spring" }}
             >
-               <TimelineCard
-                  isActive={i === 0}
-                  title={experience.title}
-                  datetime={experience.datetime}
-                  responsiblities={experience.responsibilities}
-               />
+               <TimelineCard isActive={i === 0} experience={experience} />
             </motion.div>
          ))}
       </section>
