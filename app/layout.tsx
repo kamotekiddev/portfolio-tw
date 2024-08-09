@@ -10,6 +10,7 @@ export const metadata: Metadata = {
    description:
       "Explore my diverse portfolio showcasing a collection of my creative works, projects, and achievements. From web development to graphic design, you'll find a showcase of my skills and passion for crafting digital experiences. Discover how I bring ideas to life and create meaningful solutions.",
    keywords: [
+      "kamote.dev",
       "Joshua Dela Cruz",
       "Software Engineer",
       "Frontend Developer",
@@ -32,7 +33,6 @@ export const metadata: Metadata = {
       "Frontend Development Services Kamote Dev",
       "Kamote Dev Coding Projects",
    ],
-   icons: "favicon.png",
 };
 
 interface Props {
