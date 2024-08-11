@@ -1,8 +1,10 @@
 "use client";
 
-import Button from "@/components/Button";
-import { motion } from "framer-motion";
 import Image from "next/image";
+import { motion } from "framer-motion";
+
+import ExternalLink from "@/components/ExternalLink";
+import { FaGithub, FaGlobe } from "react-icons/fa";
 
 interface Props {
    project: Project;
@@ -10,7 +12,7 @@ interface Props {
 
 const Tag = ({ tag }: { tag: string }) => {
    return (
-      <span className="flex-shrink-0 rounded-lg bg-white-primary p-1 px-2 text-paragraph-2 text-accent-pink dark:bg-white-secondary">
+      <span className="flex-shrink-0 rounded-lg border border-accent-pink p-1 px-2 text-paragraph-2 text-accent-pink transition hover:bg-accent-pink hover:text-white">
          {tag}
       </span>
    );
@@ -31,46 +33,46 @@ const ProjectGridItem = ({ project }: Props) => {
       <motion.article
          initial={{ opacity: 0 }}
          whileInView={{ opacity: 1 }}
-         className="group/project-grid relative h-max cursor-pointer overflow-hidden rounded-lg shadow-lg"
+         className="group/project-item relative h-max rounded-lg shadow-lg"
       >
-         <div className="relative h-[250px] w-full">
-            <Image
-               src={project.projectImageBanner}
-               objectFit="cover"
-               fill
-               alt="Project Banner"
-            />
+         <div className="h-[250px] w-full overflow-hidden">
+            <div className="relative h-full w-full scale-110 transition group-hover/project-item:scale-100">
+               <Image
+                  src={project.projectImageBanner}
+                  objectFit="cover"
+                  fill
+                  alt="Project Banner"
+               />
+            </div>
          </div>
          <div className="space-y-4 p-4">
-            <h1 className="text-heading-6 font-black">
-               {project.projectTitle}
+            <h1 className="text-heading-6 font-bold">
+               <span>{project.projectTitle}</span>
             </h1>
+            <div className="flex items-center gap-4">
+               <ExternalLink
+                  href={project["live-link"] || ""}
+                  target="_blank"
+                  disabled={!project["live-link"]}
+               >
+                  <div className="flex items-center gap-2">
+                     <FaGlobe /> Live
+                  </div>
+               </ExternalLink>
+               <ExternalLink
+                  href={project["github-link"]}
+                  target="_blank"
+                  disabled={!project["github-link"]}
+               >
+                  <div className="flex items-center gap-2">
+                     <FaGithub /> Github
+                  </div>
+               </ExternalLink>
+            </div>
             <p className="text-justify text-paragraph-1">
                {project.projectDescription}
             </p>
             <Tags tags={project.toolsUsed} />
-         </div>
-         <div className="absolute inset-0 grid place-items-center opacity-0 backdrop-blur-xl transition-all duration-300 ease-in-out group-hover/project-grid:hover:opacity-100">
-            <div className="space-x-4">
-               <a href={project["live-link"]} target="_blank">
-                  <Button
-                     size="medium"
-                     variant="outline"
-                     disabled={!project["live-link"]}
-                  >
-                     View Live
-                  </Button>
-               </a>
-               <a href={project["github-link"]} target="_blank">
-                  <Button
-                     size="medium"
-                     variant="outline"
-                     disabled={!project["github-link"]}
-                  >
-                     View Source
-                  </Button>
-               </a>
-            </div>
          </div>
       </motion.article>
    );
