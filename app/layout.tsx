@@ -8,7 +8,7 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
    title: "Joshua Dela Cruz (Kamote Kid)",
    description:
-      "Explore my diverse portfolio showcasing a collection of my creative works, projects, and achievements. From web development to graphic design, you'll find a showcase of my skills and passion for crafting digital experiences. Discover how I bring ideas to life and create meaningful solutions.",
+      "A Filipino Frontend Developer based in San Juan, Metro Manila Philippines",
    keywords: [
       "kamote.dev",
       "Joshua Dela Cruz",
