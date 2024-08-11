@@ -40,13 +40,13 @@ const Layout = ({ children }: Props) => {
                   theme === "dark"
                      ? useMotionTemplate`
             radial-gradient(
-              650px circle at ${mouseX}px ${mouseY}px,
+              350px circle at ${mouseX}px ${mouseY}px,
               rgba(14, 165, 233, 0.15),
               transparent 80%
             )`
                      : useMotionTemplate`
           radial-gradient(
-            650px circle at ${mouseX}px ${mouseY}px,
+            350px circle at ${mouseX}px ${mouseY}px,
             rgba(4, 1, 4, 0.15),
             transparent 80%
           )

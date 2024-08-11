@@ -30,7 +30,7 @@ const CompanyLink = ({
    return (
       <a
          className={cn(
-            "flex w-max items-center gap-2 font-semibold hover:text-accent-orange hover:underline",
+            "flex w-max items-center gap-2 font-semibold hover:text-accent-pink hover:underline",
             className
          )}
          {...props}
@@ -42,11 +42,11 @@ const CompanyLink = ({
 
 const TimelineCard = ({ experience, isActive }: Props) => {
    return (
-      <article className="relative border-l border-accent-orange py-10 pl-10">
+      <article className="relative border-l border-accent-pink py-10 pl-10">
          <span
             className={twMerge(
                "absolute -left-3 flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 ring-8 ring-white",
-               isActive && "bg-accent-orange"
+               isActive && "bg-accent-pink"
             )}
          />
          <div className="mb-4 space-y-2">

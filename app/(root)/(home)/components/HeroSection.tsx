@@ -14,14 +14,14 @@ const HeroSection = () => {
                initial={{ opacity: 0 }}
                whileInView={{ opacity: 1 }}
                transition={{ delay: 0.5 }}
-               className="mx-auto mb-6 h-[150px] w-[150px] overflow-hidden rounded-full bg-white"
+               className="mx-auto mb-6 h-[150px] w-[150px] overflow-hidden rounded-full border-4 border-accent-pink bg-white"
             >
                <Image src={avataars} alt="hero image" />
             </motion.div>
             <motion.h1
                initial={{ opacity: 0 }}
                whileInView={{ opacity: 1 }}
-               className="mb-6 inline-block bg-custom-gradient bg-clip-text text-heading-3 font-black leading-none text-transparent lg:text-cta-heading"
+               className="mb-6 inline-block text-heading-3 font-black leading-none text-accent-pink lg:text-cta-heading"
             >
                Joshua Dela Cruz
             </motion.h1>
@@ -32,7 +32,7 @@ const HeroSection = () => {
                className="text-paragraph-1 font-light leading-relaxed tracking-wide"
             >
                Experienced{" "}
-               <span className="inline-block bg-custom-gradient bg-clip-text text-transparent">
+               <span className="inline-block font-bold text-accent-pink">
                   Frontend Developer
                </span>{" "}
                skilled in crafting user-friendly web apps, translating designs

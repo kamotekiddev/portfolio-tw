@@ -10,7 +10,7 @@ interface Props {
 
 const Tag = ({ tag }: { tag: string }) => {
    return (
-      <span className="flex-shrink-0 rounded-lg bg-white-primary p-1 px-2 text-paragraph-2 text-accent-orange dark:bg-white-secondary">
+      <span className="flex-shrink-0 rounded-lg bg-white-primary p-1 px-2 text-paragraph-2 text-accent-pink dark:bg-white-secondary">
          {tag}
       </span>
    );
