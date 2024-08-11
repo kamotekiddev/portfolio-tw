@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
-import avataars from "@/assets/avataaars.png";
+import profile from "@/assets/profile.jpeg";
 import Button from "@/components/Button";
 
 import { fadeInAnimationVarints } from "@/libs/animation";
@@ -20,9 +20,9 @@ const HeroSection = () => {
                whileInView="animate"
                transition={{ delay: 0.5 }}
                viewport={{ once: true }}
-               className="mx-auto mb-6 h-[150px] w-[150px] overflow-hidden rounded-full border-4 border-accent-pink bg-white"
+               className="mx-auto mb-6 h-[150px] w-[150px] overflow-hidden rounded-full"
             >
-               <Image src={avataars} alt="hero image" />
+               <Image src={profile} alt="hero image" />
             </motion.div>
             <motion.h1
                variants={fadeInAnimationVarints}
