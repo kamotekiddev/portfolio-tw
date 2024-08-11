@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 
 import ExternalLink from "@/components/ExternalLink";
 import { FaGithub, FaGlobe } from "react-icons/fa";
+import { fadeInAnimationVarints } from "@/libs/animation";
 
 interface Props {
    project: Project;
@@ -31,8 +32,10 @@ const Tags = ({ tags }: { tags: string[] }) => {
 const ProjectGridItem = ({ project }: Props) => {
    return (
       <motion.article
-         initial={{ opacity: 0 }}
-         whileInView={{ opacity: 1 }}
+         variants={fadeInAnimationVarints}
+         initial="initial"
+         whileInView="animate"
+         viewport={{ once: true }}
          className="group/project-item relative h-max rounded-lg shadow-lg"
       >
          <div className="h-[250px] w-full overflow-hidden">

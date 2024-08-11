@@ -4,13 +4,16 @@ import { motion } from "framer-motion";
 import SectionHeader from "../SectionHeader";
 import Experiences from "./Experiences";
 import TechStacks from "./TechStacks";
+import { fadeInAnimationVarints } from "@/libs/animation";
 
 const AboutSection = () => {
    return (
       <section className="mx-auto max-w-7xl space-y-20 px-4 py-20">
          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
+            variants={fadeInAnimationVarints}
+            initial="initial"
+            whileInView="animate"
+            viewport={{ once: true }}
             transition={{ delay: 0.3, duration: 0.5 }}
          >
             <SectionHeader>About Me</SectionHeader>
