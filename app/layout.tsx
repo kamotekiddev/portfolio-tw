@@ -1,9 +1,12 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import ThemeProvider from "./context/ThemeProvider";
-import { Inter } from "next/font/google";
+import { Poppins } from "next/font/google";
 
-const inter = Inter({ subsets: ["latin"] });
+const poppins = Poppins({
+   subsets: ["latin"],
+   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
+});
 
 export const metadata: Metadata = {
    title: "Joshua Dela Cruz (Kamote Kid)",
@@ -42,7 +45,7 @@ interface Props {
 export default function RootLayout({ children }: Props) {
    return (
       <html lang="en">
-         <body className={inter.className}>
+         <body className={poppins.className}>
             <ThemeProvider defaultTheme="dark" attribute="class">
                {children}
             </ThemeProvider>
