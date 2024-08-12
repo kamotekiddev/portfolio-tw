@@ -1,8 +1,4 @@
-import Link, { LinkProps } from "next/link";
 import { twMerge } from "tailwind-merge";
-import { HiOutlineExternalLink } from "react-icons/hi";
-import { ComponentProps, PropsWithChildren } from "react";
-import { cn } from "@/libs/utils";
 import ExternalLink from "@/components/ExternalLink";
 
 interface Props {

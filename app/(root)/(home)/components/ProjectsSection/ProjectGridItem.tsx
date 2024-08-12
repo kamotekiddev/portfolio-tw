@@ -41,8 +41,8 @@ const ProjectGridItem = ({ project }: Props) => {
          <div className="h-[250px] w-full overflow-hidden">
             <div className="relative h-full w-full scale-110 transition group-hover/project-item:scale-100">
                <Image
+                  className="object-cover"
                   src={project.projectImageBanner}
-                  objectFit="cover"
                   fill
                   alt="Project Banner"
                />
