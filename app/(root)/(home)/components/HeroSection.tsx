@@ -37,6 +37,7 @@ const HeroSection = () => {
                initial="initial"
                animate="animate"
                transition={{ delay: 0.5 }}
+               className="text-paragraph-1"
             >
                A Filipino Software Developer based in San Juan, Metro Manila
                Philippines
