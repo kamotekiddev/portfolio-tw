@@ -48,7 +48,7 @@ const HeroSection = () => {
                transition={{ delay: 0.5, duration: 0.5 }}
                className="h-px w-full bg-black-primary/10 dark:bg-white-primary/10"
             />
-            <div className="flex items-center justify-center gap-4">
+            <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
                <div className="space-x-2">
                   {socialLinks.map(({ icon, link }, i) => (
                      <motion.a
@@ -70,7 +70,7 @@ const HeroSection = () => {
                   initial="initial"
                   animate="animate"
                   transition={{ delay: 0.5 }}
-                  className="h-10 w-px bg-black-primary/10 dark:bg-white-primary/10"
+                  className="hidden h-10 w-px bg-black-primary/10 dark:bg-white-primary/10 sm:block"
                />
                <motion.p
                   variants={fadeInAnimationVarints}
