@@ -11,11 +11,11 @@ const Header = () => {
                <Logo />
             </div>
             <div className="space-x-2">
-               {socialLinks.map(({ icon, link }, i) => (
+               {/* {socialLinks.map(({ icon, link }, i) => (
                   <a href={link} target="_black" key={i}>
                      <IconButton icon={icon} />
                   </a>
-               ))}
+               ))} */}
                <DarkModeToggle />
             </div>
          </nav>

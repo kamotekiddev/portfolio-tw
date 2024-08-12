@@ -1,26 +1,25 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { motion } from "framer-motion";
 
 import profile from "@/assets/profile.jpeg";
-import Button from "@/components/Button";
 
 import { fadeInAnimationVarints } from "@/libs/animation";
+import socialLinks from "@/data/social-links";
+import IconButton from "@/components/IconButton";
 
 const HeroSection = () => {
    return (
       <article className="mx-auto grid h-full max-w-7xl place-items-center p-4">
-         <div className="mx-auto max-w-4xl text-center">
+         <div className="mx-auto max-w-4xl space-y-6 text-center">
             <motion.div
                variants={fadeInAnimationVarints}
-               custom={0.5}
                initial="initial"
                whileInView="animate"
                transition={{ delay: 0.5 }}
                viewport={{ once: true }}
-               className="mx-auto mb-6 h-[150px] w-[150px] overflow-hidden rounded-full"
+               className="mx-auto h-[150px] w-[150px] overflow-hidden rounded-full"
             >
                <Image src={profile} alt="hero image" />
             </motion.div>
@@ -29,39 +28,60 @@ const HeroSection = () => {
                initial="initial"
                whileInView="animate"
                viewport={{ once: true }}
-               className="mb-6 inline-block text-heading-3 font-black leading-none text-accent-pink lg:text-cta-heading"
+               className="inline-block text-heading-3 font-black leading-none text-accent-pink lg:text-heading-1"
             >
                Joshua Dela Cruz
             </motion.h1>
             <motion.p
                variants={fadeInAnimationVarints}
                initial="initial"
-               whileInView="animate"
-               viewport={{ once: true }}
-               transition={{ delay: 0.7 }}
-               className="text-paragraph-1 font-light leading-relaxed tracking-wide"
+               animate="animate"
+               transition={{ delay: 0.5 }}
             >
-               Experienced{" "}
-               <span className="inline-block font-bold text-accent-pink">
-                  Frontend Developer
-               </span>{" "}
-               skilled in crafting user-friendly web apps, translating designs
-               to efficient code, and optimizing performance. Committed to
-               staying updated on frontend trends and contributing to innovative
-               teams.
+               A Filipino Software Developer based in San Juan, Metro Manila
+               Philippines
             </motion.p>
             <motion.div
-               variants={fadeInAnimationVarints}
-               initial="initial"
-               whileInView="animate"
-               viewport={{ once: true }}
-               transition={{ delay: 1 }}
-               className="mt-10 flex flex-wrap justify-center gap-4"
-            >
-               <Link href="/projects">
-                  <Button variant="solid">View all Works</Button>
-               </Link>
-            </motion.div>
+               initial={{ width: 0 }}
+               animate={{ width: "100%" }}
+               transition={{ delay: 0.5, duration: 0.5 }}
+               className="h-px w-full bg-black-primary/10 dark:bg-white-primary/10"
+            />
+            <div className="flex items-center justify-center gap-4">
+               <div className="space-x-2">
+                  {socialLinks.map(({ icon, link }, i) => (
+                     <motion.a
+                        variants={fadeInAnimationVarints}
+                        initial="initial"
+                        whileInView="animate"
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.2 * i }}
+                        href={link}
+                        target="_black"
+                        key={i}
+                     >
+                        <IconButton icon={icon} />
+                     </motion.a>
+                  ))}
+               </div>
+               <motion.div
+                  variants={fadeInAnimationVarints}
+                  initial="initial"
+                  animate="animate"
+                  transition={{ delay: 0.5 }}
+                  className="h-10 w-px bg-black-primary/10 dark:bg-white-primary/10"
+               />
+               <motion.p
+                  variants={fadeInAnimationVarints}
+                  initial="initial"
+                  whileInView="animate"
+                  viewport={{ once: true }}
+                  transition={{ delay: 0.2 * socialLinks.length }}
+                  className="text-xl font-semibold"
+               >
+                  Frontend Software Developer
+               </motion.p>
+            </div>
          </div>
       </article>
    );
