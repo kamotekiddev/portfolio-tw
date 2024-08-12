@@ -28,7 +28,7 @@ const HeroSection = () => {
                initial="initial"
                whileInView="animate"
                viewport={{ once: true }}
-               className="inline-block text-heading-3 font-black leading-none text-accent-pink lg:text-heading-1"
+               className="inline-block text-heading-3 font-extrabold leading-none text-accent lg:text-heading-1"
             >
                Joshua Dela Cruz
             </motion.h1>

@@ -13,7 +13,7 @@ interface Props {
 
 const Tag = ({ tag }: { tag: string }) => {
    return (
-      <span className="flex-shrink-0 rounded-lg border border-accent-pink p-1 px-2 text-paragraph-2 text-accent-pink transition hover:bg-accent-pink hover:text-white">
+      <span className="flex-shrink-0 rounded-lg border border-accent p-1 px-2 text-paragraph-2 text-accent transition hover:bg-accent hover:text-white">
          {tag}
       </span>
    );

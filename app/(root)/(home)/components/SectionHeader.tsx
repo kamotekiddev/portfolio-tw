@@ -18,7 +18,7 @@ const SectionHeader = ({ children, className }: Props) => {
          transition={{ type: "spring", delay: 0.5 }}
          viewport={{ once: true }}
          className={cn(
-            `mb-10 inline-block rounded-lg text-5xl font-black leading-none text-accent-pink`,
+            `mb-10 inline-block rounded-lg text-5xl font-bold leading-none text-accent`,
             className
          )}
       >

@@ -11,7 +11,7 @@ const TechStacks = () => {
             initial="initial"
             whileInView="animate"
             viewport={{ once: true }}
-            className="mb-8 inline-block text-heading-5 font-black leading-none"
+            className="mb-8 inline-block text-heading-5 font-bold leading-none"
          >
             Technology Stack
          </motion.h2>

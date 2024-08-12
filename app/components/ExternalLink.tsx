@@ -26,7 +26,7 @@ function ExternalLink({
    return (
       <a
          className={cn(
-            "flex w-max items-center gap-2 font-semibold hover:text-accent-pink hover:underline",
+            "flex w-max items-center gap-2 font-semibold hover:text-accent hover:underline",
             className
          )}
          {...props}

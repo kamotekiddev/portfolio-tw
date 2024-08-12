@@ -13,7 +13,7 @@ const TechStack = ({ techStack, delay }: Props) => {
          whileInView={{ scale: 1, opacity: 1 }}
          transition={{ delay, type: "spring" }}
          viewport={{ once: true }}
-         className="inline-block rounded-full bg-white-secondary p-2 px-4 text-paragraph-1 dark:bg-accent-pink"
+         className="inline-block rounded-full bg-white-secondary p-2 px-4 text-paragraph-1 dark:bg-accent"
       >
          {techStack}
       </motion.span>

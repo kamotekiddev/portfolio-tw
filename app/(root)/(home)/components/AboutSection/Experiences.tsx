@@ -12,7 +12,7 @@ const Experiences = () => {
             initial="initial"
             whileInView="animate"
             viewport={{ once: true }}
-            className="mb-10 text-heading-5 font-black leading-none"
+            className="mb-10 text-heading-5 font-bold leading-none"
          >
             Experiences
          </motion.h2>

@@ -12,11 +12,11 @@ interface Props {
 
 const TimelineCard = ({ experience, isActive }: Props) => {
    return (
-      <article className="relative border-l border-accent-pink py-10 pl-10">
+      <article className="relative border-l border-accent py-10 pl-10">
          <span
             className={twMerge(
                "absolute -left-3 flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 ring-8 ring-white",
-               isActive && "bg-accent-pink"
+               isActive && "bg-accent"
             )}
          />
          <div className="mb-4 space-y-2">
@@ -28,7 +28,7 @@ const TimelineCard = ({ experience, isActive }: Props) => {
                {experience.company.name}
             </ExternalLink>
 
-            <h3 className="flex items-center text-heading-6 font-semibold">
+            <h3 className="flex items-center text-heading-6 font-bold">
                {experience.title}
             </h3>
             <time className="block text-sm font-normal leading-none text-gray-400 dark:text-gray-500">
