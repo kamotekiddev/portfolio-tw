@@ -16,12 +16,6 @@ module.exports = {
             "white-secondary": "#FFFFFF",
             accent: "#10b981",
          },
-         backgroundImage: {
-            "hero-bg-dark":
-               "radial-gradient(circle, rgba(22,21,19,1) 0%, rgba(28,28,34,1) 35%, rgba(32,32,48,1) 60%, rgba(0,0,0,1) 100%)",
-            "hero-bg-white":
-               "radial-gradient(circle, rgba(235,235,255,1) 25%, rgba(240,242,245,1) 50%, rgba(212,212,212,1) 75%, rgba(255,255,255,1) 100%)",
-         },
          fontSize: {
             "cta-heading": "84px",
             "heading-1": "72px",
