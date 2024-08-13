@@ -7,7 +7,7 @@ import profile from "@/assets/profile.jpeg";
 
 import { fadeInAnimationVarints } from "@/libs/animation";
 import socialLinks from "@/data/social-links";
-import IconButton from "@/components/IconButton";
+import SocialLinks from "./SocialLinks";
 
 const HeroSection = () => {
    return (
@@ -49,22 +49,7 @@ const HeroSection = () => {
                className="h-px w-full bg-black-primary/10 dark:bg-white-primary/10"
             />
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
-               <div className="space-x-2">
-                  {socialLinks.map(({ icon, link }, i) => (
-                     <motion.a
-                        variants={fadeInAnimationVarints}
-                        initial="initial"
-                        whileInView="animate"
-                        viewport={{ once: true }}
-                        transition={{ delay: 0.2 * i }}
-                        href={link}
-                        target="_black"
-                        key={i}
-                     >
-                        <IconButton icon={icon} />
-                     </motion.a>
-                  ))}
-               </div>
+               <SocialLinks />
                <motion.div
                   variants={fadeInAnimationVarints}
                   initial="initial"
