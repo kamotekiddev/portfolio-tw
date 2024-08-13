@@ -17,7 +17,7 @@ const TechStacks = () => {
          </motion.h2>
          <div className="flex flex-wrap gap-4">
             {techstacks.map((techStack, i) => (
-               <TechStack key={i} delay={(i + 1) / 10} techStack={techStack} />
+               <TechStack key={i} delay={0.1 * i} techStack={techStack} />
             ))}
          </div>
       </section>

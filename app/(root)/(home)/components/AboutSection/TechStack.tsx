@@ -1,21 +1,23 @@
+import { Stack } from "@/data/techstacks";
 import { motion } from "framer-motion";
 
 interface Props {
-   techStack: string;
+   techStack: Stack;
    delay?: number;
 }
 
 const TechStack = ({ techStack, delay }: Props) => {
+   const Icon = techStack.icon;
+
    return (
       <motion.span
-         key={techStack}
-         initial={{ scale: 0, opacity: 0 }}
-         whileInView={{ scale: 1, opacity: 1 }}
-         transition={{ delay, type: "spring" }}
+         initial={{ translateX: -50, opacity: 0, scale: 0 }}
+         whileInView={{ translateX: 0, opacity: 100, scale: 1 }}
+         transition={{ delay, duration: 0.1 }}
          viewport={{ once: true }}
-         className="inline-block rounded-full bg-white-secondary p-2 px-4 text-paragraph-1 dark:bg-accent"
+         className="inline-flex items-center gap-2 rounded-full bg-white-secondary p-2 px-4 text-paragraph-1 dark:bg-accent"
       >
-         {techStack}
+         <Icon size={22} className="flex-shrink-0" /> {techStack.name}
       </motion.span>
    );
 };
