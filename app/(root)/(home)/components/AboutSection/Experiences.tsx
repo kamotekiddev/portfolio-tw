@@ -12,6 +12,7 @@ const Experiences = () => {
             initial="initial"
             whileInView="animate"
             viewport={{ once: true }}
+            transition={{ duration: 0.3 }}
             className="mb-10 text-heading-5 font-bold leading-none"
          >
             Experiences

@@ -13,7 +13,7 @@ const TechStack = ({ techStack, delay }: Props) => {
       <motion.span
          initial={{ translateX: -50, opacity: 0, scale: 0 }}
          whileInView={{ translateX: 0, opacity: 100, scale: 1 }}
-         transition={{ delay, duration: 0.1 }}
+         transition={{ delay, duration: 0.3 }}
          viewport={{ once: true }}
          className="inline-flex items-center gap-2 rounded-full bg-white-secondary p-2 px-4 text-paragraph-1 dark:bg-accent"
       >

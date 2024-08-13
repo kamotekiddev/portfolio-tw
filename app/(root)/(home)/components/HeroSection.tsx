@@ -17,7 +17,7 @@ const HeroSection = () => {
                variants={fadeInAnimationVarints}
                initial="initial"
                whileInView="animate"
-               transition={{ delay: 0.5 }}
+               transition={{ delay: 0.5, duration: 0.3 }}
                viewport={{ once: true }}
                className="mx-auto h-[150px] w-[150px] overflow-hidden rounded-full"
             >
@@ -28,6 +28,7 @@ const HeroSection = () => {
                initial="initial"
                whileInView="animate"
                viewport={{ once: true }}
+               transition={{ duration: 0.3 }}
                className="inline-block text-heading-3 font-extrabold leading-none text-accent lg:text-heading-1"
             >
                Joshua Dela Cruz
@@ -36,7 +37,7 @@ const HeroSection = () => {
                variants={fadeInAnimationVarints}
                initial="initial"
                animate="animate"
-               transition={{ delay: 0.5 }}
+               transition={{ delay: 0.5, duration: 0.3 }}
                className="text-paragraph-1"
             >
                A Filipino Software Developer based in San Juan, Metro Manila
@@ -45,7 +46,7 @@ const HeroSection = () => {
             <motion.div
                initial={{ width: 0 }}
                animate={{ width: "100%" }}
-               transition={{ delay: 0.5, duration: 0.5 }}
+               transition={{ delay: 0.5, duration: 0.8 }}
                className="h-px w-full bg-black-primary/10 dark:bg-white-primary/10"
             />
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -54,7 +55,7 @@ const HeroSection = () => {
                   variants={fadeInAnimationVarints}
                   initial="initial"
                   animate="animate"
-                  transition={{ delay: 0.5 }}
+                  transition={{ delay: 0.5, duration: 0.5 }}
                   className="hidden h-10 w-px bg-black-primary/10 dark:bg-white-primary/10 sm:block"
                />
                <motion.p
@@ -62,7 +63,10 @@ const HeroSection = () => {
                   initial="initial"
                   whileInView="animate"
                   viewport={{ once: true }}
-                  transition={{ delay: 0.2 * socialLinks.length }}
+                  transition={{
+                     delay: 0.2 * socialLinks.length,
+                     duration: 0.3,
+                  }}
                   className="text-xl font-semibold"
                >
                   Frontend Software Developer

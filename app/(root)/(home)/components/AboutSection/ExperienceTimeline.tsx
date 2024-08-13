@@ -14,7 +14,7 @@ const ExperienceTimeline = ({ experiences }: Props) => {
                variants={fadeInAnimationVarints}
                initial="initial"
                whileInView="animate"
-               transition={{ delay: 0.5, type: "spring" }}
+               transition={{ delay: 0.3 * i, duration: 0.5 }}
                viewport={{ once: true }}
             >
                <TimelineCard isActive={i === 0} experience={experience} />

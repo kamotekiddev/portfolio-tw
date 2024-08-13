@@ -36,6 +36,7 @@ const ProjectGridItem = ({ project }: Props) => {
          initial="initial"
          whileInView="animate"
          viewport={{ once: true }}
+         transition={{ delay: 0.5, duration: 0.3 }}
          className="group/project-item relative h-max rounded-lg shadow-lg"
       >
          <div className="h-[250px] w-full overflow-hidden">

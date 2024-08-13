@@ -24,7 +24,7 @@ function SocialLinks() {
                initial="initial"
                whileInView="animate"
                viewport={{ once: true }}
-               transition={{ delay: 0.2 * i }}
+               transition={{ delay: 0.1 * i, duration: 0.3 }}
                href={link}
                target="_black"
                key={i}

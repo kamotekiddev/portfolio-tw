@@ -11,6 +11,7 @@ const TechStacks = () => {
             initial="initial"
             whileInView="animate"
             viewport={{ once: true }}
+            transition={{ duration: 0.3 }}
             className="mb-8 inline-block text-heading-5 font-bold leading-none"
          >
             Technology Stack

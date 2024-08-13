@@ -15,10 +15,10 @@ const SectionHeader = ({ children, className }: Props) => {
          variants={fadeInAnimationVarints}
          initial="initial"
          whileInView="animate"
-         transition={{ type: "spring", delay: 0.5 }}
+         transition={{ delay: 0.5, duration: 0.3 }}
          viewport={{ once: true }}
          className={cn(
-            `mb-10 inline-block rounded-lg text-5xl font-bold leading-none text-accent`,
+            "mb-10 inline-block rounded-lg text-5xl font-bold leading-none text-accent",
             className
          )}
       >
