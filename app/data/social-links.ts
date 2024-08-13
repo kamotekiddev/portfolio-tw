@@ -3,7 +3,7 @@ import { FaFacebook, FaGithub, FaLinkedinIn } from "react-icons/fa";
 const socialLinks = [
    {
       title: "Facebook",
-      link: "https://www.facebook.com/profile.php?id=100007500931056",
+      link: "https://www.facebook.com/kamote.dev",
       icon: FaFacebook,
    },
    {
