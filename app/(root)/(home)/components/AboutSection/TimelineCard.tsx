@@ -32,7 +32,7 @@ const TimelineCard = ({ experience, isActive }: Props) => {
             </time>
          </div>
 
-         <ul className="list-disc space-y-2">
+         <ul className="ml-4 list-disc space-y-2">
             {experience.responsibilities.map((responsibility, idx) => (
                <li
                   key={idx}
