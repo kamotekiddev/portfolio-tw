@@ -1,7 +1,7 @@
 const experiences: Experience[] = [
    {
       title: "React | Next Js Developer",
-      datetime: "From February 2024 - Today",
+      datetime: "From February 2024 - January 2025",
       company: {
          name: "Questronix Corporation",
          link: "https://questronix.com.ph/",
