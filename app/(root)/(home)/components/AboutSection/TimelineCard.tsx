@@ -24,7 +24,7 @@ const TimelineCard = ({ experience, isActive }: Props) => {
                {experience.company.name}
             </ExternalLink>
 
-            <h3 className="flex items-center text-heading-6 font-bold">
+            <h3 className="flex items-center text-2xl font-bold">
                {experience.title}
             </h3>
             <time className="block text-sm font-normal leading-none text-gray-400 dark:text-gray-500">

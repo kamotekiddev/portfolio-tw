@@ -18,7 +18,7 @@ function SocialLinks() {
 
    return (
       <div ref={containerRef} className="space-x-2">
-         {socialLinks.map(({ icon, link }, i) => (
+         {socialLinks.map(({ icon, link, title }, i) => (
             <motion.a
                variants={fadeInAnimationVarints}
                initial="initial"
@@ -27,6 +27,7 @@ function SocialLinks() {
                transition={{ delay: 0.1 * i, duration: 0.3 }}
                href={link}
                target="_black"
+               aria-label={title}
                key={i}
             >
                <IconButton icon={icon} />

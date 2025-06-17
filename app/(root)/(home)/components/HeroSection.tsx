@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { motion } from "framer-motion";
 
-import profile from "@/assets/profile.jpeg";
+import heroImage from "@/assets/heroimage.webp";
 
 import { fadeInAnimationVarints } from "@/libs/animation";
 import socialLinks from "@/data/social-links";
@@ -17,19 +17,29 @@ const HeroSection = () => {
                variants={fadeInAnimationVarints}
                initial="initial"
                whileInView="animate"
-               transition={{ delay: 0.5, duration: 0.3 }}
+               transition={{ delay: 0.2, duration: 0.2 }}
                viewport={{ once: true }}
-               className="mx-auto h-[150px] w-[150px] overflow-hidden rounded-full"
+               className="mx-auto h-[150px] w-[150px] overflow-hidden rounded-full bg-gradient-to-bl from-white-primary via-accent/10 to-white-secondary dark:from-black-secondary dark:via-accent/10 dark:to-black-primary"
             >
-               <Image src={profile} alt="hero image" />
+               <Image
+                  src={heroImage}
+                  alt="hero image"
+                  width={150}
+                  height={150}
+                  layout="responsive"
+                  objectFit="cover"
+                  objectPosition="center"
+                  className="rounded-full"
+                  priority
+               />
             </motion.div>
             <motion.h1
                variants={fadeInAnimationVarints}
                initial="initial"
                whileInView="animate"
                viewport={{ once: true }}
-               transition={{ duration: 0.3 }}
-               className="inline-block text-heading-3 font-extrabold leading-none text-accent lg:text-heading-1"
+               transition={{ duration: 0.2 }}
+               className="inline-block text-4xl font-extrabold leading-none text-accent lg:text-heading-1"
             >
                Joshua Dela Cruz
             </motion.h1>
@@ -37,7 +47,7 @@ const HeroSection = () => {
                variants={fadeInAnimationVarints}
                initial="initial"
                animate="animate"
-               transition={{ delay: 0.5, duration: 0.3 }}
+               transition={{ delay: 0.3, duration: 0.3 }}
                className="text-paragraph-1"
             >
                A Filipino Software Developer based in San Juan, Metro Manila
@@ -46,7 +56,7 @@ const HeroSection = () => {
             <motion.div
                initial={{ width: 0 }}
                animate={{ width: "100%" }}
-               transition={{ delay: 0.5, duration: 0.8 }}
+               transition={{ delay: 0.3, duration: 0.5 }}
                className="h-px w-full bg-black-primary/10 dark:bg-white-primary/10"
             />
             <div className="flex flex-col items-center justify-center gap-4 sm:flex-row">
@@ -55,7 +65,7 @@ const HeroSection = () => {
                   variants={fadeInAnimationVarints}
                   initial="initial"
                   animate="animate"
-                  transition={{ delay: 0.5, duration: 0.5 }}
+                  transition={{ delay: 0.3, duration: 0.3 }}
                   className="hidden h-10 w-px bg-black-primary/10 dark:bg-white-primary/10 sm:block"
                />
                <motion.p
@@ -64,8 +74,8 @@ const HeroSection = () => {
                   whileInView="animate"
                   viewport={{ once: true }}
                   transition={{
-                     delay: 0.2 * socialLinks.length,
-                     duration: 0.3,
+                     delay: 0.1 * socialLinks.length,
+                     duration: 0.1,
                   }}
                   className="text-xl font-semibold"
                >
