@@ -4,7 +4,7 @@ import { HiOutlineExternalLink } from "react-icons/hi";
 
 interface CompanyLinkProps extends ComponentProps<"a"> {
    disabled?: boolean;
-   href: string;
+   href?: string;
    withIcon?: boolean;
 }
 
