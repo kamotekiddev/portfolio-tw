@@ -10,8 +10,10 @@ const poppins = Poppins({
 
 export const metadata: Metadata = {
    title: "Joshua Dela Cruz (Kamote Kid)",
+
    description:
       "A Filipino Frontend Developer based in San Juan, Metro Manila Philippines",
+
    keywords: [
       "kamote.dev",
       "Joshua Dela Cruz",
@@ -44,7 +46,7 @@ interface Props {
 
 export default function RootLayout({ children }: Props) {
    return (
-      <html lang="en">
+      <html lang="en" suppressHydrationWarning>
          <body className={poppins.className}>
             <ThemeProvider defaultTheme="dark" attribute="class">
                {children}

@@ -28,7 +28,7 @@ const Header = () => {
                      <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 100 }}
-                        exit={{ translateY: -100, opacity: 0 }}
+                        exit={{ y: -100, opacity: 0 }}
                         transition={{ duration: 0.2, delay: 0.2 }}
                         className="hidden gap-2 sm:flex"
                      >

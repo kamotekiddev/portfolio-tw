@@ -1,10 +1,12 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { motion } from "framer-motion";
 import projects from "@/data/projects";
 import SectionHeader from "../SectionHeader";
-import ProjectGrid from "./ProjectGrid";
 import { fadeInAnimationVarints } from "@/libs/animation";
+
+const ProjectGrid = dynamic(() => import("./ProjectGrid"), { ssr: false });
 
 const ProjectsSection = () => {
    return (

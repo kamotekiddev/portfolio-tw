@@ -19,7 +19,7 @@ const HeroSection = () => {
                whileInView="animate"
                transition={{ delay: 0.2, duration: 0.2 }}
                viewport={{ once: true }}
-               className="mx-auto h-[150px] w-[150px] overflow-hidden rounded-full bg-gradient-to-bl from-white-primary via-accent/10 to-white-secondary dark:from-black-secondary dark:via-accent/10 dark:to-black-primary"
+               className="mx-auto h-[150px] w-[150px] overflow-hidden rounded-full bg-linear-to-bl from-white-primary via-accent/10 to-white-secondary dark:from-black-secondary dark:via-accent/10 dark:to-black-primary"
             >
                <Image
                   src={heroImage}

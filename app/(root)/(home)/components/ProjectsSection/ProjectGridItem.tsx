@@ -13,7 +13,7 @@ interface Props {
 
 const Tag = ({ tag }: { tag: string }) => {
    return (
-      <span className="flex-shrink-0 rounded-lg border border-accent p-1 px-2 text-paragraph-2 text-accent transition hover:bg-accent hover:text-white">
+      <span className="border-accent text-paragraph-2 text-accent hover:bg-accent shrink-0 rounded-lg border p-1 px-2 transition hover:text-white">
          {tag}
       </span>
    );
@@ -73,7 +73,7 @@ const ProjectGridItem = ({ project }: Props) => {
                   </div>
                </ExternalLink>
             </div>
-            <p className="text-justify text-paragraph-1">
+            <p className="text-paragraph-1 text-justify">
                {project.projectDescription}
             </p>
             <Tags tags={project.toolsUsed} />
