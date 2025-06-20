@@ -1,7 +1,7 @@
 const experiences: Experience[] = [
    {
       title: "Frontend Developer",
-      datetime: "From January 2025 - June 2025 (7mos)",
+      datetime: "From Dec 2024 - present",
       company: {
          name: "Freelance",
       },
