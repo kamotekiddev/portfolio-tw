@@ -1,29 +1,28 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
-import { FaMoon, FaSun } from "react-icons/fa";
-import IconButton from "./IconButton";
-import { AnimatePresence, motion } from "framer-motion";
+import { FiMoon, FiSun } from "react-icons/fi";
 
-const DarkModeToggle = () => {
-   const { theme, setTheme } = useTheme();
+export default function DarkModeToggle() {
+   const { resolvedTheme, setTheme } = useTheme();
+   const [mounted, setMounted] = useState(false);
+   useEffect(() => setMounted(true), []);
+   const isLight = mounted && resolvedTheme === "light";
 
    return (
-      <AnimatePresence mode="wait" initial={false}>
-         <motion.div
-            style={{ display: "inline-block" }}
-            key={theme}
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            exit={{ y: 20, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-         >
-            <IconButton
-               onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-               icon={theme === "light" ? FaMoon : FaSun}
-            />
-         </motion.div>
-      </AnimatePresence>
+      <button
+         type="button"
+         className="theme-toggle"
+         disabled={!mounted}
+         aria-label={isLight ? "Switch to dark theme" : "Switch to light theme"}
+         onClick={() => setTheme(isLight ? "dark" : "light")}
+      >
+         {isLight ? (
+            <FiMoon aria-hidden="true" />
+         ) : (
+            <FiSun aria-hidden="true" />
+         )}
+      </button>
    );
-};
-export default DarkModeToggle;
+}

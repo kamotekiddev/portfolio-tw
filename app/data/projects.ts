@@ -2,6 +2,9 @@ const projects: Project[] = [
    {
       id: 1,
       projectTitle: "SecuKey Vault",
+      imageAlt: "SecuKey Vault interface for storing digital secrets",
+      displaySummary:
+         "A personal web app for storing passwords and secret phrases, built with Next.js, Prisma, and NextAuth.",
       projectDescription:
          "SecuKey Vault is a highly secure and user-friendly web application designed to safeguard your most valuable digital secrets like passwords, secret phrase, etc.",
       category: "Front-End",
@@ -21,6 +24,12 @@ const projects: Project[] = [
    {
       id: 2,
       projectTitle: "Chatio",
+      featuredOrder: 0,
+      projectKind: "Real-time messaging",
+      imageAlt:
+         "Chatio conversation interface with a message list and a live chat thread",
+      displaySummary:
+         "A real-time chat application built with Next.js and Pusher. Conversations, messages, and authentication brought together in one interface.",
       projectDescription:
          "A realtime web application for text chat using realtime technology pusher.",
       category: "Front-End",
@@ -39,6 +48,12 @@ const projects: Project[] = [
    {
       id: 3,
       projectTitle: "WiseBites",
+      featuredOrder: 2,
+      projectKind: "Daily calorie tracking",
+      imageAlt:
+         "WiseBites dashboard for tracking daily calories against a target",
+      displaySummary:
+         "A calorie tracker that puts daily intake alongside a personal target. Built to make logging food and following a daily total straightforward.",
       projectDescription:
          "Web app for tracking calories, by inputting the target calorie this will calculate your total calorie per day based on inputs.",
       category: "Front-End",
@@ -57,8 +72,13 @@ const projects: Project[] = [
    {
       id: 4,
       projectTitle: "Jobseek",
+      featuredOrder: 1,
+      projectKind: "Job search & applications",
+      imageAlt: "Jobseek application showing job listings and job search tools",
+      displaySummary:
+         "A job platform for finding opportunities, posting roles, and submitting applications. Built with Next.js, Prisma, and Shadcn UI.",
       projectDescription:
-         "Web App for finding, creating and applying for jobs. built on top of cutting edge stack.",
+         "A web app for finding, creating, and applying for jobs.",
       category: "Front-End",
       toolsUsed: [
          "Next Js",
@@ -75,6 +95,9 @@ const projects: Project[] = [
    {
       id: 5,
       projectTitle: "Loops Studios Landing Page",
+      imageAlt: "Loopstudios virtual reality studio landing page",
+      displaySummary:
+         "A Frontend Mentor challenge translating a supplied design into a responsive landing page with HTML, CSS, and JavaScript.",
       projectDescription:
          "A Front-End Mentor challenge which transforms a UI/UX design into code using their provided starter kit.",
       category: "Front-End",
@@ -88,6 +111,9 @@ const projects: Project[] = [
    {
       id: 6,
       projectTitle: "Chirp Landing Page",
+      imageAlt: "Chirp landing page for a social media analytics product",
+      displaySummary:
+         "A Codewell challenge implementing a supplied landing page design with HTML, CSS, JavaScript, and scroll animations.",
       projectDescription:
          "A Codewell challenge which is transform a UI/UX design into code using their provided starter kit.",
       category: "Front-End",
@@ -101,6 +127,9 @@ const projects: Project[] = [
    {
       id: 7,
       projectTitle: "Blogr Landing Page",
+      imageAlt: "Blogr publishing platform landing page",
+      displaySummary:
+         "A responsive implementation of a Frontend Mentor design, built with HTML, CSS, and JavaScript.",
       projectDescription:
          "A Front-End Mentor challenge which is transform a UI/UX design into code using their provided starter kit.",
       category: "Front-End",
@@ -114,6 +143,9 @@ const projects: Project[] = [
    {
       id: 8,
       projectTitle: "SunnySide Landing Page",
+      imageAlt: "Sunnyside creative agency landing page",
+      displaySummary:
+         "A Frontend Mentor design challenge exploring responsive layouts and scroll animations with HTML, CSS, and JavaScript.",
       projectDescription:
          "A Front-End Mentor challenge which is transform a UI/UX design into code using their provided starter kit.",
       category: "Front-End",
@@ -127,6 +159,10 @@ const projects: Project[] = [
    {
       id: 9,
       projectTitle: "Movie Matters",
+      imageAlt:
+         "Movie Matters interface for discovering movies and watching trailers",
+      displaySummary:
+         "A movie discovery app with trailer playback, built to practice Next.js, Chakra UI, and external API integration.",
       projectDescription:
          "A web-app for picking a movies to watch and play the trailer to see if the movie that they pick is up to their liking. I built this project to practice Next JS, Chakra UI, and External API's ",
       category: "Front-End",

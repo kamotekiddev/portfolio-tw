@@ -1,34 +1,31 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Joshua Dela Cruz’s portfolio
 
-## Getting Started
+A single-page software and AI engineering portfolio built with Next.js, React, Tailwind CSS, and Framer Motion. Dark by default, with a persistent light theme.
 
-First, run the development server:
+## Development
 
-```bash
+```sh
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000. To validate the production build:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```sh
+npm run lint
+npx tsc --noEmit
+npm run build
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+## Content
 
-## Learn More
+- Edit projects in `app/data/projects.ts`. Optional `featuredOrder` values select and order featured work; other projects appear in the native disclosure archive.
+- Edit roles in `app/data/experiences.ts` and profile destinations in `app/data/social-links.ts`.
+- Shared colors and the five-step type scale are in `app/globals.css`.
+- The social preview is generated locally by `app/social-preview/route.tsx`. Original preview images are preserved in `app/assets/legacy-*.png`.
 
-To learn more about Next.js, take a look at the following resources:
+Set `NEXT_PUBLIC_SITE_URL` to the site's full public origin before building for a custom deployment. Vercel's `VERCEL_PROJECT_PRODUCTION_URL` is used automatically when available; local development defaults to http://localhost:3000.
 
--  [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
--  [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Project content and the archive work without JavaScript. Theme switching and progressive entrance motion use JavaScript; reduced-motion preferences are respected.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+See [redesign notes](docs/redesign-notes.md) for the visual direction, asset provenance, and verification details.
