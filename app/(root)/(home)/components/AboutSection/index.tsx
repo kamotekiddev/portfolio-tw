@@ -1,36 +1,73 @@
-"use client";
+import Image from "next/image";
+import portrait from "@/assets/profile.jpeg";
 
-import { motion } from "framer-motion";
-import SectionHeader from "../SectionHeader";
-import Experiences from "./Experiences";
-import TechStacks from "./TechStacks";
-import { fadeInAnimationVarints } from "@/libs/animation";
+const capabilities = [
+   {
+      title: "Product engineering",
+      description:
+         "Responsive React and Next.js interfaces, TypeScript, and migrations from vanilla JavaScript.",
+   },
+   {
+      title: "AI engineering focus",
+      description:
+         "Applying a software engineering foundation to useful AI product experiences and model-backed workflows.",
+   },
+   {
+      title: "Performance",
+      description:
+         "Code splitting, optimistic updates, and reducing unnecessary renders in real-time charts.",
+   },
+   {
+      title: "Testing & reliability",
+      description:
+         "End-to-end testing with Cypress, Lighthouse audits, semantic HTML, and search metadata.",
+   },
+];
 
-const AboutSection = () => {
+export default function AboutSection() {
    return (
-      <section className="mx-auto max-w-7xl space-y-20 px-4 py-20">
-         <motion.div
-            variants={fadeInAnimationVarints}
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-         >
-            <SectionHeader>About Me</SectionHeader>
-            <p className="text-justify text-paragraph-1 leading-loose">
-               Hello, I&apos;m Joshua Dela Cruz, a passionate software engineer
-               specializing in front-end development. With a strong dedication
-               to detail and a focus on continuous growth, I am excited to
-               contribute my expertise to impactful projects. I am actively
-               seeking new opportunities to expand my skill set and advance my
-               career as a software engineer. Let&apos;s collaborate and create
-               remarkable solutions together!
-            </p>
-         </motion.div>
-         <TechStacks />
-         <Experiences />
+      <section
+         id="about"
+         className="about-section content-width section-space"
+         aria-labelledby="about-heading"
+      >
+         <div className="about-top">
+            <div className="about-portrait">
+               <Image
+                  src={portrait}
+                  alt="Joshua Dela Cruz sitting in a café"
+                  sizes="(max-width: 767px) calc(100vw - 40px), 340px"
+               />
+            </div>
+            <div className="about-copy">
+               <h2 id="about-heading">About me</h2>
+               <p className="about-statement">
+                  I’m a software engineer focused on AI product work.
+               </p>
+               <p>
+                  I build product applications with React, Next.js, and
+                  TypeScript. My experience spans real-time messaging, job
+                  workflows, API integration, and modernizing web applications.
+               </p>
+               <p>
+                  I’m extending that foundation into AI engineering: finding
+                  useful roles for model capabilities and building the product
+                  software around them. I care about clear workflows,
+                  performance, and reliability.
+               </p>
+            </div>
+         </div>
+         <div className="capabilities">
+            <h3>What I bring</h3>
+            <dl className="capability-list">
+               {capabilities.map(({ title, description }) => (
+                  <div key={title}>
+                     <dt>{title}</dt>
+                     <dd>{description}</dd>
+                  </div>
+               ))}
+            </dl>
+         </div>
       </section>
    );
-};
-
-export default AboutSection;
+}

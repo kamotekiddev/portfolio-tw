@@ -1,24 +1,18 @@
-"use client";
-
-import { ReactNode } from "react";
-import Footer from "@/components/Footer";
+import type { ReactNode } from "react";
 import Header from "@/components/Header";
-import ShowHeaderLinksProvider from "@/context/ShowHeaderLinksProvider";
+import Footer from "@/components/Footer";
+import PageMotion from "@/components/PageMotion";
 
-interface Props {
-   children: ReactNode;
-}
-
-const Layout = ({ children }: Props) => {
+export default function Layout({ children }: { children: ReactNode }) {
    return (
-      <ShowHeaderLinksProvider>
-         <main className="min-h-screen select-none bg-linear-to-bl from-white-primary via-accent/10 to-white-secondary dark:from-black-secondary dark:via-accent/10 dark:to-black-primary">
-            <Header />
-            <div className="mx-auto h-full max-w-5xl">{children}</div>
-            <Footer />
-         </main>
-      </ShowHeaderLinksProvider>
+      <div id="home">
+         <a className="skip-link" href="#main-content">
+            Skip to content
+         </a>
+         <Header />
+         {children}
+         <Footer />
+         <PageMotion />
+      </div>
    );
-};
-
-export default Layout;
+}

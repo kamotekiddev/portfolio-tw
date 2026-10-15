@@ -1,10 +1,11 @@
-const Logo = () => {
+export default function Logo() {
    return (
-      <h1 className="text-heading-6 font-black">
-         <span className="inline-block text-accent">kamote</span>
-         .dev
-      </h1>
+      <a
+         className="wordmark"
+         href="#home"
+         aria-label="Joshua Dela Cruz, back to top"
+      >
+         Joshua Dela Cruz<span aria-hidden="true">.</span>
+      </a>
    );
-};
-
-export default Logo;
+}

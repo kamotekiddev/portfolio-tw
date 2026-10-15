@@ -1,14 +1,31 @@
-import Logo from "./Logo";
+import { contactLinks } from "@/data/social-links";
 
-const Footer = () => {
+export default function Footer() {
    return (
-      <div className="border-t border-t-black-secondary/10 dark:border-t-white-secondary/10">
-         <div className="mx-auto flex max-w-5xl flex-col items-center justify-center gap-4 p-4 text-center md:flex-row md:justify-between">
-            <Logo />
-            <p>Copyright © 2022 Joshua Dela Cruz - All rights reserved.</p>
+      <footer className="site-footer content-width">
+         <a href="#home" className="footer-wordmark">
+            kamote.dev
+         </a>
+         <div className="footer-bottom">
+            <p>© {new Date().getFullYear()} Joshua Dela Cruz</p>
+            <div className="footer-links">
+               <a
+                  href={contactLinks.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+               >
+                  GitHub
+               </a>
+               <a
+                  href={contactLinks.facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+               >
+                  Facebook
+               </a>
+               <a href="#home">Back to top ↑</a>
+            </div>
          </div>
-      </div>
+      </footer>
    );
-};
-
-export default Footer;
+}
