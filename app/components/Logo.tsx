@@ -1,11 +1,12 @@
+import Link from "next/link";
 export default function Logo() {
    return (
-      <a
+      <Link
          className="wordmark"
-         href="#home"
-         aria-label="Joshua Dela Cruz, back to top"
+         href="/"
+         aria-label="Joshua Dela Cruz, home"
       >
          Joshua Dela Cruz<span aria-hidden="true">.</span>
-      </a>
+      </Link>
    );
 }

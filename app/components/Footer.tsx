@@ -1,11 +1,12 @@
+import Link from "next/link";
 import { contactLinks } from "@/data/social-links";
 
-export default function Footer() {
+export default function Footer({ topHref = "#home" }: { topHref?: string }) {
    return (
       <footer className="site-footer content-width">
-         <a href="#home" className="footer-wordmark">
+         <Link href="/" className="footer-wordmark">
             kamote.dev
-         </a>
+         </Link>
          <div className="footer-bottom">
             <p>© {new Date().getFullYear()} Joshua Dela Cruz</p>
             <div className="footer-links">
@@ -23,7 +24,7 @@ export default function Footer() {
                >
                   Facebook
                </a>
-               <a href="#home">Back to top ↑</a>
+               <a href={topHref}>Back to top ↑</a>
             </div>
          </div>
       </footer>

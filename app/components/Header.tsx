@@ -1,3 +1,4 @@
+import Link from "next/link";
 import DarkModeToggle from "./DarkModeToggle";
 import Logo from "./Logo";
 
@@ -7,10 +8,11 @@ export default function Header() {
          <div className="header-inner content-width">
             <Logo />
             <nav aria-label="Main navigation" className="main-nav">
-               <a href="#work">Work</a>
-               <a href="#experience">Experience</a>
-               <a href="#about">About</a>
-               <a href="#contact">Contact</a>
+               <Link href="/#work">Work</Link>
+               <Link href="/#experience">Experience</Link>
+               <Link href="/#about">About</Link>
+               <Link href="/#contact">Contact</Link>
+               <Link href="/blog">Blog</Link>
             </nav>
             <DarkModeToggle />
          </div>
