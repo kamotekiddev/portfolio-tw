@@ -11,17 +11,28 @@ Document deliberate architectural or design changes in the feature specification
 app/
   layout.tsx                    Root document, site metadata, font, theme provider
   globals.css                   Shared styles, colors, and typography
+  not-found.tsx                 Framework fallback with blog/portfolio navigation
   (root)/(home)/
     layout.tsx                  Home shell, skip link, header, footer, entrance motion
     page.tsx                    Home section composition
     components/                 Home-specific portfolio sections
+  (root)/blog/
+    layout.tsx                  Blog shell, skip link, shared navigation
+    page.tsx                    Published index and empty state
+    [slug]/page.tsx              Published articles and article metadata
+    not-found.tsx               Public navigation for unavailable entries
+    metadata.ts                 Blog origin and social metadata helper
+    components/                 Server-rendered article body and date/topic metadata
   components/                   Shared UI: header, footer, logo, theme toggle, motion
   context/                      Theme provider wrapper
-  data/                         Editable project, experience, and social-link data
+  data/                         Editable portfolio data and server-only blog adapter
+    blog/*.md                   Owner-authored Markdown posts, when supplied
   types/                        Project and experience type declarations
   assets/                       Imported imagery and preserved legacy preview images
   social-preview/route.tsx      Generated social preview endpoint
   favicon.ico                   Site icon
+scripts/                        Pure blog validation/selectors and prebuild validation CLI
+tests/                          Content regression and isolated production browser checks
 public/                         Static URL-addressable assets, including project images
 specs/                          Feature-artifact location when specifications are created
 .specify/                       Spec Kit configuration, templates, scripts, constitution
@@ -75,3 +86,7 @@ AGENTS.md                       Agent entry point and mandatory rules index
 - Record acceptance evidence and completed tasks in the feature artifacts. Report failed
   and unrun checks accurately. Refresh Graphify after code changes as required by
   [the Graphify rules](graphify.md).
+
+## Blog authoring and verification
+
+Follow [the authoring guide](../blog-authoring.md) for the strict JSON-frontmatter Markdown format. Keep posts outside `public/`; only explicitly published content is accessible. Draft-only assets also stay outside publicly served paths. The initial blog is empty until owner-supplied writing arrives. `npm run build` runs content validation first. Use `npm run test:blog` and `npm run test:blog:e2e` for content and production-browser regressions; browser fixtures use an isolated copy with separate build output.

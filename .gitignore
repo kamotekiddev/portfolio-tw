@@ -37,3 +37,14 @@ next-env.d.ts
 
 # Local knowledge graph (regenerate with graphify)
 /graphify-out/
+
+# Local test and editor artifacts
+/test-results/
+/playwright-report/
+/dist/
+*.log
+.env*
+Thumbs.db
+*.tmp
+*.swp
+.vscode/
