@@ -29,3 +29,9 @@ Set `NEXT_PUBLIC_SITE_URL` to the site's full public origin before building for 
 Project content and the archive work without JavaScript. Theme switching and progressive entrance motion use JavaScript; reduced-motion preferences are respected.
 
 See [redesign notes](docs/redesign-notes.md) for the visual direction, asset provenance, and verification details.
+
+## Spec-driven development
+
+New features follow GitHub Spec Kit: specify → plan → tasks → analyze → implement.
+See [the SDD workflow](docs/spec-driven-development.md) and
+[project constitution](.specify/memory/constitution.md) for the Codex skills and quality gates.
