@@ -3,6 +3,8 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getPublishedPostBySlug, getPublishedPosts } from "@/data/blog";
+import { getArticleSections } from "@/data/article-headings";
+import ArticleContents from "../components/ArticleContents";
 import ArticleBody from "../components/ArticleBody";
 import PostMeta from "../components/PostMeta";
 import { blogMetadata } from "../metadata";
@@ -35,6 +37,8 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
    const post = getPublishedPostBySlug(slug);
    if (!post) notFound();
 
+   const headings = getArticleSections(post.body);
+
    return (
       <main id="main-content" tabIndex={-1} className="blog-main content-width">
          <article className="blog-article">
@@ -49,7 +53,10 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
                <h1>{post.title}</h1>
                <p className="blog-article-summary">{post.summary}</p>
             </header>
-            <ArticleBody body={post.body} />
+            <div className={headings.length ? "article-reading-layout" : undefined}>
+               <ArticleContents headings={headings} />
+               <ArticleBody body={post.body} />
+            </div>
          </article>
       </main>
    );
