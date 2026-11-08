@@ -1,3 +1,4 @@
+import { FiArrowUp } from "react-icons/fi";
 import Link from "next/link";
 import { contactLinks } from "@/data/social-links";
 
@@ -24,7 +25,9 @@ export default function Footer({ topHref = "#home" }: { topHref?: string }) {
                >
                   Facebook
                </a>
-               <a href={topHref}>Back to top ↑</a>
+               <a className="footer-top-link" href={topHref}>
+                  Back to top <FiArrowUp aria-hidden="true" focusable="false" />
+               </a>
             </div>
          </div>
       </footer>

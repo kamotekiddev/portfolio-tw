@@ -1,3 +1,4 @@
+import { FiArrowUpRight } from "react-icons/fi";
 import { contactLinks } from "@/data/social-links";
 
 export default function ContactSection() {
@@ -24,7 +25,7 @@ export default function ContactSection() {
                   target="_blank"
                   rel="noopener noreferrer"
                >
-                  Contact on LinkedIn <span aria-hidden="true">↗</span>
+                  Contact on LinkedIn <FiArrowUpRight aria-hidden="true" focusable="false" />
                </a>
             </div>
          </div>
