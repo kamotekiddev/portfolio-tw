@@ -4,11 +4,12 @@ interface Project {
    projectDescription: string;
    category: string;
    toolsUsed: string[];
-   projectImageBanner: string;
-   imageAlt: string;
+   projectImageBanner?: string;
+   imageAlt?: string;
    featuredOrder?: number;
    displaySummary?: string;
    projectKind?: string;
-   "github-link": string;
+   "github-link"?: string;
+   liveLinkLabel?: string;
    "live-link"?: string;
 }
