@@ -11,7 +11,7 @@
 
 An order service saves a customer's order, then publishes an `OrderCreated` event so other services can react. What happens if the process crashes between those two steps?
 
-The order exists, but the notification never leaves. Retrying the HTTP request might create another order instead of recovering the missing event. This is the dual-write problem: one business operation writes to a database and a message broker, with no shared transaction protecting both writes. [AWS describes both failure directions in its transactional outbox guidance](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html).
+The order exists, but the notification never leaves. Without request-level idempotency, retrying the HTTP request might create another order instead of recovering the missing event. This is the dual-write problem: one business operation writes to a database and a message broker, with no shared transaction protecting both writes. [AWS describes both failure directions in its transactional outbox guidance](https://docs.aws.amazon.com/prescriptive-guidance/latest/cloud-design-patterns/transactional-outbox.html).
 
 The transactional outbox addresses this by saving the business change and a message describing it in the same database transaction. A separate relay publishes that saved message later.
 
@@ -25,7 +25,7 @@ The useful boundary is local: commit the order and the intent to publish togethe
 
 ## Save the message alongside the order
 
-Here is a simplified PostgreSQL example for a hypothetical order service. It illustrates the write boundary; it is not a complete application or a recorded production implementation.
+Here is a simplified PostgreSQL example for a hypothetical order service. It illustrates the atomic write boundary; the relay and consumers are discussed below.
 
 ```sql
 CREATE TABLE orders (
@@ -65,7 +65,7 @@ COMMIT;
 
 After a successful commit, both rows exist. If either insert fails and the transaction rolls back, neither row survives. A crash after commit leaves the event available for a relay to discover.
 
-The event ID identifies this particular message. The aggregate ID identifies the business entity, in this case the order. In an application, generate fresh IDs rather than reusing these example constants. Keep the event ID stable across publication retries.
+The event ID identifies this particular message. The aggregate ID identifies the business entity, in this case the order. In an application, generate fresh IDs rather than reusing these example constants. Keep the event ID stable across publication retries. The relay must include that ID and the event type in the outgoing message or its headers so consumers can identify and deduplicate it.
 
 The resulting flow is:
 
@@ -104,7 +104,7 @@ Marking the row published before sending would risk losing the event instead. A 
 
 A consumer should make repeated processing safe. One approach is a table with a unique key on `(consumer_name, event_id)`. Within one consumer database transaction, insert that key and apply the local business change. If the key already exists, skip the change. Commit before acknowledging the broker message.
 
-For example, a hypothetical inventory consumer receiving the same event twice should create one reservation. The deduplication marker and reservation must commit together; recording the marker separately could suppress a retry after the reservation failed. A payment API call cannot be made atomic by that local transaction, so external effects need their own strategy, such as a provider-supported idempotency key.
+For example, a hypothetical inventory consumer receiving the same event twice should create one reservation. The deduplication marker and reservation must commit together; recording the marker separately could suppress a retry after the reservation failed. A call to an external payment API is outside that local transaction, so external effects need their own strategy, such as a provider-supported idempotency key.
 
 ## Ordering needs an explicit design
 
@@ -124,7 +124,7 @@ For the illustrative order workflow, useful failure checks are:
 
 - Force the outbox insert to fail: the order must roll back too.
 - Stop the broker after the database commit: the event must remain recoverable.
-- Crash the relay after acknowledgement: a retry must not duplicate the consumer's business effect.
+- Crash the relay after broker acknowledgement but before recording publication: a retry must not duplicate the consumer's business effect.
 - Publish successive changes for one order under concurrency: verify their required order.
 
 These are proposed checks, not results from running the sample. In operation, monitor the age of the oldest pending event, retry counts, and consumer lag. Define retention and cleanup rules so unpublished events cannot disappear during maintenance.
