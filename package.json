@@ -9,7 +9,7 @@
     "lint": "next lint",
     "prebuild": "npm run validate:blog",
     "validate:blog": "tsx scripts/validate-blog.ts",
-    "test:blog": "tsx --test tests/blog-content.test.ts",
+    "test:blog": "tsx --test tests/*.test.ts",
     "test:blog:e2e": "playwright test"
   },
   "dependencies": {

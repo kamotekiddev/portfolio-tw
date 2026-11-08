@@ -47,6 +47,12 @@ test('published article renders owner content and navigates back to its index', 
   await expect(article.locator('.article-body')).toContainText('A paragraph with bold text');
   await expect(article.locator('.article-body strong')).toHaveText('bold text');
   await expect(article.locator('.article-body a[href="https://example.test/guide"]')).toBeVisible();
+  for (const link of await article.locator('.article-body a').all()) {
+    await expect(link).toHaveAttribute('target', '_blank');
+    await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+  }
+  await expect(article.getByRole('link', { name: 'Back to blog' })).not.toHaveAttribute('target', '_blank');
+
   await expect(article.locator('.article-body ul li')).toHaveCount(2);
   await expect(article.locator('.article-body ol li')).toHaveCount(2);
   await expect(article.locator('.article-body img[alt="Fixture illustration"]')).toBeVisible();
@@ -54,6 +60,71 @@ test('published article renders owner content and navigates back to its index', 
   await expect(article.getByText('Portfolio', { exact: true })).toBeVisible();
   await expect(article.getByText('Learning', { exact: true })).toBeVisible();
   await expect(article.getByRole('link', { name: 'Back to blog' })).toHaveAttribute('href', '/blog');
+});
+
+test('article section navigation follows headings and adapts to the viewport', async ({ browser, page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto(`/blog/${publishedFixture.slug}`);
+
+  const article = page.locator('.blog-article');
+  const headingIds = await article.locator('.article-body :is(h2, h3, h4, h5, h6)[id]').evaluateAll(
+    (headings) => headings.map((heading) => heading.id),
+  );
+  expect(headingIds).toEqual(['section-overview']);
+
+  const sidebar = article.locator('.article-contents-sidebar');
+  await expect(sidebar.getByText('On this page')).toBeVisible();
+  await expect(sidebar).toHaveCSS('position', 'sticky');
+  const sidebarLinks = sidebar.getByRole('link');
+  await expect(sidebarLinks).toHaveCount(headingIds.length);
+  for (const [index, link] of Array.from((await sidebarLinks.all()).entries())) {
+    const href = await link.getAttribute('href');
+    expect(href).toBe(`#${headingIds[index]}`);
+    const matchingHeadings = article.locator(`.article-body [id="${headingIds[index]}"]`);
+    await expect(matchingHeadings).toHaveCount(1);
+  }
+
+  const heroWidth = await article.locator('.blog-article-header').evaluate((element) => element.getBoundingClientRect().width);
+  const readingWidth = await article.locator('.article-reading-layout').evaluate((element) => element.getBoundingClientRect().width);
+  expect(Math.abs(heroWidth - readingWidth)).toBeLessThanOrEqual(1);
+
+  for (const width of [390, 768, 1024, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(`/blog/${publishedFixture.slug}`);
+    if (width >= 1024) await expect(page.locator('.article-contents-sidebar')).toBeVisible();
+    else await expect(page.locator('.article-contents-sidebar')).toBeHidden();
+    const compact = page.locator('.article-contents-compact');
+    if (width < 1024) await expect(compact).toBeVisible();
+    else await expect(compact).toBeHidden();
+    await assertNoPageOverflow(page);
+
+    const activeLink = (width >= 1024
+      ? page.locator('.article-contents-sidebar a')
+      : compact.locator('a')).first();
+    if (width < 1024) {
+      await compact.locator('summary').focus();
+      await page.keyboard.press('Enter');
+      await expect(compact).toHaveAttribute('open', '');
+      await page.keyboard.press('Tab');
+    } else {
+      await activeLink.focus();
+    }
+    await expect(activeLink).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expect(page).toHaveURL(/#section-overview$/);
+    await expect(page.locator('#section-overview')).toBeInViewport();
+    await expect(page.locator('#section-overview')).toBeFocused();
+  }
+
+  const noScript = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 900 } });
+  const noScriptPage = await noScript.newPage();
+  await noScriptPage.goto(`/blog/${publishedFixture.slug}`);
+  const compact = noScriptPage.locator('.article-contents-compact');
+  await compact.locator('summary').click();
+  await compact.getByRole('link', { name: 'Overview' }).click();
+  await expect(noScriptPage).toHaveURL(/#section-overview$/);
+  await expect(noScriptPage.locator('#section-overview')).toBeInViewport();
+  await noScript.close();
 });
 
 test('drafts and unknown slugs return generic 404 pages with public navigation', async ({ page, request }) => {
