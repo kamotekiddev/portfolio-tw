@@ -1,3 +1,4 @@
+import { FiArrowLeft } from "react-icons/fi";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
@@ -38,7 +39,7 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
       <main id="main-content" tabIndex={-1} className="blog-main content-width">
          <article className="blog-article">
             <Link className="text-link blog-back-link" href="/blog">
-               <span aria-hidden="true">←</span> Back to blog
+               <FiArrowLeft aria-hidden="true" focusable="false" /> Back to blog
             </Link>
             <header className="blog-article-header">
                <PostMeta

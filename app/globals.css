@@ -234,9 +234,9 @@ img {
       transform 160ms var(--ease-out),
       background-color 180ms ease;
 }
-.button span {
+.button svg {
+   flex-shrink: 0;
    font-size: var(--type-body);
-   line-height: 1;
 }
 .button:active {
    transform: scale(0.98);
@@ -566,6 +566,15 @@ details[open] .disclosure-symbol::after {
 .footer-links {
    display: flex;
    gap: 28px;
+}
+.footer-top-link {
+   display: inline-flex;
+   align-items: center;
+   gap: 8px;
+}
+.footer-top-link svg,
+.text-link svg {
+   flex-shrink: 0;
 }
 
 @media (hover: hover) {
@@ -920,13 +929,32 @@ details[open] .disclosure-symbol::after {
    gap: 16px;
 }
 .blog-article {
-   max-width: 800px;
-   margin-inline: auto;
+   margin-inline: 0;
    min-width: 0;
 }
 .blog-back-link {
+   position: relative;
    gap: 12px;
    margin-bottom: 40px;
+   text-decoration: none;
+}
+.blog-back-link::after {
+   content: "";
+   position: absolute;
+   inset-inline: 0;
+   bottom: 0.5em;
+   height: 1px;
+   background: currentColor;
+   opacity: 0;
+}
+.blog-back-link:active::after,
+.blog-back-link:focus-visible::after {
+   opacity: 1;
+}
+@media (hover: hover) and (pointer: fine) {
+   .blog-back-link:hover::after {
+      opacity: 1;
+   }
 }
 .blog-article-header h1 {
    font-size: clamp(40px, 5.5vw, 72px);
@@ -937,6 +965,7 @@ details[open] .disclosure-symbol::after {
    overflow-wrap: anywhere;
 }
 .blog-article-summary {
+   max-width: none;
    margin-top: 28px;
    font-size: var(--type-lead);
    line-height: 1.45;

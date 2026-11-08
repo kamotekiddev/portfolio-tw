@@ -1,3 +1,4 @@
+import { FiArrowDownRight } from "react-icons/fi";
 import { contactLinks } from "@/data/social-links";
 
 export default function HeroSection() {
@@ -18,7 +19,7 @@ export default function HeroSection() {
             </p>
             <div className="hero-actions">
                <a className="button" href="#work">
-                  View work <span aria-hidden="true">↘</span>
+                  View work <FiArrowDownRight aria-hidden="true" focusable="false" />
                </a>
                <a
                   className="text-link"

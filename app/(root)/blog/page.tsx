@@ -1,3 +1,4 @@
+import { FiArrowUpRight } from "react-icons/fi";
 import Link from "next/link";
 import { getPublishedPosts } from "@/data/blog";
 import PostMeta from "./components/PostMeta";
@@ -50,7 +51,7 @@ export default function BlogPage() {
                <h2 id="empty-blog-title">No published entries yet.</h2>
                <p>This is where I’ll share my writing as it’s ready.</p>
                <Link className="text-link" href="/">
-                  Back to portfolio <span aria-hidden="true">↗</span>
+                  Back to portfolio <FiArrowUpRight aria-hidden="true" focusable="false" />
                </Link>
             </section>
          )}
