@@ -12,28 +12,28 @@ export const metadata: Metadata = {
             ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
             : "http://localhost:3000")
    ),
-   title: "Joshua Dela Cruz — Software x AI Engineer",
+   title: "Joshua Dela Cruz — Software Engineer",
    description:
-      "Software engineer in Metro Manila focused on AI engineering, product applications, React, and Next.js. Explore projects, experience, and freelance work.",
+      "Joshua Dela Cruz, software engineer in Metro Manila. Full-stack development with Next.js, .NET, Node.js, and PostgreSQL, plus AI exploration.",
    openGraph: {
-      title: "Joshua Dela Cruz — Software x AI Engineer",
+      title: "Joshua Dela Cruz — Software Engineer",
       description:
-         "Software engineering, product applications, and an AI engineering focus. Selected work and experience from Metro Manila.",
+         "Joshua Dela Cruz, software engineer in Metro Manila. Full-stack development with Next.js, .NET, Node.js, and PostgreSQL, plus AI exploration.",
       type: "website",
       images: [
          {
             url: "/social-preview",
             width: 1200,
             height: 630,
-            alt: "Joshua Dela Cruz. Software x AI Engineer. Product software in React, Next.js, and AI.",
+            alt: "Joshua Dela Cruz. Software Engineer. System design. Full-stack development. AI exploration.",
          },
       ],
    },
    twitter: {
       card: "summary_large_image",
-      title: "Joshua Dela Cruz — Software x AI Engineer",
+      title: "Joshua Dela Cruz — Software Engineer",
       description:
-         "Product engineering experience and a focus on useful AI applications.",
+         "Joshua Dela Cruz, software engineer in Metro Manila. Full-stack development with Next.js, .NET, Node.js, and PostgreSQL, plus AI exploration.",
       images: ["/social-preview"],
    },
 };

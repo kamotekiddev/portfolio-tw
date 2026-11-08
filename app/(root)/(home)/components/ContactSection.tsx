@@ -12,12 +12,14 @@ export default function ContactSection() {
             <h2 id="contact-heading">
                Let’s build
                <br />
-               something.
+               useful software.
             </h2>
             <div className="contact-bottom">
                <p>
-                  Hiring for software or AI engineering, or planning a web
-                  project? Tell me what you’re working on.
+                  I’m interested in software engineering and development
+                  opportunities, including roles involving AI-enabled products.
+                  If your team needs someone who enjoys designing solutions and
+                  building across the stack, let’s talk.
                </p>
                <a
                   className="button"
@@ -25,7 +27,8 @@ export default function ContactSection() {
                   target="_blank"
                   rel="noopener noreferrer"
                >
-                  Contact on LinkedIn <FiArrowUpRight aria-hidden="true" focusable="false" />
+                  Contact me on LinkedIn{" "}
+                  <FiArrowUpRight aria-hidden="true" focusable="false" />
                </a>
             </div>
          </div>

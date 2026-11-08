@@ -9,17 +9,20 @@ export default function HeroSection() {
                <span>Software</span>
             </span>{" "}
             <span className="hero-line">
-               <span>x AI Engineer</span>
+               <span>Engineer</span>
             </span>
          </h1>
          <div className="hero-bottom">
             <p className="hero-intro">
-               I build React and Next.js products, and I’m focused on applying
-               that software engineering foundation to useful AI experiences.
+               I’m Joshua Dela Cruz, a software engineer who enjoys designing
+               systems and building applications. I build across the frontend
+               and backend, compare technical approaches, and explore how AI can
+               support both products and the development process.
             </p>
             <div className="hero-actions">
                <a className="button" href="#work">
-                  View work <FiArrowDownRight aria-hidden="true" focusable="false" />
+                  Explore my work{" "}
+                  <FiArrowDownRight aria-hidden="true" focusable="false" />
                </a>
                <a
                   className="text-link"
@@ -27,7 +30,7 @@ export default function HeroSection() {
                   target="_blank"
                   rel="noopener noreferrer"
                >
-                  Contact on LinkedIn
+                  Let’s talk
                </a>
             </div>
          </div>

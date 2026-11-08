@@ -1,6 +1,6 @@
 # Joshua Dela Cruz’s portfolio
 
-A single-page software and AI engineering portfolio built with Next.js, React, Tailwind CSS, and Framer Motion. Dark by default, with a persistent light theme.
+A single-page software engineering portfolio built with Next.js, React, Tailwind CSS, and Framer Motion. Dark by default, with a persistent light theme.
 
 ## Development
 

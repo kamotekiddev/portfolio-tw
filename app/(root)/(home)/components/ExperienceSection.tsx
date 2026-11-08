@@ -11,8 +11,10 @@ export default function ExperienceSection() {
             <div className="experience-intro">
                <h2 id="experience-heading">Experience</h2>
                <p>
-                  Experience across interfaces, integrations, performance, and
-                  quality. Now bringing that foundation to AI engineering.
+                  I turn product requirements into application features, work
+                  through technical problems, and improve existing systems. My
+                  work brings together implementation, integration, testing, and
+                  ongoing maintenance as requirements evolve.
                </p>
             </div>
             <div className="experience-list">
@@ -38,7 +40,10 @@ export default function ExperienceSection() {
                         </h3>
                         <p className="experience-date">{experience.datetime}</p>
                      </div>
-                     <p className="experience-role">{experience.title}</p>
+                     <p className="experience-role">
+                        {experience.title}
+                        {experience.engagement && ` · ${experience.engagement}`}
+                     </p>
                      <ul>
                         {experience.responsibilities.map((item) => (
                            <li key={item}>{item}</li>
