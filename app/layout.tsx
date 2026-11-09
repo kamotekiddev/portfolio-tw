@@ -15,6 +15,7 @@ export const metadata: Metadata = {
    title: "Joshua Dela Cruz — Software Engineer",
    description:
       "Joshua Dela Cruz, software engineer in Metro Manila. Full-stack development with Next.js, .NET, Node.js, and PostgreSQL, plus AI exploration.",
+   alternates: { canonical: "/" },
    openGraph: {
       title: "Joshua Dela Cruz — Software Engineer",
       description:
