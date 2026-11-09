@@ -3,13 +3,13 @@ const projects: Project[] = [
       id: 10,
       projectTitle: "AyosHub",
       featuredOrder: 0,
-      projectKind: "Home services · In development",
+      projectKind: "Home services marketplace · In development",
       imageAlt:
          "AyosHub illustrative customer journey prototype showing home service categories and booking flow navigation",
       displaySummary:
-         "A home services marketplace in development, spanning customer and professional mobile apps, a web admin, and an ASP.NET Core backend. Explore the illustrative customer booking prototype.",
+         "AyosHub is a home services marketplace in development, with mobile apps for customers and service professionals, a web administration portal, and an ASP.NET Core backend. Its interactive prototype illustrates the customer booking journey.",
       projectDescription:
-         "A home services marketplace in development. Booking and matching are represented by interactive prototypes.",
+         "A home services marketplace in development, with an interactive prototype illustrating the customer booking journey.",
       category: "Full-Stack",
       toolsUsed: [
          "Expo",
@@ -31,7 +31,7 @@ const projects: Project[] = [
       featuredOrder: 1,
       projectKind: "Produce marketplace · In development",
       displaySummary:
-         "A produce marketplace in development with an Expo mobile app and an ASP.NET Core microservices backend. Separate authentication, product catalog, inventory, order, and store services use PostgreSQL, with RabbitMQ messaging through MassTransit.",
+         "BukidLink combines a mobile app with backend services for authentication, products, inventory, orders, and stores. The project uses PostgreSQL for data storage and RabbitMQ with MassTransit for communication between services.",
       projectDescription:
          "A produce marketplace in development with a React Native mobile app and ASP.NET Core microservices for authentication, product catalog, inventory, orders, and stores. PostgreSQL provides persistence; RabbitMQ and MassTransit support messaging.",
       category: "Full-Stack",

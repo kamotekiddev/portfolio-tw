@@ -39,7 +39,7 @@ export function GET() {
                }}
             >
                <span>Software</span>
-               <span>x AI Engineer</span>
+               <span>Engineer</span>
             </div>
             <div
                style={{
@@ -48,7 +48,9 @@ export function GET() {
                   fontSize: 24,
                }}
             >
-               <span>Product software & AI engineering</span>
+               <span>
+                  System design. Full-stack development. AI exploration.
+               </span>
                <span>Metro Manila, Philippines</span>
             </div>
          </div>

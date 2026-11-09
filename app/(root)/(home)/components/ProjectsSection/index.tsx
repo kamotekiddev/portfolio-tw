@@ -23,7 +23,7 @@ function ProjectLinks({ project }: { project: Project }) {
                rel="noopener noreferrer"
                aria-label={`View ${project.projectTitle} source on GitHub`}
             >
-               Source on GitHub
+               View source
             </a>
          )}
       </div>
@@ -45,10 +45,7 @@ export default function ProjectsSection() {
          aria-labelledby="work-heading"
       >
          <div className="section-intro">
-            <h2 id="work-heading">Selected work</h2>
-            <p>
-               Product interfaces, API integrations, and real-time applications.
-            </p>
+            <h2 id="work-heading">What I’m building</h2>
          </div>
          <div className="featured-projects">
             {featured.map((project, index) => (
