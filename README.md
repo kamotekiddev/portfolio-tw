@@ -28,6 +28,8 @@ Set `NEXT_PUBLIC_SITE_URL` to the site's full public origin before building for 
 
 Project content and the archive work without JavaScript. Theme switching and progressive entrance motion use JavaScript; reduced-motion preferences are respected.
 
+The accent colours and a subtle ambient effect follow the visitor's season: spring, summer, autumn, or winter by hemisphere, and wet or dry in the tropics. The season comes from the device time zone and month, with no location permission or network lookup, and the header's season control overrides it. Without JavaScript, or in an unrecognised time zone, the emerald design is shown. Season tables live in `app/data/seasons.ts`; palettes and effects live in `app/globals.css`.
+
 See [redesign notes](docs/redesign-notes.md) for the visual direction, asset provenance, and verification details.
 
 ## Spec-driven development

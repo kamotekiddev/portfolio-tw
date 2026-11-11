@@ -2,7 +2,6 @@ import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests',
-  testMatch: 'blog.spec.ts',
   globalSetup: './tests/blog-fixtures.ts',
   fullyParallel: false,
   workers: 1,
@@ -14,4 +13,10 @@ export default defineConfig({
     trace: 'retain-on-failure',
   },
   timeout: 45_000,
+  // blog.spec.ts finishes by restarting the shared fixture server with no posts, so the season suite
+  // runs first; it also restores the original fixtures itself if it ever finds them missing.
+  projects: [
+    { name: 'season', testMatch: 'season.spec.ts' },
+    { name: 'blog', testMatch: 'blog.spec.ts' },
+  ],
 });

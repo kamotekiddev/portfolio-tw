@@ -33,6 +33,86 @@
    --contact: #223a2e;
 }
 
+/*
+ * Seasonal accents (specs/003-seasonal-theme). The init script sets
+ * data-season on <html>; without it the emerald tokens above apply unchanged.
+ * Only accent and contact tokens change; grounds, ink, and type stay fixed.
+ * Light blocks are (0,1,0) and dark blocks (0,2,0), so dark always wins in dark mode.
+ * Every pair below is checked for WCAG AA (4.5:1) in both themes.
+ */
+[data-season="spring"] {
+   --accent: #086d4e;
+   --accent-hover: #06563e;
+   --on-accent: #ffffff;
+   --contact: #dce9e0;
+}
+.dark[data-season="spring"] {
+   --accent: #64dba3;
+   --accent-hover: #8ae8bb;
+   --on-accent: #102319;
+   --contact: #223a2e;
+}
+[data-season="summer"] {
+   --accent: #8a5c00;
+   --accent-hover: #6b4700;
+   --on-accent: #ffffff;
+   --contact: #f0e6c8;
+}
+.dark[data-season="summer"] {
+   --accent: #eec35a;
+   --accent-hover: #f5d68b;
+   --on-accent: #2a1f05;
+   --contact: #383119;
+}
+[data-season="autumn"] {
+   --accent: #a8420a;
+   --accent-hover: #863407;
+   --on-accent: #ffffff;
+   --contact: #f5e2d5;
+}
+.dark[data-season="autumn"] {
+   --accent: #f6955a;
+   --accent-hover: #f9b387;
+   --on-accent: #2c1406;
+   --contact: #3f2a1e;
+}
+[data-season="winter"] {
+   --accent: #1c5e8c;
+   --accent-hover: #15496e;
+   --on-accent: #ffffff;
+   --contact: #d9e6ef;
+}
+.dark[data-season="winter"] {
+   --accent: #8ccbf2;
+   --accent-hover: #b2ddf7;
+   --on-accent: #0c1e2b;
+   --contact: #21333f;
+}
+[data-season="wet"] {
+   --accent: #0a6670;
+   --accent-hover: #074f57;
+   --on-accent: #ffffff;
+   --contact: #d4e8e8;
+}
+.dark[data-season="wet"] {
+   --accent: #5fd0d8;
+   --accent-hover: #8ce0e5;
+   --on-accent: #0a2224;
+   --contact: #1e3739;
+}
+[data-season="dry"] {
+   --accent: #9c4650;
+   --accent-hover: #7c363f;
+   --on-accent: #ffffff;
+   --contact: #efdcdc;
+}
+.dark[data-season="dry"] {
+   --accent: #e4a39f;
+   --accent-hover: #eebfbc;
+   --on-accent: #2a1414;
+   --contact: #3c2b2a;
+}
+
 * {
    box-sizing: border-box;
 }
@@ -160,7 +240,8 @@ img {
    text-underline-offset: 6px;
    transition: text-decoration-color 180ms ease;
 }
-.theme-toggle {
+.theme-toggle,
+.season-toggle {
    display: grid;
    place-items: center;
    flex: 0 0 44px;
@@ -174,12 +255,88 @@ img {
       transform 160ms var(--ease-out),
       background-color 180ms ease;
 }
-.theme-toggle svg {
+.theme-toggle svg,
+.season-toggle svg {
    width: 20px;
    height: 20px;
 }
-.theme-toggle:active {
+.theme-toggle:active,
+.season-toggle:active {
    transform: scale(0.94);
+}
+.season-toggle[aria-expanded="true"] {
+   background: var(--accent);
+   color: var(--on-accent);
+}
+.header-controls {
+   display: flex;
+   align-items: center;
+   gap: 8px;
+}
+.season-picker {
+   position: relative;
+}
+.season-menu {
+   position: absolute;
+   top: calc(100% + 10px);
+   right: 0;
+   z-index: 1;
+   width: max-content;
+   /* The menu's right edge sits 72px in from the header gutter (theme toggle +
+      gap), so cap the width by that offset plus the 20px gutter. */
+   min-width: min(220px, calc(100vw - 92px));
+   max-width: calc(100vw - 92px);
+   margin: 0;
+   padding: 6px;
+   list-style: none;
+   background: var(--surface);
+   color: var(--ink);
+   border: 1px solid var(--muted);
+   font-size: var(--type-small);
+}
+.season-menu li {
+   display: block;
+}
+.season-option {
+   display: flex;
+   align-items: center;
+   gap: 12px;
+   width: 100%;
+   min-height: 44px;
+   padding: 8px 12px;
+   border: 0;
+   background: transparent;
+   color: inherit;
+   text-align: left;
+   line-height: 1.3;
+}
+.season-option:focus-visible {
+   outline: 3px solid var(--accent);
+   outline-offset: -3px;
+}
+.season-option[aria-checked="true"] {
+   color: var(--accent);
+   font-weight: 600;
+}
+.season-option svg {
+   flex: 0 0 16px;
+   width: 16px;
+   height: 16px;
+}
+.season-check {
+   flex: 0 0 16px;
+   width: 16px;
+   height: 16px;
+   visibility: hidden;
+}
+.season-option[aria-checked="true"] .season-check {
+   visibility: visible;
+}
+.season-hint {
+   margin-left: auto;
+   padding-left: 16px;
+   color: var(--muted);
+   font-weight: 400;
 }
 .hero {
    padding-top: 72px;
@@ -590,7 +747,8 @@ details[open] .disclosure-symbol::after {
    .button:hover {
       background: var(--accent-hover);
    }
-   .theme-toggle:hover {
+   .theme-toggle:hover,
+   .season-toggle:hover:not(:disabled) {
       background: var(--accent);
       color: var(--on-accent);
    }
@@ -650,7 +808,7 @@ details[open] .disclosure-symbol::after {
       justify-content: space-between;
       gap: 12px;
    }
-   .theme-toggle {
+   .header-controls {
       grid-row: 1;
       grid-column: 2;
    }
@@ -1241,5 +1399,316 @@ details[open] .disclosure-symbol::after {
    }
    .article-body pre {
       padding: 20px;
+   }
+}
+
+/*
+ * Seasonal ambient layer (specs/003-seasonal-theme, FR-011 to FR-013).
+ * Decorative, aria-hidden, server-rendered spans animated with transform and
+ * opacity only. It sits at z-index -1 in the root stacking context: above the
+ * canvas (body's ground colour propagates there) and below every in-flow box,
+ * so opaque sections and the sticky header cover it. Group opacity caps the
+ * whole layer (0.12 light, 0.22 dark) so overlapping particles never compound;
+ * at those caps accent, ink, and muted text over a particle stay at or above 4.5:1.
+ */
+.season-ambient {
+   display: none;
+   position: fixed;
+   inset: 0;
+   z-index: -1;
+   overflow: hidden;
+   pointer-events: none;
+   contain: strict;
+   opacity: 0.12;
+}
+.dark .season-ambient {
+   opacity: 0.22;
+}
+[data-season] .season-ambient {
+   display: block;
+}
+.season-ambient span {
+   position: absolute;
+   top: 0;
+   left: var(--x);
+   display: block;
+   width: calc(6px * var(--s));
+   height: calc(6px * var(--s));
+   border-radius: 50%;
+   background: var(--accent);
+   opacity: 0;
+   will-change: transform, opacity;
+   animation-duration: calc(var(--speed, 20s) * var(--d));
+   animation-delay: calc(var(--speed, 20s) * var(--delay) * -1);
+   animation-iteration-count: infinite;
+   animation-timing-function: linear;
+}
+.season-ambient span:nth-child(1) {
+   --x: 4%;
+   --y: 12%;
+   --d: 1.0;
+   --delay: 0.0;
+   --s: 1.0;
+   --sway: 40px;
+}
+.season-ambient span:nth-child(2) {
+   --x: 61%;
+   --y: 38%;
+   --d: 0.85;
+   --delay: 0.55;
+   --s: 0.7;
+   --sway: -30px;
+}
+.season-ambient span:nth-child(3) {
+   --x: 23%;
+   --y: 64%;
+   --d: 1.15;
+   --delay: 0.2;
+   --s: 1.3;
+   --sway: 60px;
+}
+.season-ambient span:nth-child(4) {
+   --x: 88%;
+   --y: 22%;
+   --d: 0.95;
+   --delay: 0.8;
+   --s: 0.85;
+   --sway: -50px;
+}
+.season-ambient span:nth-child(5) {
+   --x: 40%;
+   --y: 80%;
+   --d: 1.1;
+   --delay: 0.35;
+   --s: 1.1;
+   --sway: 20px;
+}
+.season-ambient span:nth-child(6) {
+   --x: 12%;
+   --y: 50%;
+   --d: 0.9;
+   --delay: 0.65;
+   --s: 0.6;
+   --sway: -60px;
+}
+.season-ambient span:nth-child(7) {
+   --x: 75%;
+   --y: 30%;
+   --d: 1.2;
+   --delay: 0.1;
+   --s: 1.2;
+   --sway: 35px;
+}
+.season-ambient span:nth-child(8) {
+   --x: 52%;
+   --y: 70%;
+   --d: 0.8;
+   --delay: 0.9;
+   --s: 0.9;
+   --sway: -25px;
+}
+.season-ambient span:nth-child(9) {
+   --x: 95%;
+   --y: 8%;
+   --d: 1.05;
+   --delay: 0.45;
+   --s: 0.75;
+   --sway: 55px;
+}
+.season-ambient span:nth-child(10) {
+   --x: 31%;
+   --y: 58%;
+   --d: 0.92;
+   --delay: 0.25;
+   --s: 1.25;
+   --sway: -45px;
+}
+.season-ambient span:nth-child(11) {
+   --x: 67%;
+   --y: 44%;
+   --d: 1.12;
+   --delay: 0.7;
+   --s: 0.8;
+   --sway: 25px;
+}
+.season-ambient span:nth-child(12) {
+   --x: 8%;
+   --y: 90%;
+   --d: 0.88;
+   --delay: 0.05;
+   --s: 1.05;
+   --sway: -35px;
+}
+.season-ambient span:nth-child(13) {
+   --x: 47%;
+   --y: 18%;
+   --d: 1.0;
+   --delay: 0.6;
+   --s: 0.65;
+   --sway: 50px;
+}
+.season-ambient span:nth-child(14) {
+   --x: 82%;
+   --y: 76%;
+   --d: 0.83;
+   --delay: 0.3;
+   --s: 1.15;
+   --sway: -20px;
+}
+.season-ambient span:nth-child(15) {
+   --x: 19%;
+   --y: 34%;
+   --d: 1.18;
+   --delay: 0.85;
+   --s: 0.95;
+   --sway: 45px;
+}
+.season-ambient span:nth-child(16) {
+   --x: 57%;
+   --y: 62%;
+   --d: 0.97;
+   --delay: 0.15;
+   --s: 0.7;
+   --sway: -55px;
+}
+.season-ambient span:nth-child(17) {
+   --x: 36%;
+   --y: 26%;
+   --d: 1.08;
+   --delay: 0.5;
+   --s: 1.0;
+   --sway: 30px;
+}
+.season-ambient span:nth-child(18) {
+   --x: 72%;
+   --y: 86%;
+   --d: 0.9;
+   --delay: 0.75;
+   --s: 1.2;
+   --sway: -40px;
+}
+[data-season="spring"] .season-ambient span {
+   --speed: 20s;
+   --spin: 320deg;
+   width: calc(10px * var(--s));
+   height: calc(7px * var(--s));
+   border-radius: 80% 0 80% 0;
+   animation-name: season-fall;
+}
+[data-season="summer"] .season-ambient span {
+   --speed: 28s;
+   top: 100%;
+   width: calc(5px * var(--s));
+   height: calc(5px * var(--s));
+   animation-name: season-rise;
+   animation-timing-function: ease-in-out;
+}
+[data-season="autumn"] .season-ambient span {
+   --speed: 15s;
+   --spin: 540deg;
+   width: calc(12px * var(--s));
+   height: calc(8px * var(--s));
+   border-radius: 0 85% 0 85%;
+   animation-name: season-fall;
+}
+[data-season="winter"] .season-ambient span {
+   --speed: 16s;
+   --spin: 0deg;
+   width: calc(5px * var(--s));
+   height: calc(5px * var(--s));
+   animation-name: season-fall;
+}
+[data-season="wet"] .season-ambient span {
+   --speed: 1.6s;
+   left: calc(var(--x) + 12%);
+   width: 1.5px;
+   height: calc(22px * var(--s));
+   border-radius: 1px;
+   animation-name: season-rain;
+}
+[data-season="dry"] .season-ambient span {
+   --speed: 38s;
+   top: var(--y);
+   left: 0;
+   width: calc(4px * var(--s));
+   height: calc(4px * var(--s));
+   animation-name: season-drift;
+   animation-timing-function: ease-in-out;
+}
+@keyframes season-fall {
+   0% {
+      transform: translate3d(0, -8vh, 0) rotate(0deg);
+      opacity: 0;
+   }
+   10%,
+   85% {
+      opacity: 1;
+   }
+   50% {
+      transform: translate3d(calc(var(--sway) * -1), 50vh, 0)
+         rotate(calc(var(--spin) / 2));
+   }
+   100% {
+      transform: translate3d(var(--sway), 108vh, 0) rotate(var(--spin));
+      opacity: 0;
+   }
+}
+@keyframes season-rise {
+   0% {
+      transform: translate3d(0, 0, 0);
+      opacity: 0;
+   }
+   20%,
+   75% {
+      opacity: 1;
+   }
+   50% {
+      transform: translate3d(var(--sway), -55vh, 0);
+   }
+   100% {
+      transform: translate3d(calc(var(--sway) * -1), -108vh, 0);
+      opacity: 0;
+   }
+}
+@keyframes season-rain {
+   0% {
+      transform: translate3d(0, -10vh, 0) rotate(14deg);
+      opacity: 0;
+   }
+   10%,
+   90% {
+      opacity: 1;
+   }
+   100% {
+      transform: translate3d(-28vh, 110vh, 0) rotate(14deg);
+      opacity: 0;
+   }
+}
+@keyframes season-drift {
+   0% {
+      transform: translate3d(-4vw, 0, 0);
+      opacity: 0;
+   }
+   15%,
+   85% {
+      opacity: 1;
+   }
+   50% {
+      transform: translate3d(50vw, var(--sway), 0);
+   }
+   100% {
+      transform: translate3d(104vw, 0, 0);
+      opacity: 0;
+   }
+}
+@media (max-width: 767px) {
+   .season-ambient span:nth-child(n + 11) {
+      display: none;
+   }
+}
+@media (prefers-reduced-motion: reduce) {
+   .season-ambient,
+   [data-season] .season-ambient {
+      display: none;
    }
 }

@@ -69,3 +69,18 @@ Final verification: production build, ESLint, TypeScript, visual inspection, and
 Positioning update: the headline now reads “Software engineer × AI engineer.” Supporting copy describes AI engineering as Joshua’s focus and connects it to documented product engineering experience. No AI tools, shipped AI products, or results were added without evidence. The 1440, 768, and 390 pixel check confirms the revised hero remains on two lines, with 0 inspector failures.
 
 Final title edit: shortened the headline to “Software x AI Engineer” at Joshua’s request, retaining the two-line layout. Updated the page metadata and social preview to match.
+
+## Seasonal theme (2026-11-10)
+
+Deliberate extension of “type and nothing else” (spec `specs/003-seasonal-theme`): the accent palette now follows the visitor's season, and a restrained, decorative ambient layer sits behind content. Grounds, ink, muted text, typography, and layout are unchanged. Emerald remains the fallback design (no script, unrecognised time zone) and is the spring palette.
+
+Palettes (light accent / hover / contact · dark accent / hover / contact; on-accent is white in light and a dark tint in dark). Every pair meets WCAG AA 4.5:1.
+
+- Spring, emerald: `#086d4e` / `#06563e` / `#dce9e0` · `#64dba3` / `#8ae8bb` / `#223a2e`
+- Summer, sunlit gold: `#8a5c00` / `#6b4700` / `#f0e6c8` · `#eec35a` / `#f5d68b` / `#383119`
+- Autumn, burnt orange: `#a8420a` / `#863407` / `#f5e2d5` · `#f6955a` / `#f9b387` / `#3f2a1e`
+- Winter, icy blue: `#1c5e8c` / `#15496e` / `#d9e6ef` · `#8ccbf2` / `#b2ddf7` / `#21333f`
+- Wet season, monsoon teal: `#0a6670` / `#074f57` / `#d4e8e8` · `#5fd0d8` / `#8ce0e5` / `#1e3739`
+- Dry season, clay: `#9c4650` / `#7c363f` / `#efdcdc` · `#e4a39f` / `#eebfbc` / `#3c2b2a`
+
+Ambient effects, tinted with the season accent at a capped layer opacity (0.12 light, 0.22 dark), CSS only, 18 particles (10 below 768px), off under reduced motion: spring drifting petals, summer rising light motes, autumn falling leaves, winter snow, wet season fine rain, dry season slow drifting dust. The social preview image keeps the emerald palette.

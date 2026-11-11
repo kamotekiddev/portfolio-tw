@@ -2,6 +2,8 @@ import "./globals.css";
 import type { Metadata } from "next";
 import ThemeProvider from "./context/ThemeProvider";
 import { Geist } from "next/font/google";
+import SeasonAmbient from "./components/SeasonAmbient";
+import { seasonInitScript } from "./data/seasons";
 
 const geist = Geist({ subsets: ["latin"], display: "swap" });
 
@@ -47,6 +49,9 @@ export default function RootLayout({
    return (
       <html lang="en" className="dark" suppressHydrationWarning>
          <body className={geist.className}>
+            {/* Sets data-season on <html> before first paint (FR-010). */}
+            <script dangerouslySetInnerHTML={{ __html: seasonInitScript }} />
+            <SeasonAmbient />
             <ThemeProvider
                defaultTheme="dark"
                attribute="class"
