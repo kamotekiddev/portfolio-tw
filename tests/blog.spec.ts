@@ -169,18 +169,29 @@ async function assertNoPageOverflow(page: Page): Promise<void> {
   expect(widths.document).toBeLessThanOrEqual(widths.viewport);
 }
 
+/**
+ * The header toggle cycles Auto -> Light -> Dark, and Auto depends on the time of day, so a test cannot assume which
+ * theme it starts in. Activate it (at most twice) until it reports the wanted explicit mode; the choice is stored, so
+ * later pages keep it and need no further clicks.
+ */
+async function selectTheme(page: Page, theme: 'dark' | 'light'): Promise<void> {
+  const toggle = page.getByRole('button', { name: /^Theme: / });
+  await expect(toggle).toBeEnabled();
+  const wanted = theme === 'dark' ? 'Theme: Dark' : 'Theme: Light';
+  for (let activations = 0; activations < 2 && (await toggle.getAttribute('aria-label')) !== wanted; activations += 1) {
+    await toggle.click();
+  }
+  await expect(toggle).toHaveAccessibleName(wanted);
+  await expect(page.locator('html')).toHaveClass(new RegExp(`\\b${theme}\\b`));
+}
+
 test('index and article stay readable at mobile, tablet and desktop widths in both themes', async ({ page }, testInfo) => {
   const viewports = [375, 768, 1440];
   for (const theme of ['dark', 'light'] as const) {
     for (const width of viewports) {
       await page.setViewportSize({ width, height: 900 });
       await page.goto('/blog');
-      const currentTheme = await page.locator('html').getAttribute('class');
-      const hasTheme = currentTheme?.split(/\s+/).includes(theme);
-      if (!hasTheme) {
-        await page.getByRole('button', { name: `Switch to ${theme} theme` }).click();
-      }
-      await expect(page.locator('html')).toHaveClass(new RegExp(`\\b${theme}\\b`));
+      await selectTheme(page, theme);
       await assertNoPageOverflow(page);
       await page.screenshot({
         path: testInfo.outputPath(`blog-index-${theme}-${width}.png`),
@@ -207,10 +218,10 @@ test('index and article stay readable at mobile, tablet and desktop widths in bo
   }
 
   await page.goto(`/blog/${publishedFixture.slug}`);
-  await page.getByRole('button', { name: 'Switch to dark theme' }).click();
-  await expect(page.locator('html')).toHaveClass(/dark/);
+  await selectTheme(page, 'dark');
   await page.reload();
   await expect(page.locator('html')).toHaveClass(/dark/);
+  await expect(page.getByRole('button', { name: 'Theme: Dark' })).toBeEnabled();
 
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await expect(page.locator('.blog-article')).toBeVisible();

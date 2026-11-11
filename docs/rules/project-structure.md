@@ -23,11 +23,12 @@ app/
     not-found.tsx               Public navigation for unavailable entries
     metadata.ts                 Blog origin and social metadata helper
     components/                 Server-rendered article body and date/topic metadata
-  components/                   Shared UI: header, footer, logo, theme toggle, season picker,
-                                seasonal ambient layer, motion
+  components/                   Shared UI: header, footer, logo, three-way theme toggle
+                                (`ThemeToggle.tsx`), season picker, seasonal ambient layer, motion
   context/                      Theme provider wrapper
   data/                         Editable portfolio data, season tables and detection
-                                (`seasons.ts`), and server-only blog adapter
+                                (`seasons.ts`), time-of-day theme schedule
+                                (`theme-schedule.ts`), and server-only blog adapter
     blog/*.md                   Owner-authored Markdown posts, when supplied
   types/                        Project and experience type declarations
   assets/                       Imported imagery and preserved legacy preview images
@@ -52,9 +53,12 @@ AGENTS.md                       Agent entry point and mandatory rules index
   adding URL segments. Keep home-specific sections in the home components directory;
   place UI shared by multiple routes in `app/components/`.
 - Keep editable project, experience, and contact destinations in `app/data/`, separate
-  from presentation. Existing files are `projects.ts`, `experiences.ts`, `social-links.ts`, and `seasons.ts`.
+  from presentation. Existing files are `projects.ts`, `experiences.ts`, `social-links.ts`, `seasons.ts`,
+  and `theme-schedule.ts`.
 - Keep shared styling in `app/globals.css` unless the plan justifies another location.
-  Preserve the established colors, typography, dark default, and persistent light theme.
+  Preserve the established colors, typography, and both themes. The theme defaults to Auto
+  (light 06:00–18:00 device time, dark otherwise) with persistent Light/Dark overrides, and
+  dark stays the no-JavaScript fallback. See `specs/004-auto-theme-by-time/`.
   Seasonal themes override only the accent and contact-surface tokens through `<html data-season>`; with no
   attribute the emerald design applies. See `specs/003-seasonal-theme/`.
 - Use `app/types/` for shared domain declarations following the existing conventions.

@@ -112,7 +112,7 @@ const html = (page: Page) => page.locator('html');
 const seasonButton = (page: Page) => page.getByRole('button', { name: /^Season:/ });
 const seasonMenu = (page: Page) => page.getByRole('menu', { name: 'Season' });
 const menuItem = (page: Page, name: string) => seasonMenu(page).getByRole('menuitemradio', { name, exact: true });
-const themeButton = (page: Page) => page.getByRole('button', { name: /^Switch to (dark|light) theme$/ });
+const themeButton = (page: Page) => page.getByRole('button', { name: /^Theme: / });
 const ambient = (page: Page) => page.locator('.season-ambient');
 
 async function goto(page: Page, url: string) {
@@ -286,7 +286,8 @@ test.describe('unrecognised region falls back to the emerald design (FR-006)', (
   }
 
   test('a visitor in an unrecognised region can still choose a season and return to Automatic', async ({ visit }) => {
-    const page = await visit({ timeZone: 'UTC' });
+    // Pinned to 12:00 UTC the default Auto theme is light, so seed Dark to keep asserting the dark emerald accent.
+    const page = await visit({ timeZone: 'UTC', theme: 'dark' });
     await goto(page, '/');
     await hydrated(page);
     await expect(seasonButton(page)).toHaveAccessibleName('Season: Automatic');
@@ -305,7 +306,8 @@ test.describe('unrecognised region falls back to the emerald design (FR-006)', (
 
 test.describe('season is set before first paint (FR-010, SC-004)', () => {
   test('inline script alone applies the detected season and palette, with every external script blocked', async ({ visit }) => {
-    const page = await visit({ blockScripts: true, now: '2026-07-15T12:00:00Z' });
+    // 14:00 in Berlin would resolve Auto to light, so a stored Dark choice keeps this the dark-summer check.
+    const page = await visit({ blockScripts: true, theme: 'dark', now: '2026-07-15T12:00:00Z' });
     await goto(page, '/');
     await expectSeason(page, 'summer');
     expect(await accent(page)).toBe('#eec35a'); // dark summer; proves the palette applied without hydration
@@ -637,22 +639,34 @@ async function getAnyNavigation(page: Page) {
 // ---------------------------------------------------------------------------------------------------------------
 // FR-009 / FR-015 - independence from dark/light
 
-test.describe('independence from the dark/light theme (FR-009, FR-015)', () => {
-  test('dark remains the default on a fresh visit and nothing is stored until the visitor chooses', async ({ visit }) => {
-    const page = await visit();
-    await goto(page, '/');
-    await hydrated(page);
-    await expect(html(page)).toHaveClass(/\bdark\b/);
-    await expect(themeButton(page)).toHaveAccessibleName('Switch to light theme');
-    expect(await storedSeason(page)).toBeNull();
+test.describe('independence from the theme mode (FR-009, FR-015; theme modes: specs/004-auto-theme-by-time)', () => {
+  test('Auto is the default on a fresh visit (light by day, dark by night) and no season is stored until the visitor chooses', async ({ visit }) => {
+    // The fixture clock is 13:00 in Berlin: day.
+    const day = await visit();
+    await goto(day, '/');
+    await hydrated(day);
+    await expect(html(day)).toHaveClass(/\blight\b/);
+    await expect(themeButton(day)).toHaveAccessibleName('Theme: Auto (currently light)');
+    expect(await storedSeason(day)).toBeNull();
+
+    // 22:00 in Berlin: night.
+    const night = await visit({ now: '2026-01-15T21:00:00Z' });
+    await goto(night, '/');
+    await hydrated(night);
+    await expect(html(night)).toHaveClass(/\bdark\b/);
+    await expect(themeButton(night)).toHaveAccessibleName('Theme: Auto (currently dark)');
+    expect(await storedSeason(night)).toBeNull();
   });
 
-  test('toggling the theme keeps the season; both survive reload and navigation', async ({ visit }) => {
-    const page = await visit();
+  test('cycling the theme keeps the season; both survive reload and navigation', async ({ visit }) => {
+    const page = await visit(); // 13:00 Berlin: Auto resolves to light
     await goto(page, '/');
     await hydrated(page);
     await pick(page, 'Winter');
-    await themeButton(page).click();
+    await expect(themeButton(page)).toHaveAccessibleName('Theme: Auto (currently light)');
+
+    await themeButton(page).click(); // Auto -> Light
+    await expect(themeButton(page)).toHaveAccessibleName('Theme: Light');
     await expect(html(page)).toHaveClass(/\blight\b/);
     await expectSeason(page, 'winter');
     await expect(seasonButton(page)).toHaveAccessibleName('Season: Winter');
@@ -660,40 +674,66 @@ test.describe('independence from the dark/light theme (FR-009, FR-015)', () => {
 
     await page.reload({ waitUntil: 'domcontentloaded' });
     await hydrated(page);
+    await expect(themeButton(page)).toHaveAccessibleName('Theme: Light');
     await expect(html(page)).toHaveClass(/\blight\b/);
     await expectSeason(page, 'winter');
 
     await goto(page, ARTICLE);
     await hydrated(page);
+    await expect(themeButton(page)).toHaveAccessibleName('Theme: Light');
     await expect(html(page)).toHaveClass(/\blight\b/);
     await expectSeason(page, 'winter');
 
     await pick(page, 'Wet season');
     await expect(html(page)).toHaveClass(/\blight\b/);
-    await themeButton(page).click();
+    await expect(themeButton(page)).toHaveAccessibleName('Theme: Light');
+    await themeButton(page).click(); // Light -> Dark
+    await expect(themeButton(page)).toHaveAccessibleName('Theme: Dark');
     await expect(html(page)).toHaveClass(/\bdark\b/);
     await expectSeason(page, 'wet');
     expect(await accent(page)).toBe('#5fd0d8');
+
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await hydrated(page);
+    await expect(html(page)).toHaveClass(/\bdark\b/);
+    await expectSeason(page, 'wet');
+
+    await themeButton(page).click(); // Dark -> Auto (13:00: light again)
+    await expect(themeButton(page)).toHaveAccessibleName('Theme: Auto (currently light)');
+    await expect(html(page)).toHaveClass(/\blight\b/);
+    await expectSeason(page, 'wet');
+    await expect(seasonButton(page)).toHaveAccessibleName('Season: Wet season');
   });
 
   test('rapid, interleaved season and theme changes end in the last requested state of each', async ({ visit }) => {
-    const page = await visit();
+    const page = await visit(); // starts in Auto
     await goto(page, '/');
     await hydrated(page);
+    // Eight activations of the three-way toggle from Auto (Light, Dark, Auto, Light, Dark, Auto, Light, Dark).
     for (let i = 0; i < 4; i += 1) {
       await pick(page, 'Wet season');
       await themeButton(page).click();
       await pick(page, 'Dry season');
       await themeButton(page).click();
     }
+    await expectSeason(page, 'dry');
+    await expect(themeButton(page)).toHaveAccessibleName('Theme: Dark');
+    await expect(html(page)).toHaveClass(/\bdark\b/);
+
     await pick(page, 'Autumn');
-    await themeButton(page).click();
     await expectSeason(page, 'autumn');
+    await expect(themeButton(page)).toHaveAccessibleName('Theme: Dark'); // the season change did not touch the mode
+    await themeButton(page).click(); // ninth activation: Dark -> Auto, which is light at 13:00
+    await expectSeason(page, 'autumn');
+    await expect(themeButton(page)).toHaveAccessibleName('Theme: Auto (currently light)');
     await expect(html(page)).toHaveClass(/\blight\b/);
     expect(await storedSeason(page)).toBe('autumn');
+    expect(await page.evaluate(() => localStorage.getItem('theme-mode'))).toBe('auto');
+
     await page.reload({ waitUntil: 'domcontentloaded' });
     await hydrated(page);
     await expectSeason(page, 'autumn');
+    await expect(themeButton(page)).toHaveAccessibleName('Theme: Auto (currently light)');
     await expect(html(page)).toHaveClass(/\blight\b/);
   });
 });

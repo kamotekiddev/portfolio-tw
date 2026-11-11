@@ -4,6 +4,7 @@ import ThemeProvider from "./context/ThemeProvider";
 import { Geist } from "next/font/google";
 import SeasonAmbient from "./components/SeasonAmbient";
 import { seasonInitScript } from "./data/seasons";
+import { themeInitScript } from "./data/theme-schedule";
 
 const geist = Geist({ subsets: ["latin"], display: "swap" });
 
@@ -49,6 +50,9 @@ export default function RootLayout({
    return (
       <html lang="en" className="dark" suppressHydrationWarning>
          <body className={geist.className}>
+            {/* Resolves the theme mode and writes next-themes' "theme" key before
+                its pre-paint script (rendered by ThemeProvider below) runs. */}
+            <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
             {/* Sets data-season on <html> before first paint (FR-010). */}
             <script dangerouslySetInnerHTML={{ __html: seasonInitScript }} />
             <SeasonAmbient />

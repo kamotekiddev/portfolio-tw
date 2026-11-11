@@ -1,6 +1,6 @@
 # Joshua Dela Cruz’s portfolio
 
-A single-page software engineering portfolio built with Next.js, React, Tailwind CSS, and Framer Motion. Dark by default, with a persistent light theme.
+A single-page software engineering portfolio built with Next.js, React, Tailwind CSS, and Framer Motion. The theme follows the time of day by default, with a persistent light or dark override.
 
 ## Development
 
@@ -27,6 +27,8 @@ npm run build
 Set `NEXT_PUBLIC_SITE_URL` to the site's full public origin before building for a custom deployment. Vercel's `VERCEL_PROJECT_PRODUCTION_URL` is used automatically when available; local development defaults to http://localhost:3000.
 
 Project content and the archive work without JavaScript. Theme switching and progressive entrance motion use JavaScript; reduced-motion preferences are respected.
+
+The theme starts in Auto: light from 06:00 to 18:00 device time and dark otherwise, switching live at the boundary. The header's theme button cycles Auto, Light, and Dark, and the choice persists. Without JavaScript the page is dark. The schedule and the pre-paint script live in `app/data/theme-schedule.ts`.
 
 The accent colours and a subtle ambient effect follow the visitor's season: spring, summer, autumn, or winter by hemisphere, and wet or dry in the tropics. The season comes from the device time zone and month, with no location permission or network lookup, and the header's season control overrides it. Without JavaScript, or in an unrecognised time zone, the emerald design is shown. Season tables live in `app/data/seasons.ts`; palettes and effects live in `app/globals.css`.
 

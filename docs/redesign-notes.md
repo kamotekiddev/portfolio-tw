@@ -86,3 +86,7 @@ Palettes. Neutrals as ground / surface / ink / muted; accents as accent / hover 
 - Dry season, clay (hue ~5): light `#f6f3f3` / `#eee9e8` / `#251918` / `#675351`, `#9c4650` / `#7c363f` / `#efdcdc` · dark `#1a1514` / `#261e1d` / `#f0eae9` / `#bcafae`, `#e4a39f` / `#eebfbc` / `#3c2b2a`
 
 Ambient effects, tinted with the season accent at a capped layer opacity (0.30 light with 1.5x larger particles, 0.22 dark), CSS only, 18 particles (10 below 768px), off under reduced motion: spring drifting petals, summer rising light motes, autumn falling leaves, winter snow, wet season fine rain, dry season slow drifting dust. The social preview image keeps the emerald palette.
+
+## Automatic theme by time of day (2026-11-11)
+
+Deliberate change to the dark default (spec `specs/004-auto-theme-by-time`): with JavaScript, first-time visitors get Auto, which shows the light theme from 06:00 to 18:00 device time and dark otherwise, and switches live at the boundary. The header toggle cycles Auto, Light, and Dark and persists the choice (`theme-mode`); an earlier explicit light or dark choice is kept. Dark remains the no-JavaScript fallback. Palettes and seasonal tokens are unchanged.
