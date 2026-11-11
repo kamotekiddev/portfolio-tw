@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Logo from "./Logo";
-import SeasonPicker from "./SeasonPicker";
+import SeasonToggle from "./SeasonToggle";
 import ThemeToggle from "./ThemeToggle";
 
 export default function Header() {
@@ -16,7 +16,7 @@ export default function Header() {
                <Link href="/blog">Blog</Link>
             </nav>
             <div className="header-controls">
-               <SeasonPicker />
+               <SeasonToggle />
                <ThemeToggle />
             </div>
          </div>

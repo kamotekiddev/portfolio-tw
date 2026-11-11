@@ -15,9 +15,14 @@ import { blogFixtures, restartFixtureServer } from './blog-fixtures';
  */
 
 const ARTICLE = '/blog/fixture-newest';
-const SEASON_IDS = ['spring', 'summer', 'autumn', 'winter', 'wet', 'dry'] as const;
 type Theme = 'light' | 'dark';
 type Mode = 'auto' | 'light' | 'dark';
+
+const SEASON_IDS = ['spring', 'summer', 'autumn', 'winter', 'wet', 'dry'] as const;
+type SeasonId = (typeof SEASON_IDS)[number];
+const SEASON_LABELS: Record<SeasonId, string> = { spring: 'Spring', summer: 'Summer', autumn: 'Autumn', winter: 'Winter', wet: 'Wet season', dry: 'Dry season' };
+/** Tropical seasons exist only in tropical zones and the rest only in temperate ones; a stored season outside the region is ignored. */
+const seasonZone = (season: SeasonId): Zone => (season === 'wet' || season === 'dry' ? 'Asia/Manila' : 'Europe/Berlin');
 
 const OFFSETS = {
   'Asia/Manila': '+08:00',
@@ -44,9 +49,16 @@ type VisitOptions = {
   clock?: 'fixed' | 'install';
   /** Raw localStorage entries written (only where absent) before any page script runs. */
   storage?: Record<string, string>;
+  /** A stored manual season; unless `zone` is given the zone is one where that season exists (Berlin or Manila). */
+  season?: SeasonId;
   viewport?: { width: number; height: number };
   colorScheme?: 'light' | 'dark';
   javaScriptEnabled?: boolean;
+  reducedMotion?: 'reduce' | 'no-preference';
+  /** Record every theme-icon-in animation (start details, end) and the most that ever ran at once. */
+  iconRecorder?: boolean;
+  /** Touch-only device emulation: (hover: none), (pointer: coarse), a mobile viewport. */
+  touch?: boolean;
   /** Abort every external script so only inline scripts can run (no hydration). */
   blockScripts?: boolean;
   /** Record html's class at every frame, at DOMContentLoaded and after every class mutation. */
@@ -61,14 +73,15 @@ const test = base.extend<{ visit: (options?: VisitOptions) => Promise<Page> }>({
   visit: async ({ browser }, use, testInfo) => {
     const contexts: BrowserContext[] = [];
     await use(async (options = {}) => {
-      const zone = options.zone ?? DEFAULT_ZONE;
+      const zone = options.zone ?? (options.season ? seasonZone(options.season) : DEFAULT_ZONE);
       const context = await browser.newContext({
         baseURL: testInfo.project.use.baseURL,
         timezoneId: zone,
         viewport: options.viewport ?? { width: 1440, height: 900 },
         colorScheme: options.colorScheme ?? 'light',
-        reducedMotion: 'no-preference',
+        reducedMotion: options.reducedMotion ?? 'no-preference',
         javaScriptEnabled: options.javaScriptEnabled ?? true,
+        ...(options.touch ? { hasTouch: true, isMobile: true } : {}),
       });
       contexts.push(context);
       const now = typeof options.time === 'number' ? options.time : instant(options.time ?? '12:00:00', zone);
@@ -85,7 +98,8 @@ const test = base.extend<{ visit: (options?: VisitOptions) => Promise<Page> }>({
           });
         });
       }
-      if (options.storage && Object.keys(options.storage).length) {
+      const seeds: Record<string, string> = { ...(options.storage ?? {}), ...(options.season ? { season: options.season } : {}) };
+      if (Object.keys(seeds).length) {
         await context.addInitScript((entries) => {
           try {
             for (const [key, value] of Object.entries(entries)) {
@@ -94,7 +108,7 @@ const test = base.extend<{ visit: (options?: VisitOptions) => Promise<Page> }>({
           } catch {
             /* storage unavailable on this document */
           }
-        }, options.storage);
+        }, seeds);
       }
       if (options.sampler) {
         await context.addInitScript(() => {
@@ -113,6 +127,60 @@ const test = base.extend<{ visit: (options?: VisitOptions) => Promise<Page> }>({
             if (records.some((record) => record.target === document.documentElement)) snap('mutation');
           }).observe(document, { subtree: true, attributes: true, attributeFilter: ['class'] });
           document.addEventListener('DOMContentLoaded', () => snap('dcl'));
+        });
+      }
+      if (options.iconRecorder) {
+        await context.addInitScript(() => {
+          type Win = Window & { __iconAnim: Array<Record<string, unknown>>; __iconMaxRunning: number };
+          const w = window as unknown as Win;
+          w.__iconAnim = [];
+          w.__iconMaxRunning = 0;
+          const running = () => document.getAnimations().filter((animation) => (animation as CSSAnimation).animationName === 'theme-icon-in');
+          document.addEventListener(
+            'animationstart',
+            (event) => {
+              if (event.animationName !== 'theme-icon-in') return;
+              const target = event.target as Element;
+              const button = target.closest('.theme-toggle, .season-toggle') as HTMLButtonElement;
+              const live = running();
+              const effect = live[0]?.effect as KeyframeEffect | undefined;
+              const properties: string[] = [];
+              effect?.getKeyframes().forEach((frame) => {
+                Object.keys(frame).forEach((key) => {
+                  if (['offset', 'easing', 'composite', 'computedOffset'].indexOf(key) < 0 && properties.indexOf(key) < 0) properties.push(key);
+                });
+              });
+              const rect = button.getBoundingClientRect();
+              const header = document.querySelector('.site-header')!.getBoundingClientRect();
+              const hit = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+              w.__iconAnim.push({
+                type: 'start',
+                which: button.classList.contains('season-toggle') ? 'season' : 'theme',
+                target: target.tagName.toLowerCase(),
+                svgCount: button.querySelectorAll('svg').length,
+                running: live.length,
+                duration: effect?.getTiming().duration,
+                easing: effect?.getTiming().easing,
+                fill: effect?.getTiming().fill,
+                properties: properties.sort(),
+                disabled: button.disabled,
+                hittable: !!hit && button.contains(hit),
+                label: button.getAttribute('aria-label'),
+                dataAnimate: button.getAttribute('data-animate'),
+                button: [rect.x, rect.y, rect.width, rect.height].map((n) => Math.round(n * 100) / 100),
+                headerHeight: Math.round(header.height * 100) / 100,
+              });
+            },
+            true,
+          );
+          document.addEventListener('animationend', (event) => {
+            if (event.animationName === 'theme-icon-in') w.__iconAnim.push({ type: 'end' });
+          }, true);
+          const frame = () => {
+            w.__iconMaxRunning = Math.max(w.__iconMaxRunning, running().length);
+            requestAnimationFrame(frame);
+          };
+          requestAnimationFrame(frame);
         });
       }
       if (options.watchGeolocation) {
@@ -158,7 +226,10 @@ test.beforeAll(async ({}, testInfo) => {
 const html = (page: Page) => page.locator('html');
 const toggle = (page: Page) => page.getByRole('button', { name: /^Theme: / });
 const seasonButton = (page: Page) => page.getByRole('button', { name: /^Season:/ });
-const seasonMenu = (page: Page) => page.getByRole('menu', { name: 'Season' });
+const seasonLabel = (page: Page) => page.locator('div.season-toggle-wrap > span.season-toggle-label');
+const seasonName = (season: SeasonId) => SEASON_LABELS[season];
+/** One press of the single season toggle. */
+const pressSeason = (page: Page) => seasonButton(page).click();
 
 const NAMES = {
   light: 'Theme: Light',
@@ -449,33 +520,149 @@ test.describe('the correct theme is present at first paint (FR-004, SC-002)', ()
 // 3. FR-005, FR-006, SC-003 - the toggle
 
 test.describe('header toggle (FR-005, FR-006, SC-003)', () => {
-  test('contract: button, icon, and accessible name for every mode', async ({ visit }) => {
-    const page = await visit({ time: '22:00:00' });
+  /** What the button shows right now: its svg(s), and the Auto badge if there is one. */
+  const iconState = (page: Page) =>
+    toggle(page).evaluate((node) => {
+      const svgs = Array.from(node.querySelectorAll('svg'));
+      const badges = Array.from(node.querySelectorAll('.theme-toggle-badge'));
+      const badge = badges[0] as HTMLElement | undefined;
+      const box = node.getBoundingClientRect();
+      const badgeBox = badge?.getBoundingClientRect();
+      return {
+        svgCount: svgs.length,
+        svgHidden: svgs.map((svg) => svg.getAttribute('aria-hidden')),
+        svgSize: svgs.map((svg) => [parseFloat(getComputedStyle(svg).width), parseFloat(getComputedStyle(svg).height)]), // layout size: a running scale() would shrink getBoundingClientRect
+        shape: svgs[0]?.innerHTML ?? '',
+        badgeCount: badges.length,
+        badgeText: badge?.textContent ?? null,
+        badgeHidden: badge?.getAttribute('aria-hidden') ?? null,
+        badgePointerEvents: badge ? getComputedStyle(badge).pointerEvents : null,
+        badgeSize: badgeBox ? [Math.round(badgeBox.width), Math.round(badgeBox.height)] : null,
+        badgeInside: badgeBox ? badgeBox.left >= box.left - 0.5 && badgeBox.top >= box.top - 0.5 && badgeBox.right <= box.right + 0.5 && badgeBox.bottom <= box.bottom + 0.5 : null,
+        badgeVisible: badge ? getComputedStyle(badge).display !== 'none' && getComputedStyle(badge).visibility === 'visible' : null,
+        badgeInButtonOnly: badges.every((candidate) => candidate.closest('button') === node),
+        text: node.textContent,
+      };
+    });
+
+  test('contract: one aria-hidden svg in every mode; the Auto badge "A" only in Auto; the svg shows the current theme (sun by day, moon by night)', async ({ visit }) => {
+    const seen: Record<string, string> = {};
+    for (const time of ['10:00:00', '22:00:00']) {
+      const day = time === '10:00:00';
+      const page = await visit({ time });
+      await goto(page, '/');
+      await hydrated(page);
+      const button = toggle(page);
+      await expect(button).toHaveAttribute('type', 'button');
+      await expect(button).toHaveClass(/\btheme-toggle\b/);
+      const steps: Array<[string, Mode, string]> = [
+        ['auto', 'auto', autoName(day ? 'light' : 'dark')],
+        ['light', 'light', NAMES.light],
+        ['dark', 'dark', NAMES.dark],
+        ['auto again', 'auto', autoName(day ? 'light' : 'dark')],
+      ];
+      for (let index = 0; index < steps.length; index += 1) {
+        const [label, mode, name] = steps[index];
+        if (index > 0) await button.click();
+        await expect(button).toHaveAccessibleName(name);
+        const state = await iconState(page);
+        expect(state.svgCount, `${label}: exactly one svg`).toBe(1);
+        expect(state.svgHidden).toEqual(['true']);
+        expect(state.svgSize).toEqual([[20, 20]]);
+        if (mode === 'auto') {
+          expect(state, `${label}: badge`).toMatchObject({ badgeCount: 1, badgeText: 'A', badgeHidden: 'true', badgePointerEvents: 'none', badgeSize: [16, 16], badgeInside: true, badgeVisible: true, badgeInButtonOnly: true });
+        } else {
+          expect(state.badgeCount, `${label}: no badge in ${mode}`).toBe(0);
+          expect(state.text, `${label}: the button holds no text`).toBe('');
+        }
+        seen[`${day ? 'day' : 'night'}/${label}`] = state.shape;
+      }
+      await page.context().close();
+    }
+    // By day the svg is the sun in Auto and in Light; by night it is the moon in Auto and in Dark.
+    expect(seen['day/auto']).toBe(seen['day/light']);
+    expect(seen['day/auto again']).toBe(seen['day/light']);
+    expect(seen['night/auto']).toBe(seen['night/dark']);
+    expect(seen['night/auto again']).toBe(seen['night/dark']);
+    expect(seen['day/light']).toBe(seen['night/light']);
+    expect(seen['day/dark']).toBe(seen['night/dark']);
+    expect(seen['day/light'], 'sun and moon differ').not.toBe(seen['day/dark']);
+    expect(seen['day/auto']).not.toBe(seen['night/auto']);
+  });
+
+  test('a live 18:00 flip in Auto swaps the sun for the moon and the badge stays; 06:00 swaps it back', async ({ visit }) => {
+    const page = await visit({ clock: 'install', time: '17:55:00' });
     await goto(page, '/');
     await hydrated(page);
-    const button = toggle(page);
-    await expect(button).toHaveAttribute('type', 'button');
-    await expect(button).toHaveClass(/\btheme-toggle\b/);
-    await expect(button).toHaveAccessibleName(NAMES.autoDark);
+    await page.clock.pauseAt(instant('17:59:50'));
+    const sun = await iconState(page);
+    expect(sun).toMatchObject({ svgCount: 1, badgeCount: 1, badgeText: 'A' });
+    await page.clock.runFor(11_000);
+    await expectTheme(page, 'dark');
+    await expect(toggle(page)).toHaveAccessibleName(NAMES.autoDark);
+    const moon = await iconState(page);
+    expect(moon).toMatchObject({ svgCount: 1, badgeCount: 1, badgeText: 'A', badgeVisible: true, badgeInside: true });
+    expect(moon.shape, 'sun -> moon').not.toBe(sun.shape);
+    await page.clock.fastForward('12:00:00');
+    await expectTheme(page, 'light');
+    const again = await iconState(page);
+    expect(again.shape, 'moon -> sun').toBe(sun.shape);
+    expect(again.badgeCount).toBe(1);
+  });
 
-    const icon = async () =>
-      button.evaluate((node) => {
-        const svg = node.querySelector('svg');
-        return { count: node.querySelectorAll('svg').length, hidden: svg?.getAttribute('aria-hidden'), shape: svg?.innerHTML ?? '', text: node.textContent };
-      });
-    const auto = await icon();
-    expect(auto).toMatchObject({ count: 1, hidden: 'true', text: '' });
-    await button.click();
-    await expect(button).toHaveAccessibleName(NAMES.light);
-    const light = await icon();
-    await button.click();
-    await expect(button).toHaveAccessibleName(NAMES.dark);
-    const dark = await icon();
-    expect([light.hidden, dark.hidden]).toEqual(['true', 'true']);
-    expect(new Set([auto.shape, light.shape, dark.shape]).size, 'Auto, Light and Dark show three different icons').toBe(3);
-    await button.click();
-    await expect(button).toHaveAccessibleName(NAMES.autoDark);
-    expect((await icon()).shape).toBe(auto.shape);
+  for (const theme of ['light', 'dark'] as const) {
+    test(`${theme}: the Auto badge text is at least 4.5:1 on its own background in all six seasons, at rest and on hover; flat`, async ({ visit }) => {
+      const failures: string[] = [];
+      for (const season of SEASON_IDS) {
+        const page = await visit({ time: theme === 'light' ? '10:00:00' : '22:00:00', season });
+        await goto(page, '/');
+        await hydrated(page);
+        await expectTheme(page, theme);
+        await expect(html(page)).toHaveAttribute('data-season', season);
+        const badge = page.locator('.theme-toggle .theme-toggle-badge');
+        await expect(badge).toHaveCount(1);
+        await expect(badge).toBeVisible();
+        const read = () =>
+          badge.evaluate((node) => {
+            const computed = getComputedStyle(node);
+            return { color: computed.color, background: computed.backgroundColor, opacity: computed.opacity, boxShadow: computed.boxShadow, backgroundImage: computed.backgroundImage, fontSize: parseFloat(computed.fontSize) };
+          });
+        const rest = await read();
+        await toggle(page).hover(); // (hover: hover): the badge inverts on the accent hover fill
+        const hover = await expect.poll(async () => (await read()).color !== rest.color, { message: `${season}/${theme}: hover restyles the badge` }).toBe(true).then(read);
+        await parkPointer(page);
+        for (const [state, style] of [['rest', rest], ['hover', hover]] as const) {
+          expect(style.background, `${season}/${theme}/${state}: opaque background`).toMatch(/^rgb\(/);
+          expect(style.color, `${season}/${theme}/${state}: opaque text`).toMatch(/^rgb\(/);
+          expect(style.opacity).toBe('1');
+          expect(style.boxShadow).toBe('none');
+          expect(style.backgroundImage).toBe('none');
+          const ratio = contrast(style.color, style.background);
+          if (ratio < 4.5) failures.push(`${season}/${theme}/${state}: ${style.color} on ${style.background} = ${ratio.toFixed(2)} (font ${style.fontSize}px)`);
+        }
+        expect(`${hover.color}|${hover.background}`, `${season}/${theme}: hover is the inverse of rest`).toBe(`${rest.background}|${rest.color}`);
+        await page.context().close();
+      }
+      expect(failures).toEqual([]);
+    });
+  }
+
+  test('the badge never intercepts pointer input and does not change the button box', async ({ visit }) => {
+    const page = await visit({ time: '10:00:00' });
+    await goto(page, '/');
+    await hydrated(page);
+    const before = await boxes(page);
+    const target = await page.locator('.theme-toggle .theme-toggle-badge').evaluate((node) => {
+      const rect = node.getBoundingClientRect();
+      const hit = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+      return { insideButton: !!hit && !!hit.closest('.theme-toggle'), isBadge: !!hit?.closest('.theme-toggle-badge') };
+    });
+    expect(target.insideButton).toBe(true);
+    await page.locator('.theme-toggle .theme-toggle-badge').click({ force: true });
+    await expect(toggle(page)).toHaveAccessibleName(NAMES.light); // a click on the badge is a click on the button
+    await toggle(page).click();
+    await toggle(page).click(); // back to Auto
+    expect(await boxes(page)).toEqual(before);
   });
 
   test('before hydration the toggle is disabled and named "Theme: Auto"', async ({ visit }) => {
@@ -1020,7 +1207,7 @@ test.describe('independent of the season (FR-006, FR-010)', () => {
   for (const season of SEASON_IDS) {
     test(`${season}: data-season and the theme class are set together in every mode and the page ground matches the theme`, async ({ visit }) => {
       for (const state of states) {
-        const page = await visit({ time: state.time, storage: { ...state.storage, season }, sampler: true });
+        const page = await visit({ time: state.time, storage: state.storage, season, sampler: true });
         await goto(page, '/');
         await hydrated(page);
         await expect(html(page), `${season} / ${state.label}`).toHaveAttribute('data-season', season);
@@ -1037,29 +1224,29 @@ test.describe('independent of the season (FR-006, FR-010)', () => {
     });
   }
 
-  test('changing the season never changes the mode, and cycling the mode never changes the season', async ({ visit }) => {
-    const page = await visit({ time: '22:00:00' });
+  test('pressing the season toggle never changes the mode, and cycling the mode never changes the season', async ({ visit }) => {
+    const page = await visit({ time: '22:00:00' }); // Manila in January: dry
     await goto(page, '/');
     await hydrated(page);
-    const seasonOf = () => html(page).getAttribute('data-season');
-    const detected = await seasonOf(); // Manila in January: dry
-    expect(detected).toBe('dry');
-    for (const [label, id] of [['Winter', 'winter'], ['Wet season', 'wet'], ['Automatic', 'dry']] as const) {
-      await seasonButton(page).click();
-      await seasonMenu(page).getByRole('menuitemradio', { name: label, exact: true }).click();
-      await expect(html(page)).toHaveAttribute('data-season', id);
-      await expect(toggle(page)).toHaveAccessibleName(NAMES.autoDark);
-      await expectTheme(page, 'dark');
-      expect(await stored(page, 'theme-mode')).toBe('auto');
-    }
-    await seasonButton(page).click();
-    await seasonMenu(page).getByRole('menuitemradio', { name: 'Autumn', exact: true }).click();
+    await expect(html(page)).toHaveAttribute('data-season', 'dry');
+    await expect(seasonButton(page)).toHaveAccessibleName('Season: Auto (currently dry season)');
+    await pressSeason(page); // dry (detected) -> wet
+    await expect(html(page)).toHaveAttribute('data-season', 'wet');
+    await expect(seasonButton(page)).toHaveAccessibleName('Season: Wet season');
+    await expect(toggle(page)).toHaveAccessibleName(NAMES.autoDark);
+    await expectTheme(page, 'dark');
+    expect(await stored(page, 'theme-mode')).toBe('auto');
+    expect(await stored(page, 'season')).toBe('wet');
     for (const name of [NAMES.light, NAMES.dark, NAMES.autoDark]) {
       await toggle(page).click();
       await expect(toggle(page)).toHaveAccessibleName(name);
-      await expect(html(page)).toHaveAttribute('data-season', 'autumn');
-      expect(await stored(page, 'season')).toBe('autumn');
+      await expect(html(page)).toHaveAttribute('data-season', 'wet');
+      expect(await stored(page, 'season')).toBe('wet');
     }
+    await pressSeason(page); // wet -> dry is the detected season: Automatic
+    await expect(seasonButton(page)).toHaveAccessibleName('Season: Auto (currently dry season)');
+    expect(await stored(page, 'season')).toBe('auto');
+    await expect(toggle(page)).toHaveAccessibleName(NAMES.autoDark);
   });
 });
 
@@ -1139,22 +1326,24 @@ test.describe('header controls without overflow (SC-006)', () => {
     }
   }
 
-  test('390px: the open season menu stays inside the viewport and the theme toggle still works around it', async ({ visit }) => {
+  test('390px: no season menu exists; both toggles are enabled side by side and a press of either changes only its own state', async ({ visit }) => {
     const viewport = { width: 390, height: 844 };
     for (const theme of ['light', 'dark'] as const) {
       const page = await visit({ viewport, storage: MODE_STORAGE(theme) });
       await goto(page, '/');
       await hydrated(page);
-      await seasonButton(page).click();
-      await expect(seasonMenu(page)).toBeVisible();
-      await inside(seasonMenu(page), viewport);
+      await expect(page.getByRole('menu')).toHaveCount(0);
       await noOverflow(page);
       await expect(toggle(page)).toBeEnabled();
+      await expect(seasonButton(page)).toBeEnabled();
       await inside(toggle(page), viewport);
-      await page.keyboard.press('Escape');
-      await expect(seasonMenu(page)).toHaveCount(0);
+      await inside(seasonButton(page), viewport);
+      await pressSeason(page);
+      await expect(html(page)).toHaveAttribute('data-season', 'wet');
+      await expectTheme(page, theme);
       await toggle(page).click();
       await expect(toggle(page)).toHaveAccessibleName(nameFor(theme === 'light' ? 'dark' : 'auto', theme === 'light' ? 'dark' : 'light'));
+      await expect(html(page)).toHaveAttribute('data-season', 'wet');
       await page.context().close();
     }
   });
@@ -1207,7 +1396,7 @@ test.describe('storage unavailable (edge case)', () => {
     });
   }
 
-  test('a manual choice made at night lasts through client-side navigation within the page view (as the season picker does)', async ({ visit }) => {
+  test('a manual choice made at night lasts through client-side navigation within the page view (as the season toggle does)', async ({ visit }) => {
     // <Header> lives in the (home) and blog layouts, so ThemeToggle remounts on home -> blog. With storage blocked the
     // toggle keeps the chosen mode in module scope so the choice survives that remount (the spec's edge case: "a
     // manual choice lasts for the page view").
@@ -1243,17 +1432,24 @@ test.describe('runtime health', () => {
     await expect(toggle(page)).toHaveAccessibleName(NAMES.autoLight);
     await page.clock.runFor(11_000); // crosses 18:00 in Auto
     await expectTheme(page, 'dark');
-    await page.clock.resume(); // client-side navigation and page animations need time to flow again
-    await seasonButton(page).click();
-    await seasonMenu(page).getByRole('menuitemradio', { name: 'Winter', exact: true }).click();
-    await page.getByRole('link', { name: 'Blog' }).first().click();
-    await expect(page).toHaveURL(/\/blog\/?$/);
-    await page.getByRole('link', { name: /Fixture Newest/ }).click();
-    await expect(page.locator('.blog-article')).toBeVisible();
-    await goto(page, '/definitely-not-a-page');
-    await page.reload({ waitUntil: 'load' });
-    await hydrated(page);
+    await pressSeason(page);
+    await expect(seasonButton(page)).toHaveAccessibleName('Season: Wet season');
     expect(realErrors(errors)).toEqual([]);
+
+    // Navigation runs on real timers: webpack's chunk-load timeout is a timer, so it cannot be driven under a paused fake clock.
+    const walker = await visit({ time: '17:59:55' });
+    const walkerErrors = watchErrors(walker);
+    await goto(walker, '/');
+    await hydrated(walker);
+    await toggle(walker).click();
+    await walker.getByRole('link', { name: 'Blog' }).first().click();
+    await expect(walker).toHaveURL(/\/blog\/?$/);
+    await walker.getByRole('link', { name: /Fixture Newest/ }).click();
+    await expect(walker.locator('.blog-article')).toBeVisible();
+    await goto(walker, '/definitely-not-a-page');
+    await walker.reload({ waitUntil: 'load' });
+    await hydrated(walker);
+    expect(realErrors(walkerErrors)).toEqual([]);
   });
 
   test('applying a theme does not shift layout', async ({ visit }) => {
@@ -1273,4 +1469,1485 @@ test.describe('runtime health', () => {
     const shift = await page.evaluate(() => (window as unknown as { __shift: number }).__shift);
     expect(shift).toBeLessThan(0.01);
   });
+});
+
+// ---------------------------------------------------------------------------------------------------------------
+// 13. FR-012, SC-007 - the visible mode label
+
+const modeLabel = (page: Page) => page.locator('div.theme-toggle-wrap > span.theme-toggle-label');
+const FLASH_MS = 2000;
+
+/** Opens `/` under a fake clock, waits for hydration, then freezes time so the label timer is driven by runFor. */
+async function pausedPage(visit: (options?: VisitOptions) => Promise<Page>, options: VisitOptions & { start?: string; pauseAt?: string } = {}) {
+  const { start = '10:00:00', pauseAt = '10:30:00', ...rest } = options;
+  const page = await visit({ clock: 'install', time: start, ...rest });
+  await goto(page, '/');
+  await hydrated(page);
+  await page.clock.pauseAt(instant(pauseAt, rest.zone ?? (rest.season ? seasonZone(rest.season) : undefined)));
+  return page;
+}
+
+/** Park the pointer somewhere harmless so neither hover nor focus is what shows the label. */
+async function parkPointer(page: Page) {
+  await page.mouse.move(5, 700);
+}
+
+async function boxes(page: Page) {
+  return page.evaluate(() => {
+    const rect = (selector: string) => {
+      const r = document.querySelector(selector)!.getBoundingClientRect();
+      return [r.x, r.y, r.width, r.height].map((n) => Math.round(n * 100) / 100);
+    };
+    return {
+      header: rect('.site-header'),
+      season: rect('.season-toggle'),
+      theme: rect('.theme-toggle'),
+      wrap: rect('.theme-toggle-wrap'),
+      scrollHeight: document.documentElement.scrollHeight,
+      scrollWidth: document.documentElement.scrollWidth,
+    };
+  });
+}
+
+test.describe('visible mode label (FR-012, SC-007)', () => {
+  test('markup: a decorative sibling of the button inside div.theme-toggle-wrap; name and icons unchanged', async ({ visit }) => {
+    const page = await visit({ time: '10:00:00' });
+    await goto(page, '/');
+    await hydrated(page);
+    const facts = await page.evaluate(() => {
+      const wrap = document.querySelector('div.theme-toggle-wrap');
+      const label = document.querySelector('span.theme-toggle-label') as HTMLElement | null;
+      const button = document.querySelector('button.theme-toggle');
+      const style = label ? getComputedStyle(label) : null;
+      const durations = (value: string) => value.split(',').map((part) => parseFloat(part));
+      return {
+        wrapCount: document.querySelectorAll('.theme-toggle-wrap').length,
+        labelCount: document.querySelectorAll('.theme-toggle-label').length,
+        children: wrap ? Array.from(wrap.children).map((child) => `${child.tagName.toLowerCase()}.${child.className}`) : [],
+        siblings: !!label && !!button && label.parentElement === wrap && button.parentElement === wrap && button.nextElementSibling === label,
+        controls: Array.from(document.querySelector('.header-controls')!.children).map((child) => child.className),
+        ariaHidden: label?.getAttribute('aria-hidden'),
+        tabindex: label?.getAttribute('tabindex') ?? null,
+        focusableInside: label ? label.querySelectorAll('a, button, input, select, textarea, [tabindex]').length : -1,
+        pointerEvents: style?.pointerEvents,
+        position: style?.position,
+        transitionDurations: style ? durations(style.transitionDuration) : [],
+        animationName: style?.animationName,
+        animationDuration: style ? durations(style.animationDuration) : [],
+        display: style?.display,
+        buttonLabel: button?.getAttribute('aria-label'),
+        buttonText: button?.textContent,
+        buttonIcons: button?.querySelectorAll('svg[aria-hidden="true"]').length,
+        buttonFocusable: button ? (button as HTMLButtonElement).tabIndex : null,
+        spanTag: label?.tagName,
+        inButton: !!label?.closest('button'),
+      };
+    });
+    expect(facts.wrapCount).toBe(1);
+    expect(facts.labelCount).toBe(1);
+    expect(facts.children).toEqual(['button.theme-toggle', 'span.theme-toggle-label']);
+    expect(facts.siblings).toBe(true);
+    expect(facts.inButton).toBe(false);
+    expect(facts.controls).toEqual(['season-toggle-wrap', 'theme-toggle-wrap']);
+    expect(facts).toMatchObject({ ariaHidden: 'true', tabindex: null, focusableInside: 0, pointerEvents: 'none', position: 'absolute', spanTag: 'SPAN' });
+    expect(facts.transitionDurations.every((value) => value === 0), 'no transition').toBe(true);
+    expect(facts.animationName).toBe('none');
+    expect(facts.animationDuration.every((value) => value === 0), 'no animation').toBe(true);
+    expect(facts.display, 'hidden on load').toBe('none');
+    expect(facts).toMatchObject({ buttonLabel: NAMES.autoLight, buttonText: 'A', buttonIcons: 1, buttonFocusable: 0 }); // the Auto badge is the only text
+    await expect(toggle(page)).toHaveAccessibleName(NAMES.autoLight);
+    await expect(modeLabel(page)).toBeHidden();
+    // The label is not part of the accessibility tree: the wrapper exposes only the button.
+    const tree = await page.locator('div.theme-toggle-wrap').ariaSnapshot();
+    expect(tree).toContain(NAMES.autoLight);
+    expect(tree).not.toMatch(/now|Light\b(?!\))/);
+    // Not reachable by Tab, not focusable by script either.
+    const reachedLabel = await (async () => {
+      for (let i = 0; i < 40; i += 1) {
+        await page.keyboard.press('Tab');
+        if (await page.evaluate(() => !!document.activeElement?.closest('.theme-toggle-label'))) return true;
+      }
+      return false;
+    })();
+    expect(reachedLabel).toBe(false);
+    await modeLabel(page).focus({ timeout: 500 }).catch(() => undefined);
+    expect(await page.evaluate(() => !!document.activeElement?.closest('.theme-toggle-label'))).toBe(false);
+  });
+
+  test('the label stays hidden on page load, after reload and after navigation', async ({ visit }) => {
+    const page = await visit({ time: '10:00:00' });
+    await goto(page, '/');
+    await expect(modeLabel(page)).toBeHidden(); // pre-hydration
+    await hydrated(page);
+    await expect(modeLabel(page)).toBeHidden();
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await hydrated(page);
+    await expect(modeLabel(page)).toBeHidden();
+    await page.getByRole('link', { name: 'Blog' }).first().click();
+    await expect(page).toHaveURL(/\/blog\/?$/);
+    await hydrated(page);
+    await expect(modeLabel(page)).toBeHidden();
+    await goto(page, ARTICLE);
+    await hydrated(page);
+    await expect(modeLabel(page)).toBeHidden();
+    await goto(page, '/definitely-not-a-page');
+    await hydrated(page);
+    await expect(modeLabel(page)).toBeHidden();
+  });
+
+  test('a flash does not follow the visitor to the next page: navigating right after an activation shows nothing', async ({ visit }) => {
+    // Real timers on purpose: client-side navigation cannot be driven under a paused fake clock (webpack's chunk-load
+    // timeout is a timer). Whether the 2 s timer is still pending or already spent, the new page must start clean.
+    const page = await visit({ time: '10:00:00' });
+    const errors = watchErrors(page);
+    await goto(page, '/');
+    await hydrated(page);
+    await toggle(page).click();
+    await parkPointer(page);
+    await expect(modeLabel(page)).toBeVisible();
+    await page.getByRole('link', { name: 'Blog' }).first().click();
+    await expect(page).toHaveURL(/\/blog\/?$/);
+    await hydrated(page);
+    await expect(modeLabel(page)).toBeHidden(); // the remounted toggle starts with no label
+    await expect(toggle(page)).toHaveAccessibleName(NAMES.light);
+    expect(realErrors(errors)).toEqual([]);
+  });
+
+  test('pre-hydration text is "Auto"', async ({ visit }) => {
+    const page = await visit({ blockScripts: true });
+    await goto(page, '/');
+    await expect(toggle(page)).toBeDisabled();
+    await expect(modeLabel(page)).toHaveText('Auto');
+    await expect(modeLabel(page)).toBeHidden();
+  });
+
+  test.describe('text per mode', () => {
+    const cases: Array<[string, string, Record<string, string>, string]> = [
+      ['Auto by day', '10:00:00', {}, 'Auto · light now'],
+      ['Auto by night', '22:00:00', {}, 'Auto · dark now'],
+      ['Auto at exactly 06:00', '06:00:00', {}, 'Auto · light now'],
+      ['Auto at exactly 18:00', '18:00:00', {}, 'Auto · dark now'],
+      ['Light at night', '22:00:00', MODE_STORAGE('light'), 'Light'],
+      ['Dark by day', '10:00:00', MODE_STORAGE('dark'), 'Dark'],
+    ];
+    for (const [name, time, storage, text] of cases) {
+      test(`${name}: "${text}"`, async ({ visit }) => {
+        const page = await visit({ time, storage });
+        await goto(page, '/');
+        await hydrated(page);
+        await expect(modeLabel(page)).toHaveText(text);
+        await toggle(page).hover();
+        await expect(modeLabel(page)).toBeVisible();
+        await expect(modeLabel(page)).toHaveText(text);
+      });
+    }
+
+    test('the text follows each activation through the whole cycle', async ({ visit }) => {
+      const page = await pausedPage(visit, { start: '10:00:00', pauseAt: '10:30:00' });
+      await expect(modeLabel(page)).toHaveText('Auto · light now');
+      for (const text of ['Light', 'Dark', 'Auto · light now', 'Light']) {
+        await toggle(page).click();
+        await expect(modeLabel(page)).toHaveText(text);
+        await expect(modeLabel(page)).toBeVisible();
+      }
+    });
+
+    test('Auto text flips live with the theme at 17:59:50 -> 18:00 while the label is showing', async ({ visit }) => {
+      const page = await pausedPage(visit, { start: '17:55:00', pauseAt: '17:59:50' });
+      await toggle(page).hover();
+      await expect(modeLabel(page)).toBeVisible();
+      await expect(modeLabel(page)).toHaveText('Auto · light now');
+      await page.clock.runFor(9_000);
+      await expect(modeLabel(page)).toHaveText('Auto · light now');
+      await page.clock.runFor(2_000);
+      await expect(modeLabel(page)).toHaveText('Auto · dark now');
+      await expect(modeLabel(page)).toBeVisible();
+      await expect(toggle(page)).toHaveAccessibleName(NAMES.autoDark);
+    });
+
+    test('Auto text flips live with the theme at 05:59:50 -> 06:00 while the label is showing', async ({ visit }) => {
+      const page = await pausedPage(visit, { start: '05:55:00', pauseAt: '05:59:50' });
+      await toggle(page).hover();
+      await expect(modeLabel(page)).toHaveText('Auto · dark now');
+      await page.clock.runFor(9_000);
+      await expect(modeLabel(page)).toHaveText('Auto · dark now');
+      await page.clock.runFor(2_000);
+      await expect(modeLabel(page)).toHaveText('Auto · light now');
+    });
+
+    test('a stored Light or Dark label does not change across a boundary', async ({ visit }) => {
+      const page = await pausedPage(visit, { start: '17:55:00', pauseAt: '17:59:50', storage: MODE_STORAGE('light') });
+      await page.clock.runFor(20_000);
+      await expect(modeLabel(page)).toHaveText('Light');
+    });
+  });
+
+  test.describe('when it is visible (desktop, hover-capable pointer)', () => {
+    test('precondition: the default desktop context is hover-capable', async ({ visit }) => {
+      const page = await visit();
+      await goto(page, '/');
+      expect(await page.evaluate(() => matchMedia('(hover: hover)').matches)).toBe(true);
+    });
+
+    test('appears on hover and hides when the pointer leaves (no timer involved)', async ({ visit }) => {
+      const page = await pausedPage(visit);
+      await expect(modeLabel(page)).toBeHidden();
+      await toggle(page).hover();
+      await expect(modeLabel(page)).toBeVisible();
+      await page.clock.runFor(10_000); // hover has no timeout
+      await expect(modeLabel(page)).toBeVisible();
+      await parkPointer(page);
+      await expect(modeLabel(page)).toBeHidden();
+      // Hovering the season button or the label's own area does not count.
+      await seasonButton(page).hover();
+      await expect(modeLabel(page)).toBeHidden();
+    });
+
+    test('appears on keyboard focus (Tab) and hides on blur', async ({ visit }) => {
+      const page = await pausedPage(visit);
+      let reached = false;
+      for (let i = 0; i < 30 && !reached; i += 1) {
+        await page.keyboard.press('Tab');
+        reached = await page.evaluate(() => document.activeElement?.classList.contains('theme-toggle') ?? false);
+      }
+      expect(reached).toBe(true);
+      await expect(modeLabel(page)).toBeVisible();
+      await page.clock.runFor(10_000);
+      await expect(modeLabel(page)).toBeVisible(); // focus has no timeout either
+      await page.keyboard.press('Tab');
+      await expect(toggle(page)).not.toBeFocused();
+      await expect(modeLabel(page)).toBeHidden();
+      await page.keyboard.press('Shift+Tab');
+      await expect(toggle(page)).toBeFocused();
+      await expect(modeLabel(page)).toBeVisible();
+      await page.evaluate(() => (document.activeElement as HTMLElement).blur());
+      await expect(modeLabel(page)).toBeHidden();
+    });
+
+    test('a click shows it for about two seconds: visible at +1.9 s, hidden at +2.1 s, even though the click focuses the button', async ({ visit }) => {
+      const page = await pausedPage(visit);
+      await toggle(page).click();
+      await parkPointer(page); // end the hover so only the flash can keep it visible
+      await expect(modeLabel(page)).toBeVisible();
+      await expect(modeLabel(page)).toHaveText('Light');
+      await page.clock.runFor(1_900);
+      await expect(modeLabel(page)).toBeVisible();
+      await page.clock.runFor(200);
+      await expect(modeLabel(page)).toBeHidden(); // a mouse click must not leave it stuck via :focus
+      await expect(toggle(page)).toBeFocused(); // the button still has (non-visible) focus, which is what is being ruled out
+    });
+
+    for (const key of ['Enter', 'Space'] as const) {
+      test(`${key} shows it for about two seconds: visible at +1.9 s, hidden at +2.1 s once focus is gone`, async ({ visit }) => {
+        const page = await pausedPage(visit);
+        let reached = false;
+        for (let i = 0; i < 30 && !reached; i += 1) {
+          await page.keyboard.press('Tab');
+          reached = await page.evaluate(() => document.activeElement?.classList.contains('theme-toggle') ?? false);
+        }
+        expect(reached).toBe(true);
+        await page.keyboard.press(key);
+        await expect(toggle(page)).toHaveAccessibleName(NAMES.light);
+        await expect(modeLabel(page)).toHaveText('Light');
+        await expect(modeLabel(page)).toBeVisible();
+        // While the button keeps keyboard focus the label legitimately stays (focus-visible); drop focus to isolate the timer.
+        await page.evaluate(() => (document.activeElement as HTMLElement).blur());
+        await expect(modeLabel(page)).toBeVisible();
+        await page.clock.runFor(1_900);
+        await expect(modeLabel(page)).toBeVisible();
+        await page.clock.runFor(200);
+        await expect(modeLabel(page)).toBeHidden();
+      });
+    }
+
+    test('with keyboard focus kept on the button the label stays visible after the flash, and hides on blur', async ({ visit }) => {
+      const page = await pausedPage(visit);
+      for (let i = 0; i < 30 && !(await page.evaluate(() => document.activeElement?.classList.contains('theme-toggle'))); i += 1) await page.keyboard.press('Tab');
+      await page.keyboard.press('Enter');
+      await page.clock.runFor(FLASH_MS + 500);
+      await expect(modeLabel(page)).toBeVisible();
+      await page.keyboard.press('Tab');
+      await expect(modeLabel(page)).toBeHidden();
+    });
+
+    test('a second activation restarts the two-second timer', async ({ visit }) => {
+      const page = await pausedPage(visit);
+      await toggle(page).click();
+      await page.clock.runFor(1_500);
+      await toggle(page).click();
+      await parkPointer(page);
+      await expect(modeLabel(page)).toHaveText('Dark');
+      await page.clock.runFor(1_500); // 3.0 s after the first activation, 1.5 s after the second
+      await expect(modeLabel(page)).toBeVisible();
+      await page.clock.runFor(400); // 1.9 s after the second
+      await expect(modeLabel(page)).toBeVisible();
+      await page.clock.runFor(200); // 2.1 s after the second
+      await expect(modeLabel(page)).toBeHidden();
+    });
+
+    test('rapid activations leave exactly one timer: the label is gone two seconds after the last one', async ({ visit }) => {
+      const page = await pausedPage(visit);
+      for (let i = 0; i < 6; i += 1) {
+        await toggle(page).click();
+        await page.clock.runFor(300);
+      }
+      await parkPointer(page);
+      await page.clock.runFor(1_600); // 1.9 s after the last
+      await expect(modeLabel(page)).toBeVisible();
+      await page.clock.runFor(200);
+      await expect(modeLabel(page)).toBeHidden();
+      await page.clock.runFor(10_000);
+      await expect(modeLabel(page)).toBeHidden();
+    });
+
+    test('the pointer resting on the button after a click keeps it visible (hover) and it hides when the pointer leaves', async ({ visit }) => {
+      const page = await pausedPage(visit);
+      await toggle(page).click();
+      await page.clock.runFor(FLASH_MS + 500);
+      await expect(modeLabel(page)).toBeVisible(); // still hovered
+      await parkPointer(page);
+      await expect(modeLabel(page)).toBeHidden();
+    });
+  });
+
+  test.describe('touch (hover: none)', () => {
+    test('precondition: the emulated phone has no hover', async ({ visit }) => {
+      const page = await visit({ touch: true, viewport: { width: 390, height: 844 } });
+      await goto(page, '/');
+      const media = await page.evaluate(() => ({ hover: matchMedia('(hover: hover)').matches, none: matchMedia('(hover: none)').matches, coarse: matchMedia('(pointer: coarse)').matches }));
+      expect(media).toEqual({ hover: false, none: true, coarse: true });
+    });
+
+    test('a tap shows the label for about two seconds and nothing is stuck afterwards', async ({ visit }) => {
+      const page = await pausedPage(visit, { touch: true, viewport: { width: 390, height: 844 } });
+      await expect(modeLabel(page)).toBeHidden();
+      await toggle(page).tap();
+      await expect(toggle(page)).toHaveAccessibleName(NAMES.light);
+      await expect(modeLabel(page)).toBeVisible();
+      await expect(modeLabel(page)).toHaveText('Light');
+      await page.clock.runFor(1_900);
+      await expect(modeLabel(page)).toBeVisible();
+      await page.clock.runFor(200);
+      await expect(modeLabel(page)).toBeHidden();
+      // Sticky touch :hover / :focus must not bring it back, and a tap elsewhere changes nothing.
+      await page.clock.runFor(5_000);
+      await expect(modeLabel(page)).toBeHidden();
+      await page.getByRole('heading', { level: 1 }).first().tap();
+      await expect(modeLabel(page)).toBeHidden();
+    });
+
+    test('a second tap restarts the timer and shows the new mode', async ({ visit }) => {
+      const page = await pausedPage(visit, { touch: true, viewport: { width: 390, height: 844 } });
+      await toggle(page).tap();
+      await page.clock.runFor(1_500);
+      await toggle(page).tap();
+      await expect(modeLabel(page)).toHaveText('Dark');
+      await page.clock.runFor(1_500);
+      await expect(modeLabel(page)).toBeVisible();
+      await page.clock.runFor(600);
+      await expect(modeLabel(page)).toBeHidden();
+    });
+
+    test('no label on a touch device after loading or navigating', async ({ visit }) => {
+      const page = await visit({ touch: true, viewport: { width: 390, height: 844 } });
+      await goto(page, '/');
+      await hydrated(page);
+      await expect(modeLabel(page)).toBeHidden();
+      await page.getByRole('link', { name: 'Blog' }).first().tap();
+      await expect(page).toHaveURL(/\/blog\/?$/);
+      await hydrated(page);
+      await expect(modeLabel(page)).toBeHidden();
+    });
+  });
+
+  test.describe('one header label at a time, with the season toggle', () => {
+    /** How many of the two labels are displayed right now. */
+    const shownLabels = (page: Page) =>
+      page.evaluate(() => Array.from(document.querySelectorAll('.theme-toggle-label, .season-toggle-label')).filter((label) => getComputedStyle(label).display !== 'none').map((label) => label.className));
+
+    test('pressing one toggle while the other label is flashing swaps them: never two labels', async ({ visit }) => {
+      const page = await pausedPage(visit);
+      await toggle(page).click();
+      await parkPointer(page);
+      expect(await shownLabels(page)).toEqual(['theme-toggle-label']);
+      await pressSeason(page);
+      await parkPointer(page);
+      await expect(seasonLabel(page)).toBeVisible();
+      await expect(modeLabel(page)).toBeHidden();
+      expect(await shownLabels(page)).toEqual(['season-toggle-label']);
+      await toggle(page).click();
+      await parkPointer(page);
+      await expect(modeLabel(page)).toBeVisible();
+      await expect(seasonLabel(page)).toBeHidden();
+      expect(await shownLabels(page)).toEqual(['theme-toggle-label']);
+      // The superseded label's timer is gone: after two seconds nothing at all is showing, and nothing comes back.
+      await page.clock.runFor(1_900);
+      expect(await shownLabels(page)).toEqual(['theme-toggle-label']);
+      await page.clock.runFor(200);
+      expect(await shownLabels(page)).toEqual([]);
+      await page.clock.runFor(5_000);
+      expect(await shownLabels(page)).toEqual([]);
+    });
+
+    test('hovering the other button replaces a flashing label; hover and focus never stack', async ({ visit }) => {
+      const page = await pausedPage(visit);
+      await pressSeason(page);
+      await parkPointer(page);
+      await expect(seasonLabel(page)).toBeVisible();
+      await toggle(page).hover();
+      await expect(modeLabel(page)).toBeVisible();
+      await expect(seasonLabel(page)).toBeHidden();
+      expect(await shownLabels(page)).toEqual(['theme-toggle-label']);
+      await seasonButton(page).hover();
+      await expect(seasonLabel(page)).toBeVisible();
+      await expect(modeLabel(page)).toBeHidden();
+      await parkPointer(page);
+      // Keyboard: focusing the season toggle while the theme label is flashing.
+      await toggle(page).click();
+      await parkPointer(page);
+      await expect(modeLabel(page)).toBeVisible();
+      for (let i = 0; i < 30 && !(await page.evaluate(() => document.activeElement?.classList.contains('season-toggle'))); i += 1) await page.keyboard.press('Tab');
+      await expect(seasonButton(page)).toBeFocused();
+      await expect(seasonLabel(page)).toBeVisible();
+      await expect(modeLabel(page)).toBeHidden();
+      expect(await shownLabels(page)).toEqual(['season-toggle-label']);
+      await page.keyboard.press('Tab'); // on to the theme toggle
+      await expect(toggle(page)).toBeFocused();
+      await expect(modeLabel(page)).toBeVisible();
+      await expect(seasonLabel(page)).toBeHidden();
+      expect(await shownLabels(page)).toEqual(['theme-toggle-label']);
+    });
+
+    test('touch: tapping one then the other shows only the latest label for about two seconds', async ({ visit }) => {
+      const page = await pausedPage(visit, { touch: true, viewport: { width: 390, height: 844 } });
+      await seasonButton(page).tap();
+      await expect(seasonLabel(page)).toBeVisible();
+      await expect(seasonLabel(page)).toHaveText('Wet season');
+      expect(await shownLabels(page)).toEqual(['season-toggle-label']);
+      await page.clock.runFor(1_000);
+      await toggle(page).tap();
+      await expect(modeLabel(page)).toBeVisible();
+      await expect(seasonLabel(page)).toBeHidden();
+      expect(await shownLabels(page)).toEqual(['theme-toggle-label']);
+      await page.clock.runFor(1_900);
+      await expect(modeLabel(page)).toBeVisible();
+      await page.clock.runFor(200);
+      expect(await shownLabels(page)).toEqual([]);
+      await page.clock.runFor(5_000);
+      expect(await shownLabels(page)).toEqual([]);
+    });
+
+    test('at every step of a mixed sequence at most one label is displayed', async ({ visit }) => {
+      const page = await pausedPage(visit);
+      const steps: Array<() => Promise<void>> = [
+        () => pressSeason(page),
+        () => toggle(page).click(),
+        () => seasonButton(page).hover(),
+        () => toggle(page).hover(),
+        () => parkPointer(page),
+        () => pressSeason(page),
+        () => page.keyboard.press('Tab'),
+        () => page.keyboard.press('Shift+Tab'),
+        () => page.clock.runFor(700),
+        () => toggle(page).click(),
+        () => page.clock.runFor(2_100),
+      ];
+      for (let index = 0; index < steps.length; index += 1) {
+        await steps[index]();
+        const shown = await shownLabels(page);
+        expect(shown.length, `after step ${index}: ${shown.join(', ')}`).toBeLessThanOrEqual(1);
+      }
+    });
+  });
+
+  test.describe('layout (SC-006, SC-007)', () => {
+    for (const width of [390, 768, 1440]) {
+      for (const theme of ['light', 'dark'] as const) {
+        for (const season of ['none', 'winter'] as const) {
+          test(`${theme} at ${width}px${season === 'winter' ? ' with the winter season' : ''}: shown vs hidden changes no position or height; the label is inside the viewport`, async ({ visit }) => {
+            const viewport = { width, height: width === 390 ? 844 : 900 };
+            const page = await visit({ viewport, storage: MODE_STORAGE(theme), ...(season === 'winter' ? { season: 'winter' as const } : {}) });
+            for (const route of ['/', ARTICLE]) {
+              await goto(page, route);
+              await hydrated(page);
+              await expectTheme(page, theme);
+              await expect(modeLabel(page)).toBeHidden();
+              const hidden = await boxes(page);
+              await toggle(page).hover();
+              await expect(modeLabel(page)).toBeVisible();
+              const shown = await boxes(page);
+              expect(shown, `${route}: geometry with the label showing`).toEqual(hidden);
+              await inside(modeLabel(page), viewport);
+              await noOverflow(page);
+              const label = (await modeLabel(page).boundingBox())!;
+              const control = (await toggle(page).boundingBox())!;
+              expect(label.y, 'label sits below the toggle').toBeGreaterThanOrEqual(control.y + control.height);
+              expect(Math.abs(label.x + label.width - (control.x + control.width)), 'right-aligned to the toggle').toBeLessThanOrEqual(1);
+              await parkPointer(page);
+              await expect(modeLabel(page)).toBeHidden();
+              expect(await boxes(page), `${route}: geometry after the label hides`).toEqual(hidden);
+            }
+          });
+        }
+      }
+    }
+
+    for (const width of [390, 768, 1440]) {
+      for (const season of ['none', 'winter'] as const) {
+        test(`${width}px${season === 'winter' ? ' winter' : ''}: a click through the label's centre reaches the element underneath`, async ({ visit }) => {
+          const viewport = { width, height: width === 390 ? 844 : 900 };
+          const page = await pausedPage(visit, { viewport, ...(season === 'winter' ? { season: 'winter' as const } : {}) });
+          await page.evaluate(() => {
+            const clicks: string[] = [];
+            (window as unknown as { __clicks: string[] }).__clicks = clicks;
+            window.addEventListener(
+              'click',
+              (event) => {
+                event.preventDefault();
+                const target = event.target as Element;
+                clicks.push(`${target.tagName.toLowerCase()}.${target.className}|label=${!!target.closest('.theme-toggle-label')}|toggle=${!!target.closest('.theme-toggle')}`);
+              },
+              true,
+            );
+          });
+          await toggle(page).click();
+          await expect(modeLabel(page)).toBeVisible();
+          const before = await boxes(page);
+          const label = (await modeLabel(page).boundingBox())!;
+          await inside(modeLabel(page), viewport);
+          await noOverflow(page);
+          const cx = label.x + label.width / 2;
+          const cy = label.y + label.height / 2;
+          const underneath = await page.evaluate(([x, y]) => {
+            const element = document.elementFromPoint(x, y)!;
+            return { tag: element.tagName.toLowerCase(), cls: String(element.className), inLabel: !!element.closest('.theme-toggle-label') };
+          }, [cx, cy]);
+          expect(underneath.inLabel, 'hit-testing must pass through the label').toBe(false);
+          await page.evaluate(() => ((window as unknown as { __clicks: string[] }).__clicks.length = 0));
+          await page.mouse.click(cx, cy);
+          const clicks = await page.evaluate(() => (window as unknown as { __clicks: string[] }).__clicks);
+          expect(clicks).toHaveLength(1);
+          expect(clicks[0]).toContain('label=false');
+          expect(clicks[0]).toContain(`${underneath.tag}.${underneath.cls}`);
+          expect(clicks[0], 'a click on the label must not activate the toggle').toContain('toggle=false');
+          await expect(toggle(page)).toHaveAccessibleName(NAMES.light); // still the mode from the single first click
+          expect(await boxes(page)).toEqual(before);
+        });
+      }
+    }
+
+    for (const theme of ['light', 'dark'] as const) {
+      test(`${theme}: the label's text on its own fill is at least 4.5:1 in all six seasons; flat (no border, shadow or image)`, async ({ visit }) => {
+        const failures: string[] = [];
+        for (const season of SEASON_IDS) {
+          const page = await visit({ storage: MODE_STORAGE(theme), season });
+          await goto(page, '/');
+          await hydrated(page);
+          await expectTheme(page, theme);
+          await expect(html(page)).toHaveAttribute('data-season', season);
+          await toggle(page).hover();
+          await expect(modeLabel(page)).toBeVisible();
+          // Read the label's own computed colours at test time; no particular token is assumed for either.
+          const style = await modeLabel(page).evaluate((node) => {
+            const computed = getComputedStyle(node);
+            return {
+              color: computed.color,
+              background: computed.backgroundColor,
+              opacity: computed.opacity,
+              borderWidths: [computed.borderTopWidth, computed.borderRightWidth, computed.borderBottomWidth, computed.borderLeftWidth],
+              borderStyles: [computed.borderTopStyle, computed.borderRightStyle, computed.borderBottomStyle, computed.borderLeftStyle],
+              outlineStyle: computed.outlineStyle,
+              boxShadow: computed.boxShadow,
+              backgroundImage: computed.backgroundImage,
+              filter: computed.filter,
+            };
+          });
+          expect(style.opacity, `${season}/${theme}: opacity`).toBe('1');
+          expect(style.background, `${season}/${theme}: the fill must be opaque (alpha 1)`).toMatch(/^rgb\(/);
+          expect(style.color, `${season}/${theme}: text colour must be opaque`).toMatch(/^rgb\(/);
+          expect(style.borderWidths.every((width) => parseFloat(width) === 0), `${season}/${theme}: no border width (${style.borderWidths.join(' ')})`).toBe(true);
+          expect(style.boxShadow, `${season}/${theme}: no box-shadow`).toBe('none');
+          expect(style.backgroundImage, `${season}/${theme}: no background-image`).toBe('none');
+          expect(style.filter, `${season}/${theme}: no filter`).toBe('none');
+          const ratio = contrast(style.color, style.background);
+          if (ratio < 4.5) failures.push(`${season}/${theme}: ${style.color} on ${style.background} = ${ratio.toFixed(2)}`);
+          await page.context().close();
+        }
+        expect(failures).toEqual([]);
+      });
+    }
+  });
+
+  test('runtime health: no console errors, warnings or hydration warnings across hover, focus, clicks, keys, navigation and a phone tap', async ({ visit }) => {
+    // Phase 1, fake clock: label interactions around a boundary (no navigation: see the note on the flash test).
+    const paused = await pausedPage(visit, { start: '17:55:00', pauseAt: '17:59:50' });
+    const pausedErrors = watchErrors(paused);
+    await paused.reload({ waitUntil: 'load' }); // hydrate again with the watcher attached
+    await hydrated(paused);
+    await toggle(paused).hover();
+    await expect(modeLabel(paused)).toHaveText('Auto · light now');
+    await paused.clock.runFor(11_000);
+    await expect(modeLabel(paused)).toHaveText('Auto · dark now');
+    await parkPointer(paused);
+    await toggle(paused).click();
+    await paused.clock.runFor(FLASH_MS + 100);
+    await seasonButton(paused).click();
+    await paused.keyboard.press('Escape');
+    expect(realErrors(pausedErrors)).toEqual([]);
+
+    // Phase 2, real timers: navigation while a label timer is pending, keyboard, season menu, 404.
+    const page = await visit({ time: '10:00:00' });
+    const errors = watchErrors(page);
+    await goto(page, '/');
+    await hydrated(page);
+    await toggle(page).hover();
+    await parkPointer(page);
+    await toggle(page).click();
+    await page.getByRole('link', { name: 'Blog' }).first().click(); // unmounts the toggle while its timer may still be pending
+    await expect(page).toHaveURL(/\/blog\/?$/);
+    await hydrated(page);
+    for (let i = 0; i < 30 && !(await page.evaluate(() => document.activeElement?.classList.contains('theme-toggle'))); i += 1) await page.keyboard.press('Tab');
+    await page.keyboard.press('Enter');
+    await page.keyboard.press('Space');
+    await seasonButton(page).click();
+    await page.keyboard.press('Escape');
+    await goto(page, '/definitely-not-a-page');
+    await hydrated(page);
+    expect(realErrors(errors)).toEqual([]);
+
+    // Phase 3: a phone tap, with the real ~2 s timer.
+    const phone = await visit({ touch: true, viewport: { width: 390, height: 844 } });
+    const phoneErrors = watchErrors(phone);
+    await goto(phone, '/');
+    await hydrated(phone);
+    await toggle(phone).tap();
+    await expect(modeLabel(phone)).toBeVisible();
+    await expect(modeLabel(phone)).toBeHidden({ timeout: 6_000 });
+    expect(realErrors(phoneErrors)).toEqual([]);
+  });
+});
+
+// ---------------------------------------------------------------------------------------------------------------
+// 14. FR-013 - icon animation
+
+type IconStart = {
+  type: 'start';
+  which: 'season' | 'theme';
+  target: string;
+  svgCount: number;
+  running: number;
+  duration: number;
+  easing: string;
+  fill: string;
+  properties: string[];
+  disabled: boolean;
+  hittable: boolean;
+  label: string;
+  dataAnimate: string | null;
+  button: number[];
+  headerHeight: number;
+};
+const iconEvents = (page: Page) => page.evaluate(() => (window as unknown as { __iconAnim: Array<{ type: string }> }).__iconAnim);
+const iconStarts = async (page: Page) => ((await iconEvents(page)).filter((event) => event.type === 'start') as unknown as IconStart[]).filter((start) => start.which === 'theme');
+const seasonIconStarts = async (page: Page) => ((await iconEvents(page)).filter((event) => event.type === 'start') as unknown as IconStart[]).filter((start) => start.which === 'season');
+const iconEnds = async (page: Page) => (await iconEvents(page)).filter((event) => event.type === 'end').length;
+const maxRunning = (page: Page) => page.evaluate(() => (window as unknown as { __iconMaxRunning: number }).__iconMaxRunning);
+/** Two animation frames: anything that was going to start on the last change has started. */
+const settleFrames = (page: Page) => page.evaluate(() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+
+/** Real rendering frames (IntersectionObserver callbacks), usable while Playwright's fake requestAnimationFrame is paused. */
+const realFrames = (page: Page) =>
+  page.evaluate(async () => {
+    for (let i = 0; i < 3; i += 1) {
+      await new Promise<void>((resolve) => {
+        const observer = new IntersectionObserver(() => {
+          observer.disconnect();
+          resolve();
+        });
+        observer.observe(document.body);
+      });
+    }
+  });
+
+async function iconAtRest(page: Page) {
+  // data-animate is set by an effect one tick after the click; let it be set (or not) before waiting for it to clear.
+  await settleFrames(page);
+  await expect(toggle(page)).not.toHaveAttribute('data-animate', /.*/);
+  const rest = await toggle(page).evaluate((node) => {
+    const svg = node.querySelector('svg')!;
+    const style = getComputedStyle(svg);
+    const box = svg.getBoundingClientRect();
+    return {
+      svgCount: node.querySelectorAll('svg').length,
+      opacity: style.opacity,
+      transform: style.transform,
+      animationName: style.animationName,
+      animations: svg.getAnimations().length,
+      size: [Math.round(box.width), Math.round(box.height)],
+      display: style.display,
+      visibility: style.visibility,
+    };
+  });
+  expect(rest).toMatchObject({ svgCount: 1, opacity: '1', transform: 'none', animationName: 'none', animations: 0, size: [20, 20], display: 'block', visibility: 'visible' });
+}
+
+async function reachToggleByTab(page: Page) {
+  for (let i = 0; i < 30 && !(await page.evaluate(() => document.activeElement?.classList.contains('theme-toggle'))); i += 1) await page.keyboard.press('Tab');
+  await expect(toggle(page)).toBeFocused();
+}
+
+test.describe('icon animation (FR-013)', () => {
+  test('nothing animates on load, reload, stored modes, or client-side navigation (including the remount)', async ({ visit }) => {
+    for (const storage of [{}, MODE_STORAGE('light'), MODE_STORAGE('dark')]) {
+      const page = await visit({ iconRecorder: true, storage, time: '10:00:00' });
+      await goto(page, '/');
+      await hydrated(page);
+      await settleFrames(page);
+      expect(await iconStarts(page), `load with ${JSON.stringify(storage)}`).toEqual([]);
+      await expect(toggle(page)).not.toHaveAttribute('data-animate', /.*/);
+      await page.reload({ waitUntil: 'load' });
+      await hydrated(page);
+      await settleFrames(page);
+      expect(await iconStarts(page), 'reload').toEqual([]);
+
+      // Client-side navigation keeps the document (and the recorder) and remounts the toggle in each layout.
+      await page.evaluate(() => ((window as unknown as { __noReload: boolean }).__noReload = true));
+      const link = (name: string | RegExp) => page.getByRole('link', { name }).first();
+      await link('Blog').click();
+      await expect(page).toHaveURL(/\/blog\/?$/);
+      await hydrated(page);
+      await settleFrames(page);
+      await page.getByRole('link', { name: /Fixture Newest/ }).click();
+      await expect(page).toHaveURL(new RegExp(`${ARTICLE}$`));
+      await hydrated(page);
+      await settleFrames(page);
+      await page.getByRole('link', { name: 'Back to blog' }).click();
+      await expect(page).toHaveURL(/\/blog\/?$/);
+      await hydrated(page);
+      await page.getByRole('link', { name: /portfolio|home/i }).first().click();
+      await expect(page).toHaveURL(/\/$/);
+      await hydrated(page);
+      await settleFrames(page);
+      expect(await page.evaluate(() => (window as unknown as { __noReload?: boolean }).__noReload), 'no full reload happened').toBe(true);
+      expect(await iconStarts(page), `client-side navigation with ${JSON.stringify(storage)}`).toEqual([]);
+      await expect(toggle(page)).not.toHaveAttribute('data-animate', /.*/);
+      await iconAtRest(page);
+      await page.context().close();
+    }
+  });
+
+  test('a mode set before the activation but changed in the same view animates only the change, not the remount after navigating', async ({ visit }) => {
+    const page = await visit({ iconRecorder: true, time: '10:00:00' });
+    await goto(page, '/');
+    await hydrated(page);
+    await toggle(page).click();
+    await expect.poll(async () => (await iconStarts(page)).length).toBe(1);
+    await page.getByRole('link', { name: 'Blog' }).first().click();
+    await expect(page).toHaveURL(/\/blog\/?$/);
+    await hydrated(page);
+    await settleFrames(page);
+    await expect(toggle(page)).toHaveAccessibleName(NAMES.light);
+    expect(await iconStarts(page), 'only the click animated; the remounted toggle stayed still').toHaveLength(1);
+    await expect(toggle(page)).not.toHaveAttribute('data-animate', /.*/);
+  });
+
+  for (const how of ['click', 'Enter', 'Space'] as const) {
+    test(`${how}: exactly one theme-icon-in on the new svg, under 240 ms, transform and opacity only, then the icon is at rest`, async ({ visit }) => {
+      const page = await visit({ iconRecorder: true, time: '10:00:00' });
+      await goto(page, '/');
+      await hydrated(page);
+      if (how !== 'click') await reachToggleByTab(page);
+      const before = await boxes(page);
+      const names = [NAMES.light, NAMES.dark, NAMES.autoLight];
+      const shapes = new Set<string>([await toggle(page).evaluate((node) => node.querySelector('svg')!.innerHTML)]);
+      for (let activation = 1; activation <= 3; activation += 1) {
+        if (how === 'click') await toggle(page).click();
+        else await page.keyboard.press(how);
+        await expect.poll(async () => (await iconStarts(page)).length, { message: `animationstart after activation ${activation}` }).toBe(activation);
+        await expect.poll(() => iconEnds(page), { message: `animationend after activation ${activation}` }).toBe(activation);
+        await expect(toggle(page)).toHaveAccessibleName(names[activation - 1]);
+        await iconAtRest(page);
+        shapes.add(await toggle(page).evaluate((node) => node.querySelector('svg')!.innerHTML));
+      }
+      const starts = await iconStarts(page);
+      expect(starts).toHaveLength(3);
+      for (const start of starts) {
+        expect(start.target).toBe('svg');
+        expect(start.svgCount, 'exactly one svg while animating').toBe(1);
+        expect(start.running, 'exactly one running theme-icon-in').toBe(1);
+        expect(start.duration).toBeGreaterThan(0);
+        expect(start.duration).toBeLessThanOrEqual(240);
+        expect(start.properties, 'only compositor properties').toEqual(['opacity', 'transform']);
+        expect(start.fill, 'no fill mode: the end state is the plain icon').toBe('none');
+        expect(start.dataAnimate).toBe('true');
+        expect(start.disabled, 'button stays enabled').toBe(false);
+        expect(start.hittable, 'button stays hit-testable').toBe(true);
+        expect(start.button, 'button does not move').toEqual(before.theme);
+        expect(start.headerHeight, 'header height unchanged').toBe(before.header[3]);
+      }
+      expect(starts.map((start) => start.label), 'accessible name already updated when the animation starts').toEqual(names);
+      expect(shapes.size, 'the icon changed between sun and moon').toBeGreaterThanOrEqual(2);
+      expect(await maxRunning(page)).toBeLessThanOrEqual(1);
+      expect(await iconStarts(page), 'no extra animation after settling').toHaveLength(3);
+      expect(await boxes(page)).toEqual(before);
+    });
+  }
+
+  test('rapid repeated clicks end in a clean state: one svg, visible, no stuck data-animate, never two animations at once', async ({ visit }) => {
+    const page = await visit({ iconRecorder: true, time: '10:00:00' });
+    await goto(page, '/');
+    await hydrated(page);
+    for (let i = 0; i < 9; i += 1) await toggle(page).click(); // nine activations: back to Auto after three full cycles
+    await expect(toggle(page)).toHaveAccessibleName(NAMES.autoLight);
+    await expect(toggle(page)).not.toHaveAttribute('data-animate', /.*/);
+    await iconAtRest(page);
+    expect(await maxRunning(page)).toBeLessThanOrEqual(1);
+    const starts = await iconStarts(page);
+    expect(starts.length).toBeGreaterThanOrEqual(1);
+    expect(starts.length).toBeLessThanOrEqual(9);
+    for (const start of starts) {
+      expect(start.running).toBe(1);
+      expect(start.svgCount).toBe(1);
+      expect(start.properties).toEqual(['opacity', 'transform']);
+    }
+    // Still fully working afterwards.
+    await toggle(page).click();
+    await expect(toggle(page)).toHaveAccessibleName(NAMES.light);
+    await expect(toggle(page)).not.toHaveAttribute('data-animate', /.*/);
+    await iconAtRest(page);
+  });
+
+  test('activations from a script in the same task (faster than any frame) still leave a clean state', async ({ visit }) => {
+    const page = await visit({ iconRecorder: true, time: '10:00:00' });
+    await goto(page, '/');
+    await hydrated(page);
+    await toggle(page).evaluate((node) => {
+      for (let i = 0; i < 7; i += 1) (node as HTMLButtonElement).click();
+    });
+    // Scripted clicks inside one task all see the same rendered mode (React flushes between tasks), so only the end state is asserted.
+    await expect(toggle(page)).toHaveAccessibleName(/^Theme: (Auto \(currently (light|dark)\)|Light|Dark)$/);
+    await expect(toggle(page)).not.toHaveAttribute('data-animate', /.*/);
+    await iconAtRest(page);
+    expect(await maxRunning(page)).toBeLessThanOrEqual(1);
+  });
+
+  test('a mode change made in another tab animates once in the following tab', async ({ visit }) => {
+    const a = await visit({ iconRecorder: true, time: '10:00:00' });
+    const b = await a.context().newPage();
+    await goto(a, '/');
+    await goto(b, '/blog');
+    await hydrated(a);
+    await hydrated(b);
+    await settleFrames(b);
+    expect(await iconStarts(b)).toEqual([]);
+
+    await toggle(a).click();
+    await expect(toggle(b)).toHaveAccessibleName(NAMES.light);
+    await expect.poll(async () => (await iconStarts(b)).length, { message: 'tab B animates the followed change' }).toBe(1);
+    await expect.poll(() => iconEnds(b)).toBe(1);
+    await iconAtRest(b);
+    await settleFrames(b);
+    const started = await iconStarts(b);
+    expect(started).toHaveLength(1);
+    expect(started[0]).toMatchObject({ target: 'svg', svgCount: 1, running: 1, properties: ['opacity', 'transform'], label: NAMES.light, disabled: false });
+    expect(started[0].duration).toBeLessThanOrEqual(240);
+    // The tab that was clicked animated once as well, and the echo between the tabs did not add more.
+    await expect.poll(async () => (await iconStarts(a)).length).toBe(1);
+    await toggle(a).click();
+    await expect(toggle(b)).toHaveAccessibleName(NAMES.dark);
+    await expect.poll(async () => (await iconStarts(b)).length).toBe(2);
+    await expect.poll(() => iconEnds(b)).toBe(2);
+    await settleFrames(b);
+    expect(await iconStarts(b)).toHaveLength(2);
+    expect(await iconStarts(a)).toHaveLength(2);
+  });
+
+  test('the live 18:00 flip in Auto changes the theme without animating the icon', async ({ visit }) => {
+    const page = await visit({ clock: 'install', time: '17:55:00', iconRecorder: true });
+    await goto(page, '/');
+    await hydrated(page);
+    await page.clock.pauseAt(instant('17:59:50'));
+    const sunShape = await toggle(page).evaluate((node) => node.querySelector('svg')!.innerHTML);
+    await page.clock.runFor(11_000);
+    await expectTheme(page, 'dark');
+    await expect(toggle(page)).toHaveAccessibleName(NAMES.autoDark);
+    await realFrames(page);
+    expect(await iconStarts(page)).toEqual([]);
+    await expect(toggle(page)).not.toHaveAttribute('data-animate', /.*/);
+    expect(await toggle(page).evaluate((node) => node.querySelector('svg')!.innerHTML), 'sun -> moon').not.toBe(sunShape);
+    await expect(page.locator('.theme-toggle .theme-toggle-badge')).toHaveText('A'); // the sun became the moon without any animation; the badge stays
+    // And the 06:00 flip the next morning.
+    await page.clock.fastForward('12:00:00');
+    await expectTheme(page, 'light');
+    await realFrames(page);
+    expect(await iconStarts(page)).toEqual([]);
+  });
+
+  test('reduced motion: no animation at all and no animation event, yet the icon swaps and the name updates', async ({ visit }) => {
+    const page = await visit({ iconRecorder: true, reducedMotion: 'reduce', time: '10:00:00' });
+    await goto(page, '/');
+    await hydrated(page);
+    const shapes: string[] = [];
+    for (const name of [NAMES.light, NAMES.dark, NAMES.autoLight]) {
+      await toggle(page).click();
+      await expect(toggle(page)).toHaveAccessibleName(name);
+      const state = await toggle(page).evaluate((node) => {
+        const svg = node.querySelector('svg')!;
+        const style = getComputedStyle(svg);
+        return { animations: document.getAnimations().length, animationName: style.animationName, opacity: style.opacity, transform: style.transform, count: node.querySelectorAll('svg').length, shape: svg.innerHTML };
+      });
+      expect(state).toMatchObject({ animations: 0, animationName: 'none', opacity: '1', transform: 'none', count: 1 });
+      shapes.push(state.shape);
+    }
+    expect(new Set(shapes).size, 'the icon still changes between sun and moon').toBe(2); // sun (Light), moon (Dark), sun (Auto by day)
+    await settleFrames(page);
+    expect(await iconStarts(page)).toEqual([]);
+    expect(await maxRunning(page)).toBe(0);
+    // The attribute is only a marker: whatever the app does with it, it must not stay set.
+    await expect(toggle(page)).not.toHaveAttribute('data-animate', /.*/);
+    await iconAtRest(page);
+  });
+
+  for (const variant of ['no JavaScript', 'external scripts blocked'] as const) {
+    test(`${variant}: both icons are in the markup, exactly the one matching <html> shows, the badge is there, and nothing is animating`, async ({ visit }) => {
+      const page = await visit(variant === 'no JavaScript' ? { javaScriptEnabled: false, time: '10:00:00' } : { blockScripts: true, iconRecorder: true, time: '10:00:00' });
+      await goto(page, '/');
+      await expect(toggle(page)).toBeDisabled();
+      await expect(toggle(page)).toHaveAccessibleName('Theme: Auto');
+      await expect(toggle(page)).not.toHaveAttribute('data-animate', /.*/);
+      const state = await toggle(page).evaluate((node) => {
+        const svgs = Array.from(node.querySelectorAll('svg'));
+        const visible = svgs.filter((svg) => getComputedStyle(svg).display !== 'none');
+        const badge = node.querySelector('.theme-toggle-badge') as HTMLElement | null;
+        return {
+          classes: svgs.map((svg) => svg.getAttribute('class') ?? ''),
+          hidden: svgs.map((svg) => svg.getAttribute('aria-hidden')),
+          visibleCount: visible.length,
+          visibleClass: visible[0]?.getAttribute('class') ?? '',
+          visibleStyle: visible[0] ? { opacity: getComputedStyle(visible[0]).opacity, transform: getComputedStyle(visible[0]).transform, animationName: getComputedStyle(visible[0]).animationName, visibility: getComputedStyle(visible[0]).visibility, width: getComputedStyle(visible[0]).width, height: getComputedStyle(visible[0]).height, animations: visible[0].getAnimations().length } : null,
+          root: document.documentElement.className,
+          badge: badge ? { text: badge.textContent, hidden: badge.getAttribute('aria-hidden'), display: getComputedStyle(badge).display, pointer: getComputedStyle(badge).pointerEvents } : null,
+          animations: document.getAnimations().filter((animation) => (animation.effect as KeyframeEffect | null)?.target?.closest?.('.theme-toggle')).length, // the season's ambient particles are not the toggle's
+        };
+      });
+      expect(state.classes.some((name) => /theme-toggle-icon-light/.test(name)), 'sun in the markup').toBe(true);
+      expect(state.classes.some((name) => /theme-toggle-icon-dark/.test(name)), 'moon in the markup').toBe(true);
+      expect(state.classes).toHaveLength(2);
+      expect(state.hidden).toEqual(['true', 'true']);
+      expect(state.visibleCount, 'exactly one icon is displayed').toBe(1);
+      // No JavaScript keeps the dark design (moon); with only inline scripts the init script has already set light at 10:00 (sun).
+      expect(state.visibleClass).toMatch(variant === 'no JavaScript' ? /theme-toggle-icon-dark/ : /theme-toggle-icon-light/);
+      expect(state.root).toMatch(variant === 'no JavaScript' ? /\bdark\b/ : /\blight\b/);
+      expect(state.visibleStyle).toEqual({ opacity: '1', transform: 'none', animationName: 'none', visibility: 'visible', width: '20px', height: '20px', animations: 0 });
+      expect(state.badge).toEqual({ text: 'A', hidden: 'true', display: 'grid', pointer: 'none' });
+      expect(state.animations).toBe(0);
+      await expect(toggle(page)).toBeVisible();
+    });
+  }
+
+  for (const width of [390, 1440]) {
+    test(`${width}px: activations cause no overflow and no layout shift, and the header and both controls stay put`, async ({ visit }) => {
+      const viewport = { width, height: width === 390 ? 844 : 900 };
+      const page = await visit({ viewport, iconRecorder: true, time: '10:00:00' });
+      await page.addInitScript(() => {
+        (window as unknown as { __shift: number }).__shift = 0;
+        new PerformanceObserver((list) => {
+          for (const entry of list.getEntries() as unknown as Array<{ value: number; hadRecentInput: boolean }>) {
+            if (!entry.hadRecentInput) (window as unknown as { __shift: number }).__shift += entry.value;
+          }
+        }).observe({ type: 'layout-shift', buffered: true });
+      });
+      await goto(page, '/');
+      await hydrated(page);
+      await page.waitForLoadState('load');
+      const before = await boxes(page);
+      const shiftBefore = await page.evaluate(() => (window as unknown as { __shift: number }).__shift);
+      for (let activation = 1; activation <= 4; activation += 1) {
+        await toggle(page).click();
+        await expect.poll(async () => (await iconStarts(page)).length).toBe(activation);
+        await noOverflow(page);
+        expect(await boxes(page), `during/after activation ${activation}`).toEqual(before);
+        await inside(toggle(page), viewport);
+        await expect.poll(() => iconEnds(page)).toBe(activation);
+      }
+      await iconAtRest(page);
+      const shiftAfter = await page.evaluate(() => (window as unknown as { __shift: number }).__shift);
+      expect(shiftAfter - shiftBefore).toBeLessThan(0.01);
+      await noOverflow(page);
+    });
+  }
+});
+
+// ---------------------------------------------------------------------------------------------------------------
+// 15. FR-017, FR-018 (spec 003) and parity with FR-005/012/013 (spec 004) - the season toggle
+
+const seasonWrap = (page: Page) => page.locator('div.season-toggle-wrap');
+
+/** The Manila January fixture clock is dry season; pressing once gives wet. Berlin January is winter; pressing once gives spring. */
+const SEASON_AUTO_NAME = 'Season: Auto (currently dry season)';
+
+async function seasonIconState(page: Page) {
+  return seasonButton(page).evaluate((node) => {
+    const svgs = Array.from(node.querySelectorAll('svg'));
+    const badges = Array.from(node.querySelectorAll('.season-toggle-badge'));
+    const badge = badges[0] as HTMLElement | undefined;
+    const box = node.getBoundingClientRect();
+    const badgeBox = badge?.getBoundingClientRect();
+    return {
+      svgCount: svgs.length,
+      svgHidden: svgs.map((svg) => svg.getAttribute('aria-hidden')),
+      svgSize: svgs.map((svg) => [parseFloat(getComputedStyle(svg).width), parseFloat(getComputedStyle(svg).height)]),
+      shape: svgs[0]?.innerHTML ?? '',
+      badgeCount: badges.length,
+      badgeText: badge?.textContent ?? null,
+      badgeHidden: badge?.getAttribute('aria-hidden') ?? null,
+      badgePointerEvents: badge ? getComputedStyle(badge).pointerEvents : null,
+      badgeSize: badgeBox ? [Math.round(badgeBox.width), Math.round(badgeBox.height)] : null,
+      badgeInside: badgeBox ? badgeBox.left >= box.left - 0.5 && badgeBox.top >= box.top - 0.5 && badgeBox.right <= box.right + 0.5 && badgeBox.bottom <= box.bottom + 0.5 : null,
+      text: node.textContent,
+    };
+  });
+}
+
+test.describe('season toggle: markup, label, icon and badge (FR-017, FR-018; parity with spec 004)', () => {
+  test('label markup: a decorative sibling inside div.season-toggle-wrap; hidden on load, after reload and after navigation', async ({ visit }) => {
+    const page = await visit({ time: '10:00:00' });
+    await goto(page, '/');
+    await expect(seasonLabel(page)).toBeHidden(); // pre-hydration
+    await hydrated(page);
+    await expect(seasonLabel(page)).toBeHidden();
+    const facts = await page.evaluate(() => {
+      const wrap = document.querySelector('div.season-toggle-wrap')!;
+      const label = document.querySelector('span.season-toggle-label') as HTMLElement;
+      const style = getComputedStyle(label);
+      const durations = (value: string) => value.split(',').map((part) => parseFloat(part));
+      return {
+        children: Array.from(wrap.children).map((child) => `${child.tagName.toLowerCase()}.${child.className}`),
+        controls: Array.from(document.querySelector('.header-controls')!.children).map((child) => child.className),
+        ariaHidden: label.getAttribute('aria-hidden'),
+        tabindex: label.getAttribute('tabindex'),
+        focusableInside: label.querySelectorAll('a, button, input, select, textarea, [tabindex]').length,
+        pointerEvents: style.pointerEvents,
+        position: style.position,
+        display: style.display,
+        transitions: durations(style.transitionDuration),
+        animationName: style.animationName,
+        animationDurations: durations(style.animationDuration),
+        labelCount: document.querySelectorAll('.season-toggle-label').length,
+      };
+    });
+    expect(facts.children).toEqual(['button.season-toggle', 'span.season-toggle-label']);
+    expect(facts.controls).toEqual(['season-toggle-wrap', 'theme-toggle-wrap']);
+    expect(facts).toMatchObject({ ariaHidden: 'true', tabindex: null, focusableInside: 0, pointerEvents: 'none', position: 'absolute', display: 'none', animationName: 'none', labelCount: 1 });
+    expect(facts.transitions.every((value) => value === 0)).toBe(true);
+    expect(facts.animationDurations.every((value) => value === 0)).toBe(true);
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await hydrated(page);
+    await expect(seasonLabel(page)).toBeHidden();
+    await page.getByRole('link', { name: 'Blog' }).first().click();
+    await expect(page).toHaveURL(/\/blog\/?$/);
+    await hydrated(page);
+    await expect(seasonLabel(page)).toBeHidden();
+    // The label is never reachable by keyboard.
+    let reachedLabel = false;
+    for (let i = 0; i < 40 && !reachedLabel; i += 1) {
+      await page.keyboard.press('Tab');
+      reachedLabel = await page.evaluate(() => !!document.activeElement?.closest('.season-toggle-label'));
+    }
+    expect(reachedLabel).toBe(false);
+  });
+
+  test('label text: "Auto · <season> now" in Auto, the season name when chosen; "Auto" before hydration', async ({ visit }) => {
+    const cases: Array<[string, string, string, string]> = [
+      ['Asia/Manila', '2026-11-15T12:00:00Z', 'Auto · wet season now', 'Dry season'],
+      ['Asia/Manila', '2026-02-15T12:00:00Z', 'Auto · dry season now', 'Wet season'],
+      ['Europe/Berlin', '2026-11-15T12:00:00Z', 'Auto · autumn now', 'Winter'],
+      ['Australia/Sydney', '2026-01-15T12:00:00Z', 'Auto · summer now', 'Autumn'],
+    ];
+    for (const [zone, now, auto, afterPress] of cases) {
+      const page = await visit({ zone: zone as Zone, time: Date.parse(now) });
+      await goto(page, '/');
+      await hydrated(page);
+      await expect(seasonLabel(page)).toHaveText(auto);
+      await pressSeason(page);
+      await expect(seasonLabel(page)).toHaveText(afterPress);
+      await page.context().close();
+    }
+    const blocked = await visit({ blockScripts: true });
+    await goto(blocked, '/');
+    await expect(seasonLabel(blocked)).toHaveText('Auto');
+    await expect(seasonLabel(blocked)).toBeHidden();
+    await expect(seasonButton(blocked)).toHaveAccessibleName('Season: Auto');
+    await expect(seasonButton(blocked)).toBeDisabled();
+  });
+
+  test.describe('when the label is visible (desktop)', () => {
+    test('hover shows it and the pointer leaving hides it', async ({ visit }) => {
+      const page = await pausedPage(visit);
+      await expect(seasonLabel(page)).toBeHidden();
+      await seasonButton(page).hover();
+      await expect(seasonLabel(page)).toBeVisible();
+      await expect(seasonLabel(page)).toHaveText('Auto · dry season now');
+      await page.clock.runFor(10_000);
+      await expect(seasonLabel(page)).toBeVisible();
+      await parkPointer(page);
+      await expect(seasonLabel(page)).toBeHidden();
+    });
+
+    test('keyboard focus shows it and blur hides it', async ({ visit }) => {
+      const page = await pausedPage(visit);
+      for (let i = 0; i < 30 && !(await page.evaluate(() => document.activeElement?.classList.contains('season-toggle'))); i += 1) await page.keyboard.press('Tab');
+      await expect(seasonButton(page)).toBeFocused();
+      await expect(seasonLabel(page)).toBeVisible();
+      await page.keyboard.press('Tab');
+      await expect(seasonLabel(page)).toBeHidden();
+    });
+
+    test('a click shows it for about two seconds (visible at +1.9 s, hidden at +2.1 s) and a mouse click never leaves it stuck', async ({ visit }) => {
+      const page = await pausedPage(visit);
+      await pressSeason(page);
+      await parkPointer(page);
+      await expect(seasonLabel(page)).toBeVisible();
+      await expect(seasonLabel(page)).toHaveText('Wet season');
+      await page.clock.runFor(1_900);
+      await expect(seasonLabel(page)).toBeVisible();
+      await page.clock.runFor(200);
+      await expect(seasonLabel(page)).toBeHidden();
+      await expect(seasonButton(page)).toBeFocused();
+    });
+
+    for (const key of ['Enter', 'Space'] as const) {
+      test(`${key} shows it for about two seconds once focus is gone`, async ({ visit }) => {
+        const page = await pausedPage(visit);
+        for (let i = 0; i < 30 && !(await page.evaluate(() => document.activeElement?.classList.contains('season-toggle'))); i += 1) await page.keyboard.press('Tab');
+        await page.keyboard.press(key);
+        await expect(seasonButton(page)).toHaveAccessibleName('Season: Wet season');
+        await expect(seasonLabel(page)).toHaveText('Wet season');
+        await page.evaluate(() => (document.activeElement as HTMLElement).blur());
+        await expect(seasonLabel(page)).toBeVisible();
+        await page.clock.runFor(1_900);
+        await expect(seasonLabel(page)).toBeVisible();
+        await page.clock.runFor(200);
+        await expect(seasonLabel(page)).toBeHidden();
+      });
+    }
+
+    test('a second press restarts the timer; rapid presses leave one timer', async ({ visit }) => {
+      const page = await pausedPage(visit, { zone: 'Europe/Berlin', start: '10:00:00', pauseAt: '10:30:00' });
+      await pressSeason(page);
+      await page.clock.runFor(1_500);
+      await pressSeason(page);
+      await parkPointer(page);
+      await page.clock.runFor(1_500);
+      await expect(seasonLabel(page)).toBeVisible();
+      await page.clock.runFor(600);
+      await expect(seasonLabel(page)).toBeHidden();
+      for (let i = 0; i < 5; i += 1) {
+        await pressSeason(page);
+        await page.clock.runFor(300);
+      }
+      await parkPointer(page);
+      await page.clock.runFor(1_600);
+      await expect(seasonLabel(page)).toBeVisible();
+      await page.clock.runFor(200);
+      await expect(seasonLabel(page)).toBeHidden();
+    });
+  });
+
+  test('touch: a tap shows the label for about two seconds and nothing sticks', async ({ visit }) => {
+    const page = await pausedPage(visit, { touch: true, viewport: { width: 390, height: 844 } });
+    await seasonButton(page).tap();
+    await expect(seasonButton(page)).toHaveAccessibleName('Season: Wet season');
+    await expect(seasonLabel(page)).toBeVisible();
+    await page.clock.runFor(1_900);
+    await expect(seasonLabel(page)).toBeVisible();
+    await page.clock.runFor(200);
+    await expect(seasonLabel(page)).toBeHidden();
+    await page.clock.runFor(5_000);
+    await expect(seasonLabel(page)).toBeHidden();
+  });
+
+  test('icon and badge: one aria-hidden svg after mount; the Auto badge only in Auto; each season has its own icon', async ({ visit }) => {
+    const shapes: string[] = [];
+    for (const season of SEASON_IDS) {
+      const page = await visit({ season, time: '10:00:00' });
+      await goto(page, '/');
+      await hydrated(page);
+      await expect(html(page)).toHaveAttribute('data-season', season);
+      await expect(seasonButton(page)).toHaveAccessibleName(`Season: ${seasonName(season)}`);
+      const state = await seasonIconState(page);
+      expect(state, `${season}: manual choice`).toMatchObject({ svgCount: 1, svgHidden: ['true'], svgSize: [[20, 20]], badgeCount: 0, text: '' });
+      shapes.push(state.shape);
+      await page.context().close();
+    }
+    expect(new Set(shapes).size, 'six seasons, six distinct icons').toBe(6);
+
+    for (const [zone, expectedBadge] of [['Europe/Berlin', 'winter'], ['Asia/Manila', 'dry']] as const) {
+      const page = await visit({ zone, time: '10:00:00' });
+      await goto(page, '/');
+      await hydrated(page);
+      const auto = await seasonIconState(page);
+      expect(auto, `${zone}: Auto`).toMatchObject({ svgCount: 1, svgHidden: ['true'], svgSize: [[20, 20]], badgeCount: 1, badgeText: 'A', badgeHidden: 'true', badgePointerEvents: 'none', badgeSize: [16, 16], badgeInside: true });
+      await expect(html(page)).toHaveAttribute('data-season', expectedBadge);
+      expect(auto.shape, `${zone}: Auto shows the applied season's icon`).toBe(shapes[SEASON_IDS.indexOf(expectedBadge)]);
+      await pressSeason(page);
+      expect((await seasonIconState(page)).badgeCount, 'no badge once chosen').toBe(0);
+      await page.context().close();
+    }
+  });
+
+  test('before hydration: all seven icons are in the markup, exactly the one matching html[data-season] shows, with the badge', async ({ visit }) => {
+    for (const [options, expectedClass] of [
+      [{ blockScripts: true, zone: 'Europe/Berlin' as Zone }, 'season-toggle-icon-winter'],
+      [{ blockScripts: true, zone: 'Asia/Manila' as Zone }, 'season-toggle-icon-dry'],
+      [{ blockScripts: true, season: 'autumn' as SeasonId }, 'season-toggle-icon-autumn'],
+    ] as const) {
+      const page = await visit({ ...options, time: '10:00:00' });
+      await goto(page, '/');
+      await expect(seasonButton(page)).toBeDisabled();
+      await expect(seasonButton(page)).toHaveAccessibleName('Season: Auto');
+      const state = await seasonButton(page).evaluate((node) => {
+        const svgs = Array.from(node.querySelectorAll('svg'));
+        const visible = svgs.filter((svg) => getComputedStyle(svg).display !== 'none');
+        const badge = node.querySelector('.season-toggle-badge');
+        return {
+          count: svgs.length,
+          hidden: svgs.every((svg) => svg.getAttribute('aria-hidden') === 'true'),
+          visibleCount: visible.length,
+          visibleClass: visible[0]?.getAttribute('class') ?? '',
+          size: visible[0] ? [getComputedStyle(visible[0]).width, getComputedStyle(visible[0]).height] : [],
+          badge: badge?.textContent ?? null,
+          animations: document.getAnimations().filter((animation) => (animation.effect as KeyframeEffect | null)?.target?.closest?.('.season-toggle')).length,
+          animate: node.getAttribute('data-animate'),
+        };
+      });
+      expect(state).toMatchObject({ count: 7, hidden: true, visibleCount: 1, size: ['20px', '20px'], badge: 'A', animations: 0, animate: null });
+      expect(state.visibleClass).toContain(expectedClass);
+      await page.context().close();
+    }
+  });
+
+  test('where no season applies (UTC) the control is not displayed or exposed, and the theme toggle is unaffected', async ({ visit }) => {
+    const page = await visit({ zone: 'UTC', time: '12:00:00' });
+    await goto(page, '/');
+    await hydrated(page);
+    await expect(html(page)).not.toHaveAttribute('data-season', /.*/);
+    await expect(seasonWrap(page)).toHaveCSS('display', 'none');
+    await expect(page.getByRole('button', { name: /^Season:/ })).toHaveCount(0);
+    await expect(seasonLabel(page)).toBeHidden();
+    await expect(toggle(page)).toBeVisible();
+    const viewport = { width: 1440, height: 900 };
+    await inside(toggle(page), viewport);
+    await noOverflow(page);
+    await toggle(page).hover();
+    await expect(modeLabel(page)).toBeVisible();
+    const nojs = await visit({ javaScriptEnabled: false });
+    await goto(nojs, '/');
+    await expect(seasonWrap(nojs)).toHaveCSS('display', 'none');
+    await expect(html(nojs)).not.toHaveAttribute('data-season', /.*/);
+  });
+});
+
+test.describe('season toggle: icon animation (FR-013 parity)', () => {
+  test('nothing animates on load, reload, stored seasons or client-side navigation; no season label or icon moves', async ({ visit }) => {
+    for (const options of [{}, { season: 'winter' as SeasonId }, { season: 'wet' as SeasonId }]) {
+      const page = await visit({ iconRecorder: true, time: '10:00:00', ...options });
+      await goto(page, '/');
+      await hydrated(page);
+      await settleFrames(page);
+      expect(await seasonIconStarts(page), `load ${JSON.stringify(options)}`).toEqual([]);
+      await page.reload({ waitUntil: 'load' });
+      await hydrated(page);
+      await settleFrames(page);
+      expect(await seasonIconStarts(page), 'reload').toEqual([]);
+      await page.getByRole('link', { name: 'Blog' }).first().click();
+      await expect(page).toHaveURL(/\/blog\/?$/);
+      await hydrated(page);
+      await page.getByRole('link', { name: /Fixture Newest/ }).click();
+      await expect(page).toHaveURL(new RegExp(`${ARTICLE}$`));
+      await hydrated(page);
+      await settleFrames(page);
+      expect(await seasonIconStarts(page), 'client-side navigation (remount)').toEqual([]);
+      expect(await iconStarts(page), 'the theme toggle did not animate either').toEqual([]);
+      await expect(seasonButton(page)).not.toHaveAttribute('data-animate', /.*/);
+      await page.context().close();
+    }
+  });
+
+  for (const how of ['click', 'Enter', 'Space'] as const) {
+    test(`${how}: exactly one theme-icon-in per press on the season svg, under 240 ms, transform and opacity only, then at rest`, async ({ visit }) => {
+      const page = await visit({ iconRecorder: true, time: '10:00:00', zone: 'Europe/Berlin' }); // Berlin January: winter
+      await goto(page, '/');
+      await hydrated(page);
+      if (how !== 'click') {
+        for (let i = 0; i < 30 && !(await page.evaluate(() => document.activeElement?.classList.contains('season-toggle'))); i += 1) await page.keyboard.press('Tab');
+        await expect(seasonButton(page)).toBeFocused();
+      }
+      const before = await boxes(page);
+      const names = ['Season: Spring', 'Season: Summer', 'Season: Autumn'];
+      for (let press = 1; press <= 3; press += 1) {
+        if (how === 'click') await pressSeason(page);
+        else await page.keyboard.press(how);
+        await expect.poll(async () => (await seasonIconStarts(page)).length).toBe(press);
+        await expect.poll(() => iconEnds(page)).toBe(press);
+        await expect(seasonButton(page)).toHaveAccessibleName(names[press - 1]);
+        await expect(seasonButton(page)).not.toHaveAttribute('data-animate', /.*/);
+        const rest = await seasonButton(page).evaluate((node) => {
+          const svg = node.querySelector('svg')!;
+          const style = getComputedStyle(svg);
+          return { count: node.querySelectorAll('svg').length, opacity: style.opacity, transform: style.transform, animations: svg.getAnimations().length };
+        });
+        expect(rest).toEqual({ count: 1, opacity: '1', transform: 'none', animations: 0 });
+      }
+      const starts = await seasonIconStarts(page);
+      for (const start of starts) {
+        expect(start).toMatchObject({ target: 'svg', svgCount: 1, running: 1, properties: ['opacity', 'transform'], fill: 'none', dataAnimate: 'true', disabled: false, hittable: true });
+        expect(start.duration).toBeGreaterThan(0);
+        expect(start.duration).toBeLessThanOrEqual(240);
+        expect(start.headerHeight).toBe(before.header[3]);
+      }
+      expect(starts.map((start) => start.label)).toEqual(names);
+      expect(await iconStarts(page), 'the theme toggle is untouched').toEqual([]);
+      expect(await maxRunning(page)).toBeLessThanOrEqual(1);
+      expect(await boxes(page)).toEqual(before);
+    });
+  }
+
+  test('rapid presses end clean; reduced motion never animates yet swaps the icon; another tab animates once', async ({ visit }) => {
+    const page = await visit({ iconRecorder: true, time: '10:00:00', zone: 'Europe/Berlin' });
+    await goto(page, '/');
+    await hydrated(page);
+    for (let i = 0; i < 8; i += 1) await seasonButton(page).click(); // two full cycles of four
+    await expect(seasonButton(page)).toHaveAccessibleName('Season: Auto (currently winter)');
+    await expect(seasonButton(page)).not.toHaveAttribute('data-animate', /.*/);
+    expect(await maxRunning(page)).toBeLessThanOrEqual(1);
+
+    const reduced = await visit({ iconRecorder: true, reducedMotion: 'reduce', time: '10:00:00', zone: 'Europe/Berlin' });
+    await goto(reduced, '/');
+    await hydrated(reduced);
+    const before = (await seasonIconState(reduced)).shape;
+    await pressSeason(reduced);
+    await expect(seasonButton(reduced)).toHaveAccessibleName('Season: Spring');
+    expect((await seasonIconState(reduced)).shape, 'the icon still swaps').not.toBe(before);
+    await settleFrames(reduced);
+    expect(await seasonIconStarts(reduced)).toEqual([]);
+    expect(await reduced.evaluate(() => document.getAnimations().filter((animation) => (animation.effect as KeyframeEffect | null)?.target?.closest?.('.season-toggle')).length)).toBe(0);
+    await expect(seasonButton(reduced)).not.toHaveAttribute('data-animate', /.*/);
+
+    const a = await visit({ iconRecorder: true, time: '10:00:00', zone: 'Europe/Berlin' });
+    const b = await a.context().newPage();
+    await goto(a, '/');
+    await goto(b, '/blog');
+    await hydrated(a);
+    await hydrated(b);
+    await pressSeason(a);
+    await expect(seasonButton(b)).toHaveAccessibleName('Season: Spring');
+    await expect.poll(async () => (await seasonIconStarts(b)).length).toBe(1);
+    await expect.poll(() => iconEnds(b)).toBe(1);
+    await settleFrames(b);
+    expect(await seasonIconStarts(b)).toHaveLength(1);
+  });
+
+  test('a stored season outside the region does not animate or change anything on load', async ({ visit }) => {
+    const page = await visit({ iconRecorder: true, time: '10:00:00', storage: { season: 'winter' } }); // Manila: winter does not exist there
+    await goto(page, '/');
+    await hydrated(page);
+    await expect(html(page)).toHaveAttribute('data-season', 'dry');
+    await expect(seasonButton(page)).toHaveAccessibleName(SEASON_AUTO_NAME);
+    await settleFrames(page);
+    expect(await seasonIconStarts(page)).toEqual([]);
+  });
+});
+
+test.describe('season toggle: layout with both labels (SC-006, SC-007)', () => {
+  for (const width of [390, 768, 1440]) {
+    for (const theme of ['light', 'dark'] as const) {
+      test(`${theme} at ${width}px: both toggles and either label - no overflow, nothing moves, each label inside the viewport and off the other button`, async ({ visit }) => {
+        const viewport = { width, height: width === 390 ? 844 : 900 };
+        // Manila in November is a wet season: "Auto · wet season now" is the widest label text.
+        const page = await visit({ viewport, storage: MODE_STORAGE(theme), time: Date.parse('2026-11-15T10:00:00+08:00') });
+        for (const route of ['/', ARTICLE]) {
+          await goto(page, route);
+          await hydrated(page);
+          await expectTheme(page, theme);
+          await expect(seasonLabel(page)).toHaveText('Auto · wet season now');
+          const resting = await boxes(page);
+          const seasonBox = (await seasonButton(page).boundingBox())!;
+          const themeBox = (await toggle(page).boundingBox())!;
+          expect(seasonBox.x + seasonBox.width, 'season toggle sits left of the theme toggle without overlap').toBeLessThanOrEqual(themeBox.x + 0.5);
+          for (const which of ['season', 'theme'] as const) {
+            const control = which === 'season' ? seasonButton(page) : toggle(page);
+            const label = which === 'season' ? seasonLabel(page) : modeLabel(page);
+            const otherControl = which === 'season' ? toggle(page) : seasonButton(page);
+            await control.hover();
+            await expect(label).toBeVisible();
+            expect(await boxes(page), `${route}: geometry with the ${which} label showing`).toEqual(resting);
+            await inside(label, viewport);
+            await noOverflow(page);
+            const box = (await label.boundingBox())!;
+            const owner = (await control.boundingBox())!;
+            const other = (await otherControl.boundingBox())!;
+            expect(box.y, `${which} label sits below its button`).toBeGreaterThanOrEqual(owner.y + owner.height);
+            expect(Math.abs(box.x + box.width - (owner.x + owner.width)), `${which} label is right-aligned to its button`).toBeLessThanOrEqual(1);
+            const overlapsOther = box.x < other.x + other.width && box.x + box.width > other.x && box.y < other.y + other.height && box.y + box.height > other.y;
+            expect(overlapsOther, `${which} label must not cover the other toggle`).toBe(false);
+            await parkPointer(page);
+            await expect(label).toBeHidden();
+            expect(await boxes(page), `${route}: geometry after the ${which} label hides`).toEqual(resting);
+          }
+        }
+      });
+    }
+  }
+});
+
+test.describe('season toggle: badge contrast (FR-017)', () => {
+  for (const theme of ['light', 'dark'] as const) {
+    test(`${theme}: the season badge is at least 4.5:1 at rest and on hover, and the label fill/text is at least 4.5:1, in all six seasons`, async ({ visit }) => {
+      const failures: string[] = [];
+      for (const season of SEASON_IDS) {
+        // Auto badge: Berlin and Manila detect a season; pick the zone/time where the detected season equals the one under test
+        // so the badge is shown (a manual choice renders no badge).
+        const detected: Record<SeasonId, [Zone, string]> = {
+          spring: ['Europe/Berlin', '2026-04-15'],
+          summer: ['Europe/Berlin', '2026-07-15'],
+          autumn: ['Europe/Berlin', '2026-10-15'],
+          winter: ['Europe/Berlin', '2026-01-15'],
+          wet: ['Asia/Manila', '2026-08-15'],
+          dry: ['Asia/Manila', '2026-02-15'],
+        };
+        const [zone, date] = detected[season];
+        const hour = theme === 'light' ? '10:00:00' : '22:00:00';
+        const page = await visit({ zone, time: Date.parse(`${date}T${hour}${OFFSETS[zone]}`), storage: MODE_STORAGE(theme) });
+        await goto(page, '/');
+        await hydrated(page);
+        await expectTheme(page, theme);
+        await expect(html(page)).toHaveAttribute('data-season', season);
+        const badge = page.locator('.season-toggle .season-toggle-badge');
+        await expect(badge).toHaveCount(1);
+        const read = (locator: Locator) =>
+          locator.evaluate((node) => {
+            const computed = getComputedStyle(node);
+            return { color: computed.color, background: computed.backgroundColor, opacity: computed.opacity, boxShadow: computed.boxShadow, backgroundImage: computed.backgroundImage, borders: [computed.borderTopWidth, computed.borderLeftWidth] };
+          });
+        const rest = await read(badge);
+        await seasonButton(page).hover();
+        await expect.poll(async () => (await read(badge)).color !== rest.color, { message: `${season}/${theme}: hover restyles the badge` }).toBe(true);
+        const hover = await read(badge);
+        const label = await read(seasonLabel(page));
+        await parkPointer(page);
+        for (const [state, style] of [['badge rest', rest], ['badge hover', hover], ['label', label]] as const) {
+          expect(style.background, `${season}/${theme}/${state}: opaque background`).toMatch(/^rgb\(/);
+          expect(style.color, `${season}/${theme}/${state}: opaque text`).toMatch(/^rgb\(/);
+          expect(style.boxShadow).toBe('none');
+          expect(style.backgroundImage).toBe('none');
+          const ratio = contrast(style.color, style.background);
+          if (ratio < 4.5) failures.push(`${season}/${theme}/${state}: ${style.color} on ${style.background} = ${ratio.toFixed(2)}`);
+        }
+        expect(`${hover.color}|${hover.background}`, `${season}/${theme}: hover inverts the badge`).toBe(`${rest.background}|${rest.color}`);
+        await page.context().close();
+      }
+      expect(failures).toEqual([]);
+    });
+  }
 });

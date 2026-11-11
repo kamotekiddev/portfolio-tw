@@ -154,6 +154,33 @@ export function seasonForBand(
    ];
 }
 
+const NO_SEASONS: readonly Season[] = Object.freeze([]);
+
+/** Seasons that occur in each band, in `SEASONS` order (spring … winter, then wet, dry). */
+const BAND_AVAILABLE = Object.keys(BAND_SEASONS).reduce(
+   (table, band) => {
+      const quarters = BAND_SEASONS[band as KnownBand];
+      table[band as KnownBand] = Object.freeze(
+         SEASONS.filter((season) => quarters.indexOf(season) >= 0)
+      );
+      return table;
+   },
+   {} as Record<KnownBand, readonly Season[]>
+);
+
+/** Temperate: spring, summer, autumn, winter. Tropical: wet, dry. Unknown: none. */
+export function seasonsForBand(band: RegionBand): readonly Season[] {
+   return hasOwn(BAND_AVAILABLE, band)
+      ? BAND_AVAILABLE[band as KnownBand]
+      : NO_SEASONS;
+}
+
+export function availableSeasons(
+   timeZone: string | null | undefined
+): readonly Season[] {
+   return seasonsForBand(regionBandForTimeZone(timeZone));
+}
+
 export function detectSeason(
    timeZone: string | null | undefined,
    date: Date
@@ -168,13 +195,39 @@ export function parseSeasonPreference(value: unknown): SeasonPreference {
       : "auto";
 }
 
+/**
+ * A manual season applies only if it occurs in the region (`availableSeasons`); otherwise, and
+ * for "auto", the detected season (null in unknown regions or for an invalid date).
+ */
 export function resolveSeason(
    preference: SeasonPreference,
    timeZone: string | null | undefined,
    date: Date
 ): Season | null {
    const parsed = parseSeasonPreference(preference);
-   return parsed === "auto" ? detectSeason(timeZone, date) : parsed;
+   return parsed !== "auto" && availableSeasons(timeZone).indexOf(parsed) >= 0
+      ? parsed
+      : detectSeason(timeZone, date);
+}
+
+/**
+ * The preference after one press of the season toggle: the next available season after the
+ * one shown, in `availableSeasons` order; arriving back at the detected season means "auto".
+ * Unknown region or no detected season: "auto".
+ */
+export function nextSeasonPreference(
+   preference: SeasonPreference,
+   timeZone: string | null | undefined,
+   date: Date
+): SeasonPreference {
+   const detected = detectSeason(timeZone, date);
+   const list = availableSeasons(timeZone);
+   if (detected === null || list.length === 0) return "auto";
+   const parsed = parseSeasonPreference(preference);
+   const current =
+      parsed === "auto" || list.indexOf(parsed) < 0 ? detected : parsed;
+   const next = list[(list.indexOf(current) + 1) % list.length];
+   return next === detected ? "auto" : next;
 }
 
 // JSON for embedding in an inline <script>: "<" is escaped so "</script" and "<!--" cannot occur.
@@ -183,7 +236,8 @@ const embed = (value: unknown) =>
 
 /**
  * Self-contained ES5 IIFE for an inline <script> in the root layout. It mirrors
- * `resolveSeason(parseSeasonPreference(stored), zone, new Date())` using the tables above,
+ * `resolveSeason(parseSeasonPreference(stored), zone, new Date())` using the tables above
+ * (a stored season applies only if it occurs in the zone's band, i.e. is in `availableSeasons`),
  * then sets or removes `data-season` on <html>. Never throws.
  */
 export const seasonInitScript = [
@@ -191,11 +245,11 @@ export const seasonInitScript = [
    `var A=${embed(AREA_BANDS)},X=${embed(ZONE_EXCEPTIONS)},Q=${embed(BAND_SEASONS)},`,
    `N=${embed(SEASONS)},h=Object.prototype.hasOwnProperty,p,z,i,a,c,b,s=null,r;`,
    `try{p=localStorage.getItem(${embed(SEASON_STORAGE_KEY)})}catch(e){}`,
-   "if(typeof p==='string'&&N.indexOf(p)>=0)s=p;else{",
    "try{z=Intl.DateTimeFormat().resolvedOptions().timeZone}catch(e){}",
    "if(typeof z==='string'){i=z.indexOf('/');a=z.slice(0,i);c=z.slice(i+1).split('/')[0];",
    "if(i>0&&c&&h.call(A,a)){r=A[a];",
    "for(b in X)if(h.call(X,b)&&h.call(X[b],a)&&X[b][a].split(' ').indexOf(c)>=0){r=b;break}",
+   "if(typeof p==='string'&&N.indexOf(p)>=0&&Q[r].indexOf(p)>=0)s=p;else{",
    "i=new Date().getMonth();",
    "if(i>=0&&i<=11&&i%1===0)s=Q[r][Math.floor((i+1)%12/3)]}}}",
    "r=document.documentElement;",

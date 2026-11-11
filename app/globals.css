@@ -310,79 +310,121 @@ img {
 .season-toggle:active {
    transform: scale(0.94);
 }
-.season-toggle[aria-expanded="true"] {
+/* The icon shows the current theme. Before hydration both icons are rendered and the
+   <html> class picks one (dark, the no-JS default, shows the moon). */
+.theme-toggle,
+.season-toggle {
+   position: relative;
+}
+.theme-toggle .theme-toggle-icon-light,
+.light .theme-toggle .theme-toggle-icon-dark {
+   display: none;
+}
+.light .theme-toggle .theme-toggle-icon-light {
+   display: block;
+}
+/* The season button shows the applied season's icon. Before hydration every icon is
+   rendered and html[data-season] picks one (the compass when absent, as without JS). */
+.season-toggle .season-toggle-icon {
+   display: none;
+}
+:root:not([data-season]) .season-toggle .season-toggle-icon-none,
+[data-season="spring"] .season-toggle .season-toggle-icon-spring,
+[data-season="summer"] .season-toggle .season-toggle-icon-summer,
+[data-season="autumn"] .season-toggle .season-toggle-icon-autumn,
+[data-season="winter"] .season-toggle .season-toggle-icon-winter,
+[data-season="wet"] .season-toggle .season-toggle-icon-wet,
+[data-season="dry"] .season-toggle .season-toggle-icon-dry {
+   display: block;
+}
+/* Auto badges (theme FR-005, season FR-017): a small flat "A" on the circle's
+   bottom-right edge, inside the button's 44px box so it cannot overflow. Colours invert
+   on the accent hover fill. */
+.theme-toggle-badge,
+.season-toggle-badge {
+   position: absolute;
+   right: 1px;
+   bottom: 1px;
+   display: grid;
+   place-items: center;
+   width: 16px;
+   height: 16px;
+   border-radius: 50%;
    background: var(--accent);
    color: var(--on-accent);
+   font-family: inherit;
+   font-size: 10px;
+   font-weight: 600;
+   line-height: 1;
+   letter-spacing: 0;
+   pointer-events: none;
+}
+/* Icon animation (FR-013, season FR-018): the incoming mode icon turns and scales in.
+   data-animate is set only for a mode change after mount and cleared on animationend
+   (400 ms fallback). No fill mode, so the resting state is always the plain icon. */
+@keyframes theme-icon-in {
+   from {
+      opacity: 0;
+      transform: rotate(-60deg) scale(0.6);
+   }
+   to {
+      opacity: 1;
+      transform: none;
+   }
+}
+@media (prefers-reduced-motion: no-preference) {
+   .theme-toggle[data-animate="true"] svg,
+   .season-toggle[data-animate="true"] svg {
+      animation: theme-icon-in 220ms var(--ease-out);
+   }
 }
 .header-controls {
    display: flex;
    align-items: center;
    gap: 8px;
 }
-.season-picker {
-   position: relative;
+/* The season control is hidden when no season applies (no JS, unrecognised region). */
+:root:not([data-season]) .season-toggle-wrap {
+   display: none;
 }
-.season-menu {
+/* Mode labels (theme FR-012, season FR-018): decorative, shown on hover, keyboard focus,
+   and briefly after each activation. Absolutely positioned under their own button and
+   right-aligned to it, so they never move the header or leave the viewport. */
+.theme-toggle-wrap,
+.season-toggle-wrap {
+   position: relative;
+   display: flex;
+}
+.theme-toggle-label,
+.season-toggle-label {
    position: absolute;
    top: calc(100% + 10px);
    right: 0;
-   z-index: 1;
-   width: max-content;
-   /* The menu's right edge sits 72px in from the header gutter (theme toggle +
-      gap), so cap the width by that offset plus the 20px gutter. */
-   min-width: min(220px, calc(100vw - 92px));
-   max-width: calc(100vw - 92px);
-   margin: 0;
-   padding: 6px;
-   list-style: none;
-   background: var(--surface);
-   color: var(--ink);
-   border: 1px solid var(--muted);
+   /* The header's own stacking context (z-index 20) lifts this above page content. */
+   z-index: 0;
+   display: none;
+   /* Primary-button treatment as a flat pill: accent fill, type only. */
+   padding: 10px 16px;
+   border-radius: 999px;
+   background: var(--accent);
+   color: var(--on-accent);
    font-size: var(--type-small);
+   font-weight: 600;
+   letter-spacing: -0.025em;
+   line-height: 1;
+   white-space: nowrap;
+   pointer-events: none;
 }
-.season-menu li {
+.theme-toggle:focus-visible + .theme-toggle-label,
+.theme-toggle-label[data-visible="true"],
+.season-toggle:focus-visible + .season-toggle-label,
+.season-toggle-label[data-visible="true"] {
    display: block;
 }
-.season-option {
-   display: flex;
-   align-items: center;
-   gap: 12px;
-   width: 100%;
-   min-height: 44px;
-   padding: 8px 12px;
-   border: 0;
-   background: transparent;
-   color: inherit;
-   text-align: left;
-   line-height: 1.3;
-}
-.season-option:focus-visible {
-   outline: 3px solid var(--accent);
-   outline-offset: -3px;
-}
-.season-option[aria-checked="true"] {
-   color: var(--accent);
-   font-weight: 600;
-}
-.season-option svg {
-   flex: 0 0 16px;
-   width: 16px;
-   height: 16px;
-}
-.season-check {
-   flex: 0 0 16px;
-   width: 16px;
-   height: 16px;
-   visibility: hidden;
-}
-.season-option[aria-checked="true"] .season-check {
-   visibility: visible;
-}
-.season-hint {
-   margin-left: auto;
-   padding-left: 16px;
-   color: var(--muted);
-   font-weight: 400;
+/* One header label at a time: hovering or focusing one control hides the other's. */
+.header-controls:has(.season-toggle:focus-visible) .theme-toggle-label,
+.header-controls:has(.theme-toggle:focus-visible) .season-toggle-label {
+   display: none;
 }
 .hero {
    padding-top: 72px;
@@ -797,6 +839,20 @@ details[open] .disclosure-symbol::after {
    .season-toggle:hover:not(:disabled) {
       background: var(--accent);
       color: var(--on-accent);
+   }
+   .theme-toggle:hover .theme-toggle-badge,
+   .season-toggle:hover:not(:disabled) .season-toggle-badge {
+      background: var(--on-accent);
+      color: var(--accent);
+   }
+   /* Scoped to hover-capable pointers so a sticky touch :hover never shows a stale label. */
+   .theme-toggle:hover + .theme-toggle-label,
+   .season-toggle:hover:not(:disabled) + .season-toggle-label {
+      display: block;
+   }
+   .header-controls:has(.season-toggle:hover:not(:disabled)) .theme-toggle-label,
+   .header-controls:has(.theme-toggle:hover) .season-toggle-label {
+      display: none;
    }
    .project-archive summary:hover {
       color: var(--accent);
