@@ -85,7 +85,7 @@ Palettes. Neutrals as ground / surface / ink / muted; accents as accent / hover 
 - Wet season, monsoon blue-teal (hue ~190): light `#f0f3f4` / `#e8edee` / `#182325` / `#536265`, `#095e71` / `#074b5a` / `#d6e6ea` · dark `#111a1d` / `#192327` / `#eaeff0` / `#afb9bb`, `#5fd0d8` / `#8ce0e5` / `#1e3739` (light accent moved from hue ~186 to ~191; the dark accent reads cyan against the blue-teal neutrals and is unchanged)
 - Dry season, clay (hue ~5): light `#f6f3f3` / `#eee9e8` / `#251918` / `#675351`, `#9c4650` / `#7c363f` / `#efdcdc` · dark `#1a1514` / `#261e1d` / `#f0eae9` / `#bcafae`, `#e4a39f` / `#eebfbc` / `#3c2b2a`
 
-Ambient effects, tinted with the season accent at a capped layer opacity (0.30 light with 1.5x larger particles, 0.22 dark), CSS only, 18 particles (10 below 768px), off under reduced motion: spring drifting petals, summer rising light motes, autumn falling leaves, winter snow, wet season fine rain, dry season slow drifting dust. The social preview image keeps the emerald palette.
+Ambient effects, tinted with the season accent at a capped layer opacity (0.30 light, 0.22 dark; particles are 1.5x their base size in both themes), CSS only, 18 particles (10 below 768px), off under reduced motion: spring drifting petals, summer rising light motes, autumn falling leaves, winter snow, wet season fine rain, dry season slow drifting dust. The social preview image keeps the emerald palette.
 
 ## Automatic theme by time of day (2026-11-11)
 

@@ -74,8 +74,9 @@ Contrast (particle = accent at the layer opacity, 0.30 light / 0.22 dark, over t
 | dry light | 5.59 | 5.13 | 7.75 | 7.11 | 6.17 | 8.55 | 15.46 | 14.18 | 6.49 | 5.95 | 12.95 | 5.44 | 4.68 | 9.95 | 4.18 | 3.60 |
 | dry dark | 8.64 | 7.81 | 11.03 | 9.97 | 8.31 | 10.60 | 15.20 | 13.73 | 8.51 | 7.68 | 11.23 | 6.29 | 6.39 | 9.77 | 5.47 | 5.56 |
 
-Lowest muted on contact: 4.96 (wet light). Ambient layer opacity is capped at 0.30 (light, particles
-1.5x larger) and 0.22 (dark). Amended 2026-11-11 after owner feedback that light-theme particles were
+Lowest muted on contact: 4.96 (wet light). Ambient layer opacity is capped at 0.30 (light) and 0.22 (dark); particles are
+1.5x their base size in both themes (dark was matched to light on 2026-11-11 at the owner's request; opacity and
+colour are unchanged, so the contrast numbers do not change). Amended 2026-11-11 after owner feedback that light-theme particles were
 almost invisible at 0.12: a particle directly behind text may now lower muted or accent text to no less
 than 3.4:1 (summer and autumn accent are the lowest), while body ink stays at least 8.9:1. The static
 pairs in the table above still meet 4.5:1. The particle columns for light rows are recomputed at 0.30; the live browser test recomputes all of
