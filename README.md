@@ -28,9 +28,9 @@ Set `NEXT_PUBLIC_SITE_URL` to the site's full public origin before building for 
 
 Project content and the archive work without JavaScript. Theme switching and progressive entrance motion use JavaScript; reduced-motion preferences are respected.
 
-The theme starts in Auto: light from 06:00 to 18:00 device time and dark otherwise, switching live at the boundary. The header's theme button cycles Auto, Light, and Dark, and the choice persists. Without JavaScript the page is dark. The schedule and the pre-paint script live in `app/data/theme-schedule.ts`.
+The theme starts in Auto: light from 06:00 to 18:00 device time and dark otherwise, switching live at the boundary. The header's theme button cycles Auto, Light, and Dark, and the choice persists. A small label under the button (for example "Auto · light now") shows the active mode on hover, keyboard focus, and for about two seconds after each press. Without JavaScript the page is dark. The schedule and the pre-paint script live in `app/data/theme-schedule.ts`.
 
-The accent colours and a subtle ambient effect follow the visitor's season: spring, summer, autumn, or winter by hemisphere, and wet or dry in the tropics. The season comes from the device time zone and month, with no location permission or network lookup, and the header's season control overrides it. Without JavaScript, or in an unrecognised time zone, the emerald design is shown. Season tables live in `app/data/seasons.ts`; palettes and effects live in `app/globals.css`.
+The accent colours and a subtle ambient effect follow the visitor's season: spring, summer, autumn, or winter by hemisphere, and wet or dry in the tropics. The season comes from the device time zone and month, with no location permission or network lookup. The header's season button steps through the seasons of the visitor's region in order (an "A" badge marks Automatic) and returns to Automatic when it reaches the current season. Without JavaScript, or in an unrecognised time zone, the emerald design is shown and the season button is hidden. Season tables live in `app/data/seasons.ts`; palettes and effects live in `app/globals.css`.
 
 See [redesign notes](docs/redesign-notes.md) for the visual direction, asset provenance, and verification details.
 

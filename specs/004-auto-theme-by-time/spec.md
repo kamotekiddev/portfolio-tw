@@ -2,7 +2,7 @@
 
 **Feature Branch**: `feat/auto-theme-by-time`
 **Created**: 2026-11-11
-**Status**: Implemented; verified in Chromium only
+**Status**: Implemented (including follow-ups FR-012, FR-013); verified in Chromium only
 **Input**: "Auto toggle the light mode and dark mode depending on the time of day at the visitor's location."
 
 ## Clarifications
@@ -10,6 +10,7 @@
 ### Session 2026-11-11
 - Q: How is day or night decided? → A: Fixed local hours on the visitor's device clock: light from 06:00 until 18:00, dark otherwise. No location permission, no network, no sunrise/sunset calculation.
 - Q: How does this relate to the dark/light toggle and the dark default? → A: Three-way mode Auto / Light / Dark. Auto is the default for new visitors; an explicit Light or Dark choice is never overridden. This deliberately replaces "dark by default" for first-time visitors with JavaScript.
+- Amendment 2026-11-11 (owner question: how do visitors know it is in Auto?): the one-press cycle stays, and a transient text label (FR-012) shows the active mode. A menu like the season picker was considered and not chosen.
 - Q: Should the theme change while a page stays open? → A: Yes, at the 06:00 and 18:00 boundaries (and when a hidden tab becomes visible again).
 
 ## User Scenarios & Testing
@@ -37,12 +38,14 @@ Scripts disabled (dark shown, as today); clock or time zone changed mid-session;
 - **FR-002**: In Auto, show light when the device's local hour is 6 to 17 inclusive, dark otherwise.
 - **FR-003**: Detection MUST NOT request location or send the time, zone, or choice anywhere.
 - **FR-004**: The resolved theme MUST be applied before first paint with JavaScript available; no visible flash of the opposite theme.
-- **FR-005**: The header control MUST cycle Auto → Light → Dark → Auto, be keyboard operable with visible focus, have an accessible name starting `Theme:` that states the mode and, in Auto, the current theme, and show an icon for the mode.
+- **FR-005**: The header control MUST cycle Auto → Light → Dark → Auto, be keyboard operable with visible focus, have an accessible name starting `Theme:` that states the mode and, in Auto, the current theme, and always show the CURRENT theme's icon (a sun when the page is light, a moon when it is dark) and, only in Auto, a small "A" badge on the icon so a visitor can see at a glance that the theme is automatic. Light and Dark show the plain sun or moon with no badge.
 - **FR-006**: The choice MUST persist across pages and visits and MUST be independent of the season.
 - **FR-007**: A stored Light or Dark choice (including a legacy stored theme with no mode) MUST never be overridden by the clock.
 - **FR-008**: In Auto, the theme MUST update at the 06:00 and 18:00 boundaries while the page is open and when a hidden tab becomes visible, and MUST NOT change in Light or Dark.
 - **FR-009**: Without JavaScript the existing dark design is shown and all content and navigation work.
 - **FR-010**: Existing metadata, social preview, season behaviour, and no-flash season script MUST be unchanged.
+- **FR-012**: The current mode MUST be visible to sighted visitors, not only to assistive technology: a short text label ("Auto · light now", "Auto · dark now", "Light", "Dark") appears next to the toggle on hover and on keyboard focus, and for about two seconds after each activation so touch visitors see which mode they just selected. The label is decorative (`aria-hidden`; the button's accessible name already states the mode), never receives focus or pointer events, never shifts layout, stays inside the viewport at 390 pixels, respects reduced motion (no animation), and follows the site's design language (flat pill, type-only, token colours; no border, shadow or gradient).
+- **FR-013**: When the visitor activates the toggle, the new mode's icon MUST animate in briefly (a short turn-and-scale fade, 240 ms or less, using the site's ease-out curve, transform and opacity only). No animation on page load, hydration, or client-side navigation; none when the visitor prefers reduced motion; it never shifts layout, delays interaction, or changes the button's accessible name.
 - **FR-011**: Regression coverage MUST include the hour boundaries, mode parsing, legacy migration, the init script's parity with the pure functions, and browser checks for first paint, persistence, cycling, and live switching. Existing tests that depended on the two-state toggle are updated.
 
 ### Key Entities
@@ -55,6 +58,7 @@ Scripts disabled (dark shown, as today); clock or time zone changed mid-session;
 - **SC-004**: A boundary crossed with the page open changes the theme within 1 second of the boundary in Auto, and never in Light or Dark.
 - **SC-005**: Both themes remain AA-compliant in all six seasons (existing contrast test unchanged and passing).
 - **SC-006**: Header controls remain usable without overflow at 390, 768, and 1440 pixel widths.
+- **SC-007**: A visitor can tell which mode is active without reading assistive-technology output: the label is visible on hover, on focus, and for about two seconds after every activation, in both themes and all six seasons, with AA contrast.
 
 ## Assumptions
 Day is a fixed 06:00–18:00 window; sunrise/sunset and latitude are out of scope. "Your location" is the device's local clock and time zone. The dark default for no-JS and unrecognised states is retained. `next-themes` remains the mechanism that applies the class. Cross-tab sync uses the browser `storage` event and is best effort. When browser storage is blocked, Auto still paints the right theme at first paint through the document class; one corrected frame after hydration is accepted in that case.
