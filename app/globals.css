@@ -621,7 +621,18 @@ details[open] .disclosure-symbol::after {
 .archive-project .project-links {
    margin-top: 8px;
 }
+/* The surface band is painted by ::before at z-index -2 in the root stacking
+   context (the section stays z-index auto, so it creates no context of its
+   own). That keeps the band below the seasonal ambient layer (-1), so particles
+   drift across this section too, while the content stays above both. */
 .experience-section {
+   position: relative;
+}
+.experience-section::before {
+   content: "";
+   position: absolute;
+   inset: 0;
+   z-index: -2;
    background: var(--surface);
 }
 .experience-layout {
@@ -663,6 +674,7 @@ details[open] .disclosure-symbol::after {
    color: var(--muted);
 }
 .experience-item ul {
+   list-style-type: disc;
    padding-left: 20px;
    margin: 18px 0 0;
    font-size: var(--type-small);
@@ -721,7 +733,15 @@ details[open] .disclosure-symbol::after {
    font-size: var(--type-small);
    margin: 0;
 }
+/* Band painted below the seasonal ambient layer; see .experience-section. */
 .contact-section {
+   position: relative;
+}
+.contact-section::before {
+   content: "";
+   position: absolute;
+   inset: 0;
+   z-index: -2;
    background: var(--contact);
 }
 .contact-inner {
