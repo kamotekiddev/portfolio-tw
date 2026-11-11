@@ -23,9 +23,11 @@ app/
     not-found.tsx               Public navigation for unavailable entries
     metadata.ts                 Blog origin and social metadata helper
     components/                 Server-rendered article body and date/topic metadata
-  components/                   Shared UI: header, footer, logo, theme toggle, motion
+  components/                   Shared UI: header, footer, logo, theme toggle, season picker,
+                                seasonal ambient layer, motion
   context/                      Theme provider wrapper
-  data/                         Editable portfolio data and server-only blog adapter
+  data/                         Editable portfolio data, season tables and detection
+                                (`seasons.ts`), and server-only blog adapter
     blog/*.md                   Owner-authored Markdown posts, when supplied
   types/                        Project and experience type declarations
   assets/                       Imported imagery and preserved legacy preview images
@@ -50,9 +52,11 @@ AGENTS.md                       Agent entry point and mandatory rules index
   adding URL segments. Keep home-specific sections in the home components directory;
   place UI shared by multiple routes in `app/components/`.
 - Keep editable project, experience, and contact destinations in `app/data/`, separate
-  from presentation. Existing files are `projects.ts`, `experiences.ts`, and `social-links.ts`.
+  from presentation. Existing files are `projects.ts`, `experiences.ts`, `social-links.ts`, and `seasons.ts`.
 - Keep shared styling in `app/globals.css` unless the plan justifies another location.
   Preserve the established colors, typography, dark default, and persistent light theme.
+  Seasonal themes override only the accent and contact-surface tokens through `<html data-season>`; with no
+  attribute the emerald design applies. See `specs/003-seasonal-theme/`.
 - Use `app/types/` for shared domain declarations following the existing conventions.
   The `@/*` import alias resolves to `app/*`, not the repository root.
 - Use `app/assets/` for imported assets and `public/` for assets served directly by URL.

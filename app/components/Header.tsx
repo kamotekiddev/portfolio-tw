@@ -1,6 +1,7 @@
 import Link from "next/link";
 import DarkModeToggle from "./DarkModeToggle";
 import Logo from "./Logo";
+import SeasonPicker from "./SeasonPicker";
 
 export default function Header() {
    return (
@@ -14,7 +15,10 @@ export default function Header() {
                <Link href="/#contact">Contact</Link>
                <Link href="/blog">Blog</Link>
             </nav>
-            <DarkModeToggle />
+            <div className="header-controls">
+               <SeasonPicker />
+               <DarkModeToggle />
+            </div>
          </div>
       </header>
    );
