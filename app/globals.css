@@ -663,6 +663,7 @@ details[open] .disclosure-symbol::after {
    color: var(--muted);
 }
 .experience-item ul {
+   list-style-type: disc;
    padding-left: 20px;
    margin: 18px 0 0;
    font-size: var(--type-small);
