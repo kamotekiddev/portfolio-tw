@@ -20,8 +20,8 @@
 
 ## Theming mechanism
 
-- **Decision**: CSS custom-property overrides keyed on `[data-season]` and `.dark[data-season]` in `app/globals.css`, overriding only `--accent`, `--accent-hover`, `--on-accent`, and `--contact`. No attribute means today's emerald values apply. Spring reuses the emerald values.
-- **Rationale**: All components already consume these tokens; grounds, ink, and typography stay fixed as FR-004 requires.
+- **Decision**: CSS custom-property overrides keyed on `[data-season]` and `.dark[data-season]` in `app/globals.css`, overriding `--accent`, `--accent-hover`, `--on-accent`, `--contact`, and (amended 2026-11-11) the neutrals `--ground`, `--surface`, `--ink`, `--muted`. No attribute means today's emerald values apply. Spring reuses the emerald values.
+- **Rationale**: All components already consume these tokens; typography and layout stay fixed as FR-004 requires.
 - **Alternatives**: Extra `next-themes` theme names (couples season to dark/light; 12 themes); Tailwind theme variants (the site styles with plain CSS tokens).
 
 ## Ambient effect

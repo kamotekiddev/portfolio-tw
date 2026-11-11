@@ -72,15 +72,17 @@ Final title edit: shortened the headline to “Software x AI Engineer” at Josh
 
 ## Seasonal theme (2026-11-10)
 
-Deliberate extension of “type and nothing else” (spec `specs/003-seasonal-theme`): the accent palette now follows the visitor's season, and a restrained, decorative ambient layer sits behind content. Grounds, ink, muted text, typography, and layout are unchanged. Emerald remains the fallback design (no script, unrecognised time zone) and is the spring palette.
+Deliberate extension of “type and nothing else” (spec `specs/003-seasonal-theme`): the accent palette now follows the visitor's season, and a restrained, decorative ambient layer sits behind content. Typography and layout are unchanged. Emerald remains the fallback design (no script, unrecognised time zone) and is the spring palette.
 
-Palettes (light accent / hover / contact · dark accent / hover / contact; on-accent is white in light and a dark tint in dark). Every pair meets WCAG AA 4.5:1.
+Neutrals follow the season too (owner feedback, 2026-11-11: with only the accent changing, the original green-tinted grounds kept the page reading as green). Every season except spring tints ground, surface, ink, and muted toward its own hue: grounds stay near charcoal (dark) or near white (light), with grounds and surfaces at or below 15% HSL saturation. Spring declares no neutrals and inherits the original emerald ones.
 
-- Spring, emerald: `#086d4e` / `#06563e` / `#dce9e0` · `#64dba3` / `#8ae8bb` / `#223a2e`
-- Summer, sunlit gold: `#8a5c00` / `#6b4700` / `#f0e6c8` · `#eec35a` / `#f5d68b` / `#383119`
-- Autumn, burnt orange: `#a8420a` / `#863407` / `#f5e2d5` · `#f6955a` / `#f9b387` / `#3f2a1e`
-- Winter, icy blue: `#1c5e8c` / `#15496e` / `#d9e6ef` · `#8ccbf2` / `#b2ddf7` / `#21333f`
-- Wet season, monsoon teal: `#0a6670` / `#074f57` / `#d4e8e8` · `#5fd0d8` / `#8ce0e5` / `#1e3739`
-- Dry season, clay: `#9c4650` / `#7c363f` / `#efdcdc` · `#e4a39f` / `#eebfbc` / `#3c2b2a`
+Palettes. Neutrals as ground / surface / ink / muted; accents as accent / hover / contact. On-accent is white in light and a dark tint in dark. Every pair meets WCAG AA 4.5:1 (table in `specs/003-seasonal-theme/quickstart.md`).
+
+- Spring, emerald: light `#f5f6f3` / `#e9ede7` / `#17231f` / `#52615a`, `#086d4e` / `#06563e` / `#dce9e0` · dark `#141917` / `#1c2420` / `#edf1e9` / `#adb8ae`, `#64dba3` / `#8ae8bb` / `#223a2e`
+- Summer, sunlit gold (hue ~42): light `#f6f5f3` / `#eeece8` / `#252118` / `#666052`, `#8a5c00` / `#6b4700` / `#f0e6c8` · dark `#1a1814` / `#26231c` / `#f0eee9` / `#bcb8ae`, `#eec35a` / `#f5d68b` / `#383119`
+- Autumn, burnt orange (hue ~22): light `#f6f4f3` / `#eeeae8` / `#261d18` / `#655952`, `#a8420a` / `#863407` / `#f5e2d5` · dark `#1a1614` / `#25201d` / `#f0ecea` / `#bcb3ae`, `#f6955a` / `#f9b387` / `#3f2a1e`
+- Winter, icy blue (hue ~205): light `#f3f5f6` / `#e8ebed` / `#182026` / `#525d65`, `#1c5e8c` / `#15496e` / `#d9e6ef` · dark `#14181b` / `#1d2226` / `#e9edf0` / `#aeb6bc`, `#8ccbf2` / `#b2ddf7` / `#21333f`
+- Wet season, monsoon blue-teal (hue ~190): light `#f0f3f4` / `#e8edee` / `#182325` / `#536265`, `#095e71` / `#074b5a` / `#d6e6ea` · dark `#111a1d` / `#192327` / `#eaeff0` / `#afb9bb`, `#5fd0d8` / `#8ce0e5` / `#1e3739` (light accent moved from hue ~186 to ~191; the dark accent reads cyan against the blue-teal neutrals and is unchanged)
+- Dry season, clay (hue ~5): light `#f6f3f3` / `#eee9e8` / `#251918` / `#675351`, `#9c4650` / `#7c363f` / `#efdcdc` · dark `#1a1514` / `#261e1d` / `#f0eae9` / `#bcafae`, `#e4a39f` / `#eebfbc` / `#3c2b2a`
 
 Ambient effects, tinted with the season accent at a capped layer opacity (0.12 light, 0.22 dark), CSS only, 18 particles (10 below 768px), off under reduced motion: spring drifting petals, summer rising light motes, autumn falling leaves, winter snow, wet season fine rain, dry season slow drifting dust. The social preview image keeps the emerald palette.

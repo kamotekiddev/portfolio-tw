@@ -15,6 +15,7 @@
 - Q: How should the site work out which season a visitor is in? → A: From the visitor's device time zone and the current date. No permission prompt, no location lookup service.
 - Q: Which season model applies, given that tropical regions have no spring/summer/autumn/winter? → A: Four temperate seasons flipped by hemisphere, plus wet and dry seasons for tropical regions (six seasons).
 - Q: How much of the design changes with the season? → A: The accent palette plus a subtle ambient effect per season. This is a deliberate change to the "type and nothing else" baseline in `docs/redesign-notes.md`.
+- Amendment 2026-11-11 (owner feedback after review): accents alone still left the page reading as green because the ground, surface, text, and muted neutrals kept the original green tint. Those neutrals now take a restrained tint of each season's hue too (FR-004).
 - Q: Can visitors pick a season themselves? → A: Yes. Automatic by default, with a remembered manual choice and a way back to automatic.
 
 ## User Scenarios & Testing *(mandatory)*
@@ -91,7 +92,7 @@ Each season adds a restrained ambient effect behind the content (for example dri
 - **FR-001**: The site MUST support six seasons: spring, summer, autumn, winter, wet, and dry.
 - **FR-002**: By default the site MUST select the season from the visitor's device time zone and current date, using the region bands and month ranges in Assumptions.
 - **FR-003**: Season detection MUST NOT request location permission and MUST NOT send the visitor's time zone or location to any service.
-- **FR-004**: Each season MUST define its own accent and tinted-surface colours for both dark and light themes. The neutral charcoal grounds, typography, and layout MUST remain as they are.
+- **FR-004**: Each season MUST define its own accent, ground, surface, text, and muted colours for both dark and light themes, so the whole page follows the season rather than only its accents. Grounds stay near-charcoal in dark and near-white in light with a restrained tint of the season's hue; typography and layout MUST remain as they are. Spring keeps the original emerald values.
 - **FR-005**: In every season and both themes, text and interactive elements MUST meet WCAG 2.1 AA contrast (4.5:1 body text, 3:1 large text and focus indicators) against their backgrounds.
 - **FR-006**: When no season can be determined, or scripts are unavailable, the site MUST show the existing emerald design with all content and navigation usable.
 - **FR-007**: The season MUST apply consistently on the home page, blog index, articles, and not-found pages.

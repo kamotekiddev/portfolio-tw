@@ -34,10 +34,16 @@
 }
 
 /*
- * Seasonal accents (specs/003-seasonal-theme). The init script sets
+ * Seasonal palettes (specs/003-seasonal-theme). The init script sets
  * data-season on <html>; without it the emerald tokens above apply unchanged.
- * Only accent and contact tokens change; grounds, ink, and type stay fixed.
- * Light blocks are (0,1,0) and dark blocks (0,2,0), so dark always wins in dark mode.
+ * Each season except spring also tints the neutrals (ground, surface, ink,
+ * muted) toward its hue, so the whole page belongs to the season, not just
+ * accents. Spring declares no neutrals and inherits the emerald originals.
+ * Neutrals stay restrained: grounds near charcoal (dark) or near white
+ * (light); grounds and surfaces at or below 15% HSL saturation. Type and image
+ * backing stay fixed.
+ * Light blocks are (0,1,0) and dark blocks (0,2,0), so dark always wins in dark
+ * mode; every light block's tokens are therefore re-declared in its dark block.
  * Every pair below is checked for WCAG AA (4.5:1) in both themes.
  */
 [data-season="spring"] {
@@ -53,60 +59,100 @@
    --contact: #223a2e;
 }
 [data-season="summer"] {
+   --ground: #f6f5f3;
+   --surface: #eeece8;
+   --ink: #252118;
+   --muted: #666052;
    --accent: #8a5c00;
    --accent-hover: #6b4700;
    --on-accent: #ffffff;
    --contact: #f0e6c8;
 }
 .dark[data-season="summer"] {
+   --ground: #1a1814;
+   --surface: #26231c;
+   --ink: #f0eee9;
+   --muted: #bcb8ae;
    --accent: #eec35a;
    --accent-hover: #f5d68b;
    --on-accent: #2a1f05;
    --contact: #383119;
 }
 [data-season="autumn"] {
+   --ground: #f6f4f3;
+   --surface: #eeeae8;
+   --ink: #261d18;
+   --muted: #655952;
    --accent: #a8420a;
    --accent-hover: #863407;
    --on-accent: #ffffff;
    --contact: #f5e2d5;
 }
 .dark[data-season="autumn"] {
+   --ground: #1a1614;
+   --surface: #25201d;
+   --ink: #f0ecea;
+   --muted: #bcb3ae;
    --accent: #f6955a;
    --accent-hover: #f9b387;
    --on-accent: #2c1406;
    --contact: #3f2a1e;
 }
 [data-season="winter"] {
+   --ground: #f3f5f6;
+   --surface: #e8ebed;
+   --ink: #182026;
+   --muted: #525d65;
    --accent: #1c5e8c;
    --accent-hover: #15496e;
    --on-accent: #ffffff;
    --contact: #d9e6ef;
 }
 .dark[data-season="winter"] {
+   --ground: #14181b;
+   --surface: #1d2226;
+   --ink: #e9edf0;
+   --muted: #aeb6bc;
    --accent: #8ccbf2;
    --accent-hover: #b2ddf7;
    --on-accent: #0c1e2b;
    --contact: #21333f;
 }
 [data-season="wet"] {
-   --accent: #0a6670;
-   --accent-hover: #074f57;
+   --ground: #f0f3f4;
+   --surface: #e8edee;
+   --ink: #182325;
+   --muted: #536265;
+   --accent: #095e71;
+   --accent-hover: #074b5a;
    --on-accent: #ffffff;
-   --contact: #d4e8e8;
+   --contact: #d6e6ea;
 }
 .dark[data-season="wet"] {
+   --ground: #111a1d;
+   --surface: #192327;
+   --ink: #eaeff0;
+   --muted: #afb9bb;
    --accent: #5fd0d8;
    --accent-hover: #8ce0e5;
    --on-accent: #0a2224;
    --contact: #1e3739;
 }
 [data-season="dry"] {
+   --ground: #f6f3f3;
+   --surface: #eee9e8;
+   --ink: #251918;
+   --muted: #675351;
    --accent: #9c4650;
    --accent-hover: #7c363f;
    --on-accent: #ffffff;
    --contact: #efdcdc;
 }
 .dark[data-season="dry"] {
+   --ground: #1a1514;
+   --surface: #261e1d;
+   --ink: #f0eae9;
+   --muted: #bcafae;
    --accent: #e4a39f;
    --accent-hover: #eebfbc;
    --on-accent: #2a1414;
