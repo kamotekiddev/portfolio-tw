@@ -17,7 +17,7 @@ export const THEME_MODE_LABELS: Record<ThemeMode, string>; // Auto, Light, Dark
 export function themeForHour(hour: number): ResolvedTheme;   // 6..17 light, else dark; invalid/non-integer hour -> "dark"
 export function resolveTheme(mode: ThemeMode, date: Date): ResolvedTheme; // auto uses date.getHours()
 export function parseThemeMode(value: unknown): ThemeMode | null;        // exact "auto"|"light"|"dark", else null
-export function nextThemeMode(mode: ThemeMode): ThemeMode;               // auto->light->dark->auto
+export function nextThemeMode(mode: ThemeMode, date: Date): ThemeMode;    // flip: target = opposite of resolveTheme(mode, date); returns "auto" when target === themeForHour(date.getHours()), else target (amended 2026-11-11)
 export function resolveStoredMode(storedMode: unknown, legacyTheme: unknown): ThemeMode; // valid storedMode wins; else legacyTheme exactly "light"|"dark"; else "auto" (the single source of truth for the legacy rule)
 export function msUntilNextThemeChange(date: Date): number;               // ms to next local 06:00 or 18:00 boundary, always > 0
 export const themeInitScript: string;                                     // self-contained ES5 IIFE, never throws, <= 2048 chars
@@ -55,3 +55,7 @@ export const themeInitScript: string;                                     // sel
 - Mechanism: the `svg` is keyed by mode so the incoming icon plays a CSS keyframe (e.g. `theme-icon-in`: from `opacity: 0; transform: rotate(-60deg) scale(0.6)` to `opacity: 1; transform: none`), duration 200 to 240 ms, `var(--ease-out)`, `animation-fill-mode: both` is NOT used so the end state is the plain icon. The animation is applied through a `data-animate="true"` attribute (or equivalent class) on the button that is set for the duration of the animation and removed on `animationend` or after a timeout fallback, so a missing `animationend` can never leave the icon invisible.
 - Gated by `@media (prefers-reduced-motion: no-preference)`; with reduced motion the icon swaps instantly. Transform and opacity only. The existing `:active` press scale (0.94) stays. The mode label stays animation-free.
 - Without JavaScript or before hydration nothing animates and the icon is fully visible.
+
+## Toggle flip (amended 2026-11-11, supersedes the Auto -> Light -> Dark -> Auto cycle)
+- `nextThemeMode(mode, date)`: `shown = resolveTheme(mode, date)`, `target = shown === "light" ? "dark" : "light"`, return `"auto"` when `target === themeForHour(date.getHours())`, otherwise `target`. Examples: day, `auto` (shown light) -> `dark`; day, `dark` -> `auto`; day, stored `light` -> `dark`; night, `auto` (shown dark) -> `light`; night, `light` -> `auto`; night, stored `dark` -> `light`. Two consecutive presses at the same time always return to the starting state when it was Auto; from any manual mode two presses return to the same manual mode only if it is the opposite of the time-of-day theme.
+- ThemeToggle click calls `nextThemeMode(current, new Date())`. Accessible names, icons, badge, label text and the `theme-mode` storage values (`auto`, `light`, `dark`) are unchanged; stored modes still parse and apply as before (a stored `light` by day or `dark` at night simply shows that theme until pressed). Light and Dark remain valid stored modes; the init script and `resolveTheme` are unchanged.

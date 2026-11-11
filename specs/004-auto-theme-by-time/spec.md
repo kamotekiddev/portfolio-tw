@@ -11,6 +11,7 @@
 - Q: How is day or night decided? → A: Fixed local hours on the visitor's device clock: light from 06:00 until 18:00, dark otherwise. No location permission, no network, no sunrise/sunset calculation.
 - Q: How does this relate to the dark/light toggle and the dark default? → A: Three-way mode Auto / Light / Dark. Auto is the default for new visitors; an explicit Light or Dark choice is never overridden. This deliberately replaces "dark by default" for first-time visitors with JavaScript.
 - Amendment 2026-11-11 (owner question: how do visitors know it is in Auto?): the one-press cycle stays, and a transient text label (FR-012) shows the active mode. A menu like the season picker was considered and not chosen.
+- Amendment 2026-11-11 (owner request): the three-way cycle is replaced by a flip. Selecting the theme that matches the current time of day means Auto; a manual Light during the day or manual Dark at night is therefore not a separate state a visitor can choose (it is the same as Auto until the next boundary), while the opposite theme is a fixed manual choice that holds across the boundary.
 - Q: Should the theme change while a page stays open? → A: Yes, at the 06:00 and 18:00 boundaries (and when a hidden tab becomes visible again).
 
 ## User Scenarios & Testing
@@ -21,7 +22,7 @@ A first-time visitor sees the light theme during the day and the dark theme at n
 **Acceptance**: Given no stored choice, when the local hour is 06:00–17:59 then light is shown; otherwise dark. The correct theme is present at first paint. Existing visitors who had chosen Light or Dark keep that choice.
 
 ### User Story 2 — Choose Auto, Light or Dark (P2)
-A visitor uses the header toggle to cycle Auto → Light → Dark → Auto. The choice is remembered.
+A visitor uses the header toggle to flip the theme. Pressing it switches to the opposite of the theme being shown; if the theme they land on is the one that matches the current time of day, that selection means Auto. So the toggle alternates between Auto and the opposite theme. The choice is remembered.
 **Independent test**: Using only the keyboard, press the toggle through all three modes, reload, confirm the mode and theme persist.
 **Acceptance**: The control's accessible name states the mode (and the current theme while in Auto). Light and Dark stay fixed regardless of time. Auto resumes following the clock. Works alongside the season picker, independent of the season.
 
@@ -38,7 +39,7 @@ Scripts disabled (dark shown, as today); clock or time zone changed mid-session;
 - **FR-002**: In Auto, show light when the device's local hour is 6 to 17 inclusive, dark otherwise.
 - **FR-003**: Detection MUST NOT request location or send the time, zone, or choice anywhere.
 - **FR-004**: The resolved theme MUST be applied before first paint with JavaScript available; no visible flash of the opposite theme.
-- **FR-005**: The header control MUST cycle Auto → Light → Dark → Auto, be keyboard operable with visible focus, have an accessible name starting `Theme:` that states the mode and, in Auto, the current theme, and always show the CURRENT theme's icon (a sun when the page is light, a moon when it is dark) and, only in Auto, a small "A" badge on the icon so a visitor can see at a glance that the theme is automatic. Light and Dark show the plain sun or moon with no badge.
+- **FR-005**: The header control MUST be a single press-to-flip button (amended 2026-11-11, owner request): each press selects the opposite of the theme currently shown, and when that selection equals the theme that the time of day calls for (light from 06:00 to 18:00, dark otherwise) it MUST select Auto instead of a manual mode, so the toggle alternates between Auto and the opposite theme (for example by day: Auto, then Dark, then Auto; at night: Auto, then Light, then Auto). It MUST be keyboard operable with visible focus, have an accessible name starting `Theme:` that states the mode and, in Auto, the current theme, and always show the CURRENT theme's icon (a sun when the page is light, a moon when it is dark) and, only in Auto, a small "A" badge on the icon so a visitor can see at a glance that the theme is automatic. Light and Dark show the plain sun or moon with no badge.
 - **FR-006**: The choice MUST persist across pages and visits and MUST be independent of the season.
 - **FR-007**: A stored Light or Dark choice (including a legacy stored theme with no mode) MUST never be overridden by the clock.
 - **FR-008**: In Auto, the theme MUST update at the 06:00 and 18:00 boundaries while the page is open and when a hidden tab becomes visible, and MUST NOT change in Light or Dark.
@@ -54,7 +55,7 @@ Scripts disabled (dark shown, as today); clock or time zone changed mid-session;
 ## Success Criteria
 - **SC-001**: For every hour of the day the resolved theme in Auto matches the rule (24 of 24).
 - **SC-002**: No wrong-theme paint on load: the theme class is correct at `domcontentloaded` in every mode.
-- **SC-003**: Any mode is reachable in at most two activations and survives reload.
+- **SC-003**: Every state (Auto, and the manual opposite of the current time of day) is reachable in at most two activations and survives reload; two consecutive presses always return to the starting state.
 - **SC-004**: A boundary crossed with the page open changes the theme within 1 second of the boundary in Auto, and never in Light or Dark.
 - **SC-005**: Both themes remain AA-compliant in all six seasons (existing contrast test unchanged and passing).
 - **SC-006**: Header controls remain usable without overflow at 390, 768, and 1440 pixel widths.

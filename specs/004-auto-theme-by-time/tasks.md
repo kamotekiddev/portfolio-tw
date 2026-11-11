@@ -23,29 +23,30 @@ Owners: Atlas (lead), Anvil (logic), Pixel (UI/docs), Echo (tests), Sage (review
 
 ## Acceptance evidence
 
-Recorded 2026-11-11 on `feat/auto-theme-by-time` after the follow-up work (mode label, icon plus Auto badge, icon animation, season toggle).
+Recorded 2026-11-11 on `feat/auto-theme-by-time` after the final follow-ups (free-choice season menu, theme toggle flip).
 
 | Check | Result |
 |-------|--------|
 | `npm run lint` | No ESLint warnings or errors |
 | `npx tsc --noEmit` | Exit 0 |
-| `npm run test:blog` | 60 passed, 0 failed (theme-schedule 21, seasons 18, blog and content tests) |
+| `npm run test:blog` | 60 passed, 0 failed (theme-schedule 24, seasons 15, blog and content tests) |
 | `npm run build` | Passes; all routes still static / SSG |
-| `npm run test:blog:e2e` | 304 passed in 2.9 min (season, theme, blog projects), Chromium |
+| `npm run test:blog:e2e` | 320 passed in 3.6 min (season, theme, blog projects), Chromium |
 | `git diff --check` | Clean |
 
-- **Automatic theme (FR-001 to FR-011, SC-001 to SC-006)**: first commit, evidence unchanged; re-verified by the final full run.
-- **FR-005 (toggle)**: the button always shows the current theme's icon (sun or moon) and, only in Auto, a small "A" badge; 2 icons before hydration with CSS choosing by the `<html>` class, exactly 1 after mount.
-- **FR-012 / SC-007 (visible mode label)**: flat accent pill, `Auto · light now` / `Auto · dark now` / `Light` / `Dark`; hover, keyboard focus and about 2 s after each press; never on load; one label at a time across both toggles; contrast at least 5.8:1 in all 12 season x theme combinations.
-- **FR-013 (icon animation)**: 220 ms turn-and-scale on mode changes after mount only; none on load, navigation, the automatic flip, or with reduced motion.
-- **Season toggle (spec 003 FR-017, FR-018)**: single press cycles only the seasons available in the region (spring, summer, autumn, winter, or wet and dry), returning to Automatic on the current season; hidden where no season is detected; stale stored seasons ignored in both the component and the pre-paint script; icon, Auto badge, label, animation, cross-tab and blocked-storage fallback covered by tests.
-- **Review fixes**: first paint with blocked storage; Auto users pinned after storage clear; manual choice lost on navigation with blocked storage; redundant `data-season` rewrite on every mount (found by Echo, fixed).
+- **Automatic theme (FR-001 to FR-011, SC-001 to SC-006)**: unchanged behaviour, re-verified by the final full run.
+- **Theme toggle flip (FR-005, SC-003)**: a press selects the opposite of the shown theme; landing on the theme the time of day calls for means Auto, so the toggle alternates between Auto and the opposite theme. Truth table for day and night, the 06:00 and 18:00 edges, stored manual modes, reload persistence and persistence across the boundary are covered by unit and browser tests.
+- **FR-012 / SC-007 (visible label)**, **FR-013 (icon animation)**, **FR-005 icon and badge**: current theme's icon with the Auto "A" badge, accent pill label, 220 ms icon animation only on mode changes after mount; both toggles, one label at a time.
+- **Season menu (spec 003 FR-017, FR-019)**: free choice of all six seasons in every region; the detected season's row carries an "Automatic" tag and choosing it stores `auto`; an extra first "Automatic" item where no season is detected; flat design-system styling (no border, shadow or gradient; accent pill for the selected row); contrast at least 5.81:1 across 12 season x theme combinations; keyboard, labels, animation, cross-tab and blocked-storage fallback covered.
+- **History**: the region-limited single-press season toggle (FR-018) was built, tested and then superseded by FR-019 at the owner's request; its spec text remains for the record.
+- **Review fixes**: first paint with blocked storage; Auto users pinned after storage clear; manual choice lost on navigation with blocked storage; redundant `data-season` rewrite on mount.
 
 ### Not verified
 
 - Chromium only: no Firefox, WebKit, real devices, or screen reader.
 - Real-time behaviour (a real tab left in the background across 06:00 or 18:00) was simulated with a fake clock and dispatched events.
-- At 390 px a label overlaps part of the second-row nav for up to 2 s after a press; taps pass through (accepted).
-- The season control cannot preview seasons that do not exist in the visitor's region; changing the device time zone is the only way.
-- The independent review (Sage) covered the first commit; the later follow-up work (label, badge, animation, season toggle) had Echo's QA run but no separate independent code review.
+- At 390 px a label or the open season menu overlaps part of the second-row nav; taps pass through labels.
+- In light themes the menu panel's edge is soft because `--surface` is close to the page ground (no border or shadow by design).
+- The independent review (Sage) covered the first commit only; later work had Echo's QA but no separate independent code review.
 - Month-boundary changes while a page stays open do not update the season live (re-derived on each load).
+- Storage cleared in the same tab does not update that tab (a tab receives no storage event for its own change).

@@ -23,7 +23,7 @@ app/
     not-found.tsx               Public navigation for unavailable entries
     metadata.ts                 Blog origin and social metadata helper
     components/                 Server-rendered article body and date/topic metadata
-  components/                   Shared UI: header, footer, logo, three-way theme toggle
+  components/                   Shared UI: header, footer, logo, Auto/flip theme toggle
                                 (`ThemeToggle.tsx`), season picker, seasonal ambient layer, motion
   context/                      Theme provider wrapper
   data/                         Editable portfolio data, season tables and detection
