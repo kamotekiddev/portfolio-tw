@@ -1465,10 +1465,14 @@ details[open] .disclosure-symbol::after {
    overflow: hidden;
    pointer-events: none;
    contain: strict;
-   opacity: 0.12;
+   /* Light theme needs a stronger, larger particle to register on a near-white ground. Text directly behind a
+      particle stays at least 3.4:1 (body ink at least 8.9:1); see specs/003-seasonal-theme/quickstart.md. */
+   opacity: 0.3;
+   --grow: 1.5;
 }
 .dark .season-ambient {
    opacity: 0.22;
+   --grow: 1;
 }
 [data-season] .season-ambient {
    display: block;
@@ -1478,8 +1482,8 @@ details[open] .disclosure-symbol::after {
    top: 0;
    left: var(--x);
    display: block;
-   width: calc(6px * var(--s));
-   height: calc(6px * var(--s));
+   width: calc(6px * var(--s) * var(--grow, 1));
+   height: calc(6px * var(--s) * var(--grow, 1));
    border-radius: 50%;
    background: var(--accent);
    opacity: 0;
@@ -1636,39 +1640,39 @@ details[open] .disclosure-symbol::after {
 [data-season="spring"] .season-ambient span {
    --speed: 20s;
    --spin: 320deg;
-   width: calc(10px * var(--s));
-   height: calc(7px * var(--s));
+   width: calc(10px * var(--s) * var(--grow, 1));
+   height: calc(7px * var(--s) * var(--grow, 1));
    border-radius: 80% 0 80% 0;
    animation-name: season-fall;
 }
 [data-season="summer"] .season-ambient span {
    --speed: 28s;
    top: 100%;
-   width: calc(5px * var(--s));
-   height: calc(5px * var(--s));
+   width: calc(5px * var(--s) * var(--grow, 1));
+   height: calc(5px * var(--s) * var(--grow, 1));
    animation-name: season-rise;
    animation-timing-function: ease-in-out;
 }
 [data-season="autumn"] .season-ambient span {
    --speed: 15s;
    --spin: 540deg;
-   width: calc(12px * var(--s));
-   height: calc(8px * var(--s));
+   width: calc(12px * var(--s) * var(--grow, 1));
+   height: calc(8px * var(--s) * var(--grow, 1));
    border-radius: 0 85% 0 85%;
    animation-name: season-fall;
 }
 [data-season="winter"] .season-ambient span {
    --speed: 16s;
    --spin: 0deg;
-   width: calc(5px * var(--s));
-   height: calc(5px * var(--s));
+   width: calc(5px * var(--s) * var(--grow, 1));
+   height: calc(5px * var(--s) * var(--grow, 1));
    animation-name: season-fall;
 }
 [data-season="wet"] .season-ambient span {
    --speed: 1.6s;
    left: calc(var(--x) + 12%);
    width: 1.5px;
-   height: calc(22px * var(--s));
+   height: calc(22px * var(--s) * var(--grow, 1));
    border-radius: 1px;
    animation-name: season-rain;
 }
@@ -1676,8 +1680,8 @@ details[open] .disclosure-symbol::after {
    --speed: 38s;
    top: var(--y);
    left: 0;
-   width: calc(4px * var(--s));
-   height: calc(4px * var(--s));
+   width: calc(4px * var(--s) * var(--grow, 1));
+   height: calc(4px * var(--s) * var(--grow, 1));
    animation-name: season-drift;
    animation-timing-function: ease-in-out;
 }

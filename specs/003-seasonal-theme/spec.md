@@ -99,7 +99,7 @@ Each season adds a restrained ambient effect behind the content (for example dri
 - **FR-008**: The header MUST offer a control to choose automatic or any of the six seasons. The control MUST be keyboard operable, have an accessible name, show visible focus, and expose the current choice.
 - **FR-009**: A manual choice MUST take effect immediately, MUST be remembered across visits and pages, and MUST be independent of the dark/light choice.
 - **FR-010**: On load, visitors with scripts available MUST NOT see the page painted in one season's colours and then switch to another.
-- **FR-011**: Each season MUST have a subtle ambient effect rendered behind content that never intercepts input, is hidden from assistive technology, and does not reduce text contrast below FR-005.
+- **FR-011**: Each season MUST have a subtle ambient effect rendered behind content that never intercepts input, is hidden from assistive technology, and keeps body text at AA contrast (FR-005) even directly behind a particle; muted or accent text directly behind a particle may drop to no less than 3:1 (amended 2026-11-11 so the effect is visible in the light theme).
 - **FR-012**: Ambient motion MUST NOT play when the visitor prefers reduced motion.
 - **FR-013**: The ambient effect MUST NOT cause layout shift or page overflow at 390, 768, and 1440 pixel widths.
 - **FR-014**: Season definitions (names, month ranges, region bands, colours) MUST be kept as editable data separate from presentation.

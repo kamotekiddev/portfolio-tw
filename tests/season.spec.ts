@@ -716,6 +716,7 @@ test.describe('palette contrast (FR-005, SC-002)', () => {
         accents[theme][season] = t['--accent'];
 
         const c = (a: keyof Tokens, b: keyof Tokens) => contrast(rgb(t[a]), rgb(t[b]));
+        const particlePairs: Array<[string, number]> = [];
         const pairs: Array<[string, number]> = [
           ['accent/ground', c('--accent', '--ground')],
           ['accent/surface', c('--accent', '--surface')],
@@ -737,16 +738,22 @@ test.describe('palette contrast (FR-005, SC-002)', () => {
         for (const ground of ['--ground'] as const) {
           const particle = blend(rgb(t['--accent']), rgb(t[ground]), layerOpacity);
           for (const text of ['--ink', '--muted', '--accent'] as const) {
-            pairs.push([`${text.slice(2)} over accent particle on ${ground.slice(2)} (alpha ${layerOpacity})`, contrast(rgb(t[text]), particle)]);
+            particlePairs.push([`${text.slice(2)} over accent particle on ${ground.slice(2)} (alpha ${layerOpacity})`, contrast(rgb(t[text]), particle)]);
           }
         }
         for (const [name, ratio] of pairs) {
           if (ratio < 4.5) failures.push(`${season}/${theme} ${name} = ${ratio.toFixed(2)}`);
         }
+        // A moving decorative particle can briefly sit behind a glyph: body ink must stay AA, and any text keeps the
+        // 3:1 floor that applies to large text and UI components (FR-011).
+        for (const [name, ratio] of particlePairs) {
+          const floor = name.startsWith('ink ') ? 4.5 : 3;
+          if (ratio < floor) failures.push(`${season}/${theme} ${name} = ${ratio.toFixed(2)} (floor ${floor})`);
+        }
         await page.context().close();
       }
     }
-    expect(failures, 'pairs below 4.5:1').toEqual([]);
+    expect(failures, 'pairs below their contrast floor').toEqual([]);
 
     for (const theme of ['dark', 'light'] as const) {
       expect(new Set(Object.values(accents[theme])).size, `six distinct ${theme} accents`).toBe(6);
