@@ -175,13 +175,79 @@ test("resolves the stored mode with the legacy theme rule", () => {
    }
 });
 
-test("cycles auto -> light -> dark -> auto", () => {
-   assert.equal(nextThemeMode("auto"), "light");
-   assert.equal(nextThemeMode("light"), "dark");
-   assert.equal(nextThemeMode("dark"), "auto");
-   let mode: ThemeMode = "auto";
-   for (let i = 0; i < 3; i++) mode = nextThemeMode(mode);
-   assert.equal(mode, "auto");
+const DAY_TIMES = [
+   at(6, 0, 0, 0),
+   at(12, 0, 0, 0),
+   at(17, 59, 59, 0),
+   at(17, 59, 59, 999),
+];
+const NIGHT_TIMES = [
+   at(18, 0, 0, 0),
+   at(22, 0, 0, 0),
+   at(5, 59, 59, 0),
+   at(5, 59, 59, 999),
+   at(0, 0, 0, 0),
+];
+
+test("the toggle flips the shown theme; the scheduled theme means auto", () => {
+   for (const date of DAY_TIMES) {
+      const label = date.toString();
+      assert.equal(nextThemeMode("auto", date), "dark", `auto ${label}`);
+      assert.equal(nextThemeMode("dark", date), "auto", `dark ${label}`);
+      assert.equal(nextThemeMode("light", date), "dark", `light ${label}`);
+   }
+   for (const date of NIGHT_TIMES) {
+      const label = date.toString();
+      assert.equal(nextThemeMode("auto", date), "light", `auto ${label}`);
+      assert.equal(nextThemeMode("light", date), "auto", `light ${label}`);
+      assert.equal(nextThemeMode("dark", date), "light", `dark ${label}`);
+   }
+});
+
+test("the toggle switches its auto rule exactly at 06:00 and 18:00", () => {
+   assert.equal(nextThemeMode("auto", at(5, 59, 59, 999)), "light");
+   assert.equal(nextThemeMode("auto", at(6, 0, 0, 0)), "dark");
+   assert.equal(nextThemeMode("auto", at(17, 59, 59, 999)), "dark");
+   assert.equal(nextThemeMode("auto", at(18, 0, 0, 0)), "light");
+   assert.equal(nextThemeMode("light", at(5, 59, 59, 999)), "auto");
+   assert.equal(nextThemeMode("light", at(6, 0, 0, 0)), "dark");
+   assert.equal(nextThemeMode("dark", at(17, 59, 59, 999)), "auto");
+   assert.equal(nextThemeMode("dark", at(18, 0, 0, 0)), "light");
+});
+
+test("two presses return to the start from auto or the off-schedule theme", () => {
+   const twice = (mode: ThemeMode, date: Date) =>
+      nextThemeMode(nextThemeMode(mode, date), date);
+   for (const date of DAY_TIMES) {
+      assert.equal(twice("auto", date), "auto");
+      assert.equal(twice("dark", date), "dark");
+      // A stored light by day (same as the schedule) settles into the auto/dark pair.
+      assert.equal(nextThemeMode("light", date), "dark");
+      assert.equal(twice("light", date), "auto");
+   }
+   for (const date of NIGHT_TIMES) {
+      assert.equal(twice("auto", date), "auto");
+      assert.equal(twice("light", date), "light");
+      assert.equal(twice("dark", date), "auto");
+   }
+   // Every press changes the shown theme, at every hour.
+   for (let hour = 0; hour < 24; hour++) {
+      const date = at(hour, 30);
+      for (const mode of THEME_MODES) {
+         assert.notEqual(
+            resolveTheme(nextThemeMode(mode, date), date),
+            resolveTheme(mode, date),
+            `${mode} at ${hour}:30`
+         );
+      }
+   }
+});
+
+test("the toggle treats an invalid date as night and never throws", () => {
+   const invalid = new Date(Number.NaN);
+   assert.equal(nextThemeMode("auto", invalid), "light");
+   assert.equal(nextThemeMode("light", invalid), "auto");
+   assert.equal(nextThemeMode("dark", invalid), "light");
 });
 
 test("counts down to the next 06:00 or 18:00 boundary", () => {

@@ -90,7 +90,13 @@ export function useFlashLabel(id: string) {
       setFlash(true);
       timer.current = setTimeout(() => setFlash(false), LABEL_FLASH_MS);
    }, [id]);
-   return [flash, show] as const;
+   /** Hides this label and the other header label (e.g. while a menu opens). */
+   const hideAll = useCallback(() => {
+      document.dispatchEvent(new CustomEvent(HEADER_LABEL_EVENT, { detail: id }));
+      clearTimeout(timer.current);
+      setFlash(false);
+   }, [id]);
+   return [flash, show, hideAll] as const;
 }
 
 /**
@@ -216,7 +222,10 @@ export default function ThemeToggle() {
             data-animate={animate ? "true" : undefined}
             onAnimationEnd={onAnimationEnd}
             onClick={() => {
-               const next = nextThemeMode(current);
+               // Flip: switch to the opposite of the shown theme; landing on the theme
+               // the time of day calls for returns to Auto. Every press changes the
+               // shown theme, so the icon (and its animation) always changes too.
+               const next = nextThemeMode(current, new Date());
                sessionMode = next;
                setMode(next);
                apply(next); // writes theme-mode, then setTheme

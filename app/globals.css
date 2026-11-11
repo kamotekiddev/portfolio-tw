@@ -378,14 +378,19 @@ img {
       animation: theme-icon-in 220ms var(--ease-out);
    }
 }
+/* The season button is accent-filled while its menu is open; the badge inverts. */
+.season-toggle[aria-expanded="true"] {
+   background: var(--accent);
+   color: var(--on-accent);
+}
+.season-toggle[aria-expanded="true"] .season-toggle-badge {
+   background: var(--on-accent);
+   color: var(--accent);
+}
 .header-controls {
    display: flex;
    align-items: center;
    gap: 8px;
-}
-/* The season control is hidden when no season applies (no JS, unrecognised region). */
-:root:not([data-season]) .season-toggle-wrap {
-   display: none;
 }
 /* Mode labels (theme FR-012, season FR-018): decorative, shown on hover, keyboard focus,
    and briefly after each activation. Absolutely positioned under their own button and
@@ -420,6 +425,86 @@ img {
 .season-toggle:focus-visible + .season-toggle-label,
 .season-toggle-label[data-visible="true"] {
    display: block;
+}
+/* No label alongside the open season menu (the header's two labels included). */
+.header-controls .season-toggle-wrap:has(.season-toggle[aria-expanded="true"]) .season-toggle-label,
+.header-controls:has(.season-toggle[aria-expanded="true"]) .theme-toggle-label {
+   display: none;
+}
+/* Season menu (FR-019): a flat rounded panel in the site's tokens and type, no border,
+   shadow or gradient. The selected row is an accent pill like the primary button. Its
+   right edge sits at the season button (left of the theme toggle), so the width is
+   capped by that offset plus the page gutter to stay inside the viewport. */
+.season-menu {
+   position: absolute;
+   top: calc(100% + 10px);
+   right: 0;
+   z-index: 1;
+   width: max-content;
+   min-width: min(260px, calc(100vw - 92px));
+   max-width: calc(100vw - 92px);
+   margin: 0;
+   padding: 8px;
+   list-style: none;
+   background: var(--surface);
+   color: var(--ink);
+   border-radius: 28px;
+}
+.season-menu li {
+   display: block;
+}
+.season-option {
+   display: flex;
+   align-items: center;
+   gap: 12px;
+   width: 100%;
+   min-height: 46px;
+   padding: 10px 16px;
+   border: 0;
+   border-radius: 999px;
+   background: transparent;
+   color: inherit;
+   font-size: var(--type-small);
+   font-weight: 500;
+   letter-spacing: -0.025em;
+   line-height: 1.2;
+   text-align: left;
+   white-space: nowrap;
+}
+.season-option svg {
+   flex: 0 0 20px;
+   width: 20px;
+   height: 20px;
+}
+.season-option:focus-visible {
+   background: color-mix(in srgb, var(--ink) 8%, transparent);
+   outline: 3px solid var(--accent);
+   outline-offset: 2px;
+}
+.season-option[aria-checked="true"] {
+   background: var(--accent);
+   color: var(--on-accent);
+   font-weight: 600;
+}
+/* "Automatic" tag on the detected season's row: a small filled chip (no border). On the
+   selected accent pill it inverts like the button's "A" badge. */
+.season-tag {
+   margin-left: auto;
+   padding: 4px 10px;
+   border-radius: 999px;
+   background: color-mix(in srgb, var(--ink) 10%, transparent);
+   color: var(--ink);
+   font-size: 13px;
+   font-weight: 600;
+   letter-spacing: -0.01em;
+   line-height: 1.2;
+}
+.season-option[aria-checked="true"] .season-tag {
+   background: var(--on-accent);
+   color: var(--accent);
+}
+.season-option > span:first-of-type {
+   margin-right: 20px;
 }
 /* One header label at a time: hovering or focusing one control hides the other's. */
 .header-controls:has(.season-toggle:focus-visible) .theme-toggle-label,
@@ -853,6 +938,9 @@ details[open] .disclosure-symbol::after {
    .header-controls:has(.season-toggle:hover:not(:disabled)) .theme-toggle-label,
    .header-controls:has(.theme-toggle:hover) .season-toggle-label {
       display: none;
+   }
+   .season-option:hover:not([aria-checked="true"]) {
+      background: color-mix(in srgb, var(--ink) 8%, transparent);
    }
    .project-archive summary:hover {
       color: var(--accent);

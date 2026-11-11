@@ -170,18 +170,15 @@ async function assertNoPageOverflow(page: Page): Promise<void> {
 }
 
 /**
- * The header toggle cycles Auto -> Light -> Dark, and Auto depends on the time of day, so a test cannot assume which
- * theme it starts in. Activate it (at most twice) until it reports the wanted explicit mode; the choice is stored, so
- * later pages keep it and need no further clicks.
+ * A press of the header toggle selects the opposite of the theme shown (and that is Auto when it matches the time
+ * of day), so whichever theme the visitor starts in, at most one press shows the other. Press only when the page
+ * is not already in the wanted theme, then check the class; the choice is stored for later pages.
  */
 async function selectTheme(page: Page, theme: 'dark' | 'light'): Promise<void> {
   const toggle = page.getByRole('button', { name: /^Theme: / });
   await expect(toggle).toBeEnabled();
-  const wanted = theme === 'dark' ? 'Theme: Dark' : 'Theme: Light';
-  for (let activations = 0; activations < 2 && (await toggle.getAttribute('aria-label')) !== wanted; activations += 1) {
-    await toggle.click();
-  }
-  await expect(toggle).toHaveAccessibleName(wanted);
+  const shown = (await page.locator('html').getAttribute('class'))?.split(/\s+/) ?? [];
+  if (!shown.includes(theme)) await toggle.click();
   await expect(page.locator('html')).toHaveClass(new RegExp(`\\b${theme}\\b`));
 }
 
@@ -221,7 +218,7 @@ test('index and article stay readable at mobile, tablet and desktop widths in bo
   await selectTheme(page, 'dark');
   await page.reload();
   await expect(page.locator('html')).toHaveClass(/dark/);
-  await expect(page.getByRole('button', { name: 'Theme: Dark' })).toBeEnabled();
+  await expect(page.getByRole('button', { name: /^Theme: (Dark|Auto \(currently dark\))$/ })).toBeEnabled();
 
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await expect(page.locator('.blog-article')).toBeVisible();

@@ -68,10 +68,16 @@ export function resolveStoredMode(
       : AUTO_MODE;
 }
 
-/** Cycles auto -> light -> dark -> auto. */
-export function nextThemeMode(mode: ThemeMode): ThemeMode {
-   const index = THEME_MODES.indexOf(mode);
-   return THEME_MODES[(index + 1) % THEME_MODES.length];
+/**
+ * The mode after one press of the theme toggle at `date`: it selects the opposite of the theme
+ * currently shown, and that selection means Auto when it is the theme the time of day calls for.
+ * By day: auto -> dark -> auto (a stored light -> dark). At night: auto -> light -> auto (a stored
+ * dark -> light). An invalid date counts as night (`themeForHour(NaN)` is dark).
+ */
+export function nextThemeMode(mode: ThemeMode, date: Date): ThemeMode {
+   const shown = resolveTheme(mode, date);
+   const target = shown === DAY_THEME ? NIGHT_THEME : DAY_THEME;
+   return target === themeForHour(date.getHours()) ? AUTO_MODE : target;
 }
 
 /** Orders local (date, hour) pairs; months and days are spaced so keys never collide. */
