@@ -1629,14 +1629,14 @@ details[open] .disclosure-symbol::after {
    overflow: hidden;
    pointer-events: none;
    contain: strict;
-   /* Light theme needs a stronger, larger particle to register on a near-white ground. Text directly behind a
+   /* Light theme needs a stronger particle to register on a near-white ground. Text directly behind a
       particle stays at least 3.4:1 (body ink at least 8.9:1); see specs/003-seasonal-theme/quickstart.md. */
    opacity: 0.3;
+   /* Particle size is the same in both themes (1.5x the base size). */
    --grow: 1.5;
 }
 .dark .season-ambient {
    opacity: 0.22;
-   --grow: 1;
 }
 [data-season] .season-ambient {
    display: block;
