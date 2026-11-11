@@ -8,12 +8,14 @@ import {
    SEASON_STORAGE_KEY,
    detectSeason,
    parseSeasonPreference,
+   preferenceForSelection,
    regionBandForTimeZone,
    resolveSeason,
    seasonForBand,
    seasonInitScript,
    type RegionBand,
    type Season,
+   type SeasonPreference,
 } from "../app/data/seasons";
 
 // Written out by hand from the spec's season table; index = Date#getMonth() (Jan = 0).
@@ -255,6 +257,102 @@ test("resolves manual preferences over detection", () => {
    );
 });
 
+test("honours any manual season in every region (FR-019)", () => {
+   const november = new Date(2026, 10, 10);
+   const cases: [Season, unknown, Season][] = [
+      ["winter", "Asia/Manila", "winter"],
+      ["summer", "Asia/Jakarta", "summer"],
+      ["wet", "Europe/Berlin", "wet"],
+      ["dry", "Australia/Sydney", "dry"],
+      ["dry", "UTC", "dry"],
+      ["spring", undefined, "spring"],
+      ["autumn", "Mars/Olympus", "autumn"],
+   ];
+   for (const [preference, zone, season] of cases) {
+      assert.equal(
+         resolveSeason(preference, zone as string, november),
+         season,
+         `${preference} in ${String(zone)}`
+      );
+   }
+   assert.equal(
+      resolveSeason("wet", "Europe/Berlin", new Date(Number.NaN)),
+      "wet"
+   );
+});
+
+test("choosing the detected season means auto; any other is manual", () => {
+   const november = new Date(2026, 10, 11); // Berlin autumn, Sydney spring, Manila wet, Jakarta dry
+   const july = new Date(2026, 6, 11); // Berlin summer, Sydney winter, Manila wet, Jakarta dry
+   const cases: [Season, string, Date, SeasonPreference][] = [
+      ["autumn", "Europe/Berlin", november, "auto"],
+      ["winter", "Europe/Berlin", november, "winter"],
+      ["spring", "Europe/Berlin", november, "spring"],
+      ["summer", "Europe/Berlin", november, "summer"],
+      ["wet", "Europe/Berlin", november, "wet"],
+      ["dry", "Europe/Berlin", november, "dry"],
+      ["summer", "Europe/Berlin", july, "auto"],
+      ["autumn", "Europe/Berlin", july, "autumn"],
+      ["spring", "Australia/Sydney", november, "auto"],
+      ["autumn", "Australia/Sydney", november, "autumn"],
+      ["winter", "Australia/Sydney", july, "auto"],
+      ["summer", "Australia/Sydney", july, "summer"],
+      ["wet", "Asia/Manila", november, "auto"],
+      ["dry", "Asia/Manila", november, "dry"],
+      ["winter", "Asia/Manila", november, "winter"],
+      ["wet", "Asia/Manila", july, "auto"],
+      ["dry", "Asia/Jakarta", july, "auto"],
+      ["wet", "Asia/Jakarta", july, "wet"],
+      ["summer", "Asia/Jakarta", july, "summer"],
+   ];
+   for (const [season, zone, date, preference] of cases) {
+      assert.equal(
+         preferenceForSelection(season, zone, date),
+         preference,
+         `${season} in ${zone} ${date.toDateString()}`
+      );
+   }
+   // No detected season (unknown region or invalid date): every choice is manual.
+   for (const season of SEASONS) {
+      for (const zone of ["UTC", "Mars/Olympus", "", null, undefined]) {
+         assert.equal(
+            preferenceForSelection(season, zone, november),
+            season,
+            `${season} in ${String(zone)}`
+         );
+      }
+      assert.equal(
+         preferenceForSelection(season, "Europe/Berlin", new Date(Number.NaN)),
+         season
+      );
+   }
+});
+
+test("a chosen season resolves to itself for every band and month", () => {
+   const zones = [
+      "Europe/Berlin",
+      "Australia/Sydney",
+      "Asia/Manila",
+      "Asia/Jakarta",
+   ];
+   let checked = 0;
+   for (const zone of zones) {
+      for (let month = 0; month < 12; month++) {
+         const date = new Date(2026, month, 15);
+         const detected = detectSeason(zone, date);
+         let autos = 0;
+         for (const season of SEASONS) {
+            const preference = preferenceForSelection(season, zone, date);
+            if (preference === "auto") autos++;
+            assert.equal(resolveSeason(preference, zone, date), season);
+            checked++;
+         }
+         assert.equal(autos, 1, `${zone} month ${month} (${detected})`);
+      }
+   }
+   assert.equal(checked, 4 * 12 * 6);
+});
+
 type Run = {
    stored?: unknown;
    zone?: unknown;
@@ -412,4 +510,77 @@ test("init script falls back safely when browser APIs fail", () => {
       []
    );
    assert.deepEqual(runInitScript({}, {}), []);
+});
+
+test("init script applies a stored season in every region (FR-019)", () => {
+   const cases: [Run, string[]][] = [
+      [
+         { stored: "winter", zone: "Asia/Manila", month: 10 },
+         ["set data-season=winter"],
+      ],
+      [
+         { stored: "summer", zone: "Asia/Jakarta", month: 6 },
+         ["set data-season=summer"],
+      ],
+      [
+         { stored: "wet", zone: "Europe/Berlin", month: 10 },
+         ["set data-season=wet"],
+      ],
+      [
+         { stored: "dry", zone: "Australia/Sydney", month: 6 },
+         ["set data-season=dry"],
+      ],
+      [
+         { stored: "winter", zone: "UTC", month: 10 },
+         ["set data-season=winter"],
+      ],
+      [
+         { stored: "wet", zone: "Mars/Olympus", month: 10 },
+         ["set data-season=wet"],
+      ],
+      [
+         { stored: "summer", intlThrows: true, month: 10 },
+         ["set data-season=summer"],
+      ],
+      [{ stored: "spring", zone: "Europe/Berlin" }, ["set data-season=spring"]],
+      // Auto (or nothing usable stored) in an unknown region removes the attribute.
+      [{ stored: "auto", zone: "UTC", month: 10 }, ["remove data-season"]],
+      [{ zone: "Mars/Olympus", month: 10 }, ["remove data-season"]],
+      [{ stored: "Winter", zone: "UTC", month: 10 }, ["remove data-season"]],
+      [{ stored: "auto", intlThrows: true, month: 10 }, ["remove data-season"]],
+   ];
+   for (const [run, calls] of cases)
+      assert.deepEqual(runInitScript(run), calls, JSON.stringify(run));
+});
+
+test("init script agrees with resolveSeason when storage or Intl fail", () => {
+   const zones = [
+      "Europe/Berlin",
+      "Australia/Sydney",
+      "Asia/Manila",
+      "Asia/Jakarta",
+      "UTC",
+   ];
+   const months = [0, 2, 5, 8, 10, 11, Number.NaN, undefined];
+   let runs = 0;
+   for (const zone of zones) {
+      for (const stored of ["auto", ...SEASONS, "bogus", undefined]) {
+         for (const month of months) {
+            for (const failure of [
+               { storageThrows: true },
+               { intlThrows: true },
+               { storageThrows: true, intlThrows: true },
+            ]) {
+               const run: Run = { zone, stored, month, ...failure };
+               assert.deepEqual(
+                  runInitScript(run),
+                  expectedCalls(run),
+                  JSON.stringify(run)
+               );
+               runs++;
+            }
+         }
+      }
+   }
+   assert.equal(runs, 5 * 9 * 8 * 3);
 });

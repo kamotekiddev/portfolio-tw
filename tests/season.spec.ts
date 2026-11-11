@@ -111,8 +111,12 @@ test.beforeAll(async ({}, testInfo) => {
 const html = (page: Page) => page.locator('html');
 const seasonButton = (page: Page) => page.getByRole('button', { name: /^Season:/ });
 const seasonMenu = (page: Page) => page.getByRole('menu', { name: 'Season' });
-const menuItem = (page: Page, name: string) => seasonMenu(page).getByRole('menuitemradio', { name, exact: true });
-const themeButton = (page: Page) => page.getByRole('button', { name: /^Switch to (dark|light) theme$/ });
+/** A menu row by season label; the detected season's row is named "<Label> (Automatic)" (FR-019), so match both forms. */
+const menuItem = (page: Page, name: string) =>
+  seasonMenu(page).getByRole('menuitemradio', { name: new RegExp(`^${name}( \\(Automatic\\))?$`) });
+const seasonLabel = (page: Page) => page.locator('div.season-toggle-wrap > span.season-toggle-label');
+const lowerLabel = (id: SeasonId) => LABELS[id].toLowerCase();
+const themeButton = (page: Page) => page.getByRole('button', { name: /^Theme: / });
 const ambient = (page: Page) => page.locator('.season-ambient');
 
 async function goto(page: Page, url: string) {
@@ -285,18 +289,40 @@ test.describe('unrecognised region falls back to the emerald design (FR-006)', (
     }
   }
 
-  test('a visitor in an unrecognised region can still choose a season and return to Automatic', async ({ visit }) => {
-    const page = await visit({ timeZone: 'UTC' });
+  test('a visitor in an unrecognised region sees the control, with one extra first "Automatic" item, and can choose a season and return to Automatic (FR-019)', async ({ visit }) => {
+    // Pinned to 12:00 UTC the default Auto theme is light, so seed Dark to keep asserting the dark emerald accent.
+    const page = await visit({ timeZone: 'UTC', theme: 'dark' });
     await goto(page, '/');
     await hydrated(page);
-    await expect(seasonButton(page)).toHaveAccessibleName('Season: Automatic');
+    await expect(page.locator('.season-toggle-wrap')).toBeVisible();
+    await expect(seasonButton(page)).toHaveAccessibleName('Season: Auto');
+    await expect(page.locator('.season-toggle .season-toggle-badge')).toHaveText('A');
+    await seasonButton(page).click();
+    const names = await seasonMenu(page).getByRole('menuitemradio').evaluateAll((nodes) => nodes.map((node) => node.getAttribute('aria-label') ?? node.textContent));
+    expect(names, 'one extra first item, no tag on any season row').toEqual(['Automatic', 'Spring', 'Summer', 'Autumn', 'Winter', 'Wet season', 'Dry season']);
+    await expect(menuItem(page, 'Automatic')).toHaveAttribute('aria-checked', 'true');
+    await expect(seasonMenu(page).getByRole('menuitemradio', { checked: true })).toHaveCount(1);
+    await expect(seasonMenu(page).locator('.season-tag')).toHaveCount(0);
+    await expect(menuItem(page, 'Automatic')).toBeFocused();
+    await page.keyboard.press('Escape');
+
     await pick(page, 'Winter');
     await expectSeason(page, 'winter');
     expect(await accent(page)).not.toBe(EMERALD.dark);
+    await expect(seasonButton(page)).toHaveAccessibleName('Season: Winter');
+    await expect(page.locator('.season-toggle .season-toggle-badge')).toHaveCount(0);
+    expect(await storedSeason(page)).toBe('winter');
+    await seasonButton(page).click();
+    await expect(menuItem(page, 'Winter')).toHaveAttribute('aria-checked', 'true');
+    await expect(menuItem(page, 'Automatic')).toHaveAttribute('aria-checked', 'false');
+    await page.keyboard.press('Escape');
+
     await pick(page, 'Automatic');
     await expectSeason(page, null);
     expect(await accent(page)).toBe(EMERALD.dark);
     expect(await storedSeason(page)).toBe('auto');
+    await expect(seasonButton(page)).toHaveAccessibleName('Season: Auto');
+    await expect(page.locator('.season-toggle .season-toggle-badge')).toHaveText('A');
   });
 });
 
@@ -305,7 +331,8 @@ test.describe('unrecognised region falls back to the emerald design (FR-006)', (
 
 test.describe('season is set before first paint (FR-010, SC-004)', () => {
   test('inline script alone applies the detected season and palette, with every external script blocked', async ({ visit }) => {
-    const page = await visit({ blockScripts: true, now: '2026-07-15T12:00:00Z' });
+    // 14:00 in Berlin would resolve Auto to light, so a stored Dark choice keeps this the dark-summer check.
+    const page = await visit({ blockScripts: true, theme: 'dark', now: '2026-07-15T12:00:00Z' });
     await goto(page, '/');
     await expectSeason(page, 'summer');
     expect(await accent(page)).toBe('#eec35a'); // dark summer; proves the palette applied without hydration
@@ -399,34 +426,140 @@ test.describe('consistency across routes (FR-007)', () => {
 });
 
 // ---------------------------------------------------------------------------------------------------------------
-// US2 / FR-008, FR-009, SC-003 - picker
+// US2 / FR-008, FR-009, FR-017, FR-019, SC-003 - the season menu (free choice of all six seasons)
 
-test.describe('season picker (FR-008, FR-009, SC-003)', () => {
-  test('contract: button, menu and seven radio items with accessible names and state', async ({ visit }) => {
-    const page = await visit();
+const ROW_ORDER = ['Spring', 'Summer', 'Autumn', 'Winter', 'Wet season', 'Dry season'];
+
+test.describe('season menu (FR-008, FR-017, FR-019, SC-003)', () => {
+  test('contract: button and menu ARIA, six rows in order, the detected row carries the Automatic tag and name', async ({ visit }) => {
+    const page = await visit(); // Berlin in January: winter is detected
     await goto(page, '/');
     await hydrated(page);
 
     const button = seasonButton(page);
-    await expect(button).toHaveAccessibleName('Season: Automatic');
+    await expect(button).toHaveAccessibleName('Season: Auto (currently winter)');
+    await expect(button).toHaveClass(/\bseason-toggle\b/);
     await expect(button).toHaveAttribute('aria-haspopup', 'menu');
     await expect(button).toHaveAttribute('aria-expanded', 'false');
+    await expect(button).not.toHaveAttribute('aria-controls', /.*/);
     await expect(seasonMenu(page)).toHaveCount(0);
+    expect(await button.evaluate((node) => node.parentElement?.className)).toBe('season-toggle-wrap');
 
     await button.click();
     await expect(button).toHaveAttribute('aria-expanded', 'true');
+    const controls = await button.getAttribute('aria-controls');
+    expect(controls).toBeTruthy();
     await expect(seasonMenu(page)).toBeVisible();
+    await expect(seasonMenu(page)).toHaveAttribute('id', controls!);
+    await expect(seasonMenu(page)).toHaveAttribute('role', 'menu');
+    await expect(seasonMenu(page)).toHaveAttribute('aria-label', 'Season');
+    expect(await seasonMenu(page).evaluate((node) => node.tagName.toLowerCase() + '.' + node.className)).toBe('ul.season-menu');
+    const structure = await seasonMenu(page).evaluate((node) =>
+      Array.from(node.children).map((child) => ({
+        tag: child.tagName.toLowerCase(),
+        role: child.getAttribute('role'),
+        row: child.firstElementChild ? `${child.firstElementChild.tagName.toLowerCase()}.${child.firstElementChild.className}[${child.firstElementChild.getAttribute('role')}]` : '',
+        tabindex: child.firstElementChild?.getAttribute('tabindex'),
+      })),
+    );
+    expect(structure).toHaveLength(6);
+    for (const entry of structure) expect(entry).toEqual({ tag: 'li', role: 'none', row: 'button.season-option[menuitemradio]', tabindex: '-1' });
+
     const items = seasonMenu(page).getByRole('menuitemradio');
-    await expect(items).toHaveCount(7);
+    await expect(items).toHaveCount(6);
     const names = await items.evaluateAll((nodes) => nodes.map((node) => node.getAttribute('aria-label') ?? node.textContent));
-    expect(names).toEqual(['Automatic', 'Spring', 'Summer', 'Autumn', 'Winter', 'Wet season', 'Dry season']);
+    expect(names).toEqual(['Spring', 'Summer', 'Autumn', 'Winter (Automatic)', 'Wet season', 'Dry season']);
+    // Only the detected row carries the visible tag, and it says "Automatic".
+    await expect(seasonMenu(page).locator('.season-tag')).toHaveCount(1);
+    await expect(menuItem(page, 'Winter').locator('.season-tag')).toHaveText('Automatic');
+    await expect(menuItem(page, 'Winter').locator('.season-tag')).toBeVisible();
+    for (const label of ['Spring', 'Summer', 'Autumn', 'Wet season', 'Dry season']) await expect(menuItem(page, label).locator('.season-tag')).toHaveCount(0);
+    // Each row has an aria-hidden icon and the visible name.
+    for (const label of ROW_ORDER) {
+      const facts = await menuItem(page, label).evaluate((node) => ({ svgs: node.querySelectorAll('svg[aria-hidden="true"]').length, text: node.querySelector('span')?.textContent }));
+      expect(facts).toEqual({ svgs: 1, text: label });
+    }
+    // The checked row is the detected one in Auto; exactly one row is checked.
     await expect(seasonMenu(page).getByRole('menuitemradio', { checked: true })).toHaveCount(1);
-    await expect(menuItem(page, 'Automatic')).toHaveAttribute('aria-checked', 'true');
-    await expect(menuItem(page, 'Winter')).toHaveAttribute('aria-checked', 'false');
+    await expect(menuItem(page, 'Winter')).toHaveAttribute('aria-checked', 'true');
+    await expect(menuItem(page, 'Spring')).toHaveAttribute('aria-checked', 'false');
+    await expect(menuItem(page, 'Winter')).toBeFocused();
+
+    await page.keyboard.press('Escape');
+    await expect(button).not.toHaveAttribute('aria-controls', /.*/);
+    await expect(button).toHaveAttribute('aria-expanded', 'false');
+  });
+
+  test('the detected row follows the region and date; the extra Automatic item appears only where nothing is detected', async ({ visit }) => {
+    const cases: Array<[string, string, SeasonId, string[]]> = [
+      ['Europe/Berlin', '2026-07-15T12:00:00Z', 'summer', ROW_ORDER],
+      ['Australia/Sydney', '2026-01-15T12:00:00Z', 'summer', ROW_ORDER],
+      ['Asia/Manila', '2026-11-15T12:00:00Z', 'wet', ROW_ORDER],
+      ['Asia/Jakarta', '2026-07-15T12:00:00Z', 'dry', ROW_ORDER],
+    ];
+    for (const [timeZone, now, detected, order] of cases) {
+      const page = await visit({ timeZone, now });
+      await goto(page, '/');
+      await hydrated(page);
+      await expect(seasonButton(page)).toHaveAccessibleName(`Season: Auto (currently ${lowerLabel(detected)})`);
+      await seasonButton(page).click();
+      const names = await seasonMenu(page).getByRole('menuitemradio').evaluateAll((nodes) => nodes.map((node) => node.getAttribute('aria-label') ?? node.textContent));
+      expect(names, timeZone).toEqual(order.map((label) => (label === LABELS[detected] ? `${label} (Automatic)` : label)));
+      await expect(menuItem(page, LABELS[detected])).toHaveAttribute('aria-checked', 'true');
+      await expect(menuItem(page, LABELS[detected]).locator('.season-tag')).toHaveText('Automatic');
+      await expect(seasonMenu(page).locator('.season-tag')).toHaveCount(1);
+      await page.context().close();
+    }
+  });
+
+  test('choosing the detected row stores "auto" and brings the badge back; any other row stores that season with no badge', async ({ visit }) => {
+    const page = await visit({ now: '2026-07-15T12:00:00Z' }); // Berlin July: summer
+    await goto(page, '/');
+    await hydrated(page);
+    await expect(page.locator('.season-toggle .season-toggle-badge')).toHaveText('A');
+    await pick(page, 'Autumn');
+    expect(await storedSeason(page)).toBe('autumn');
+    await expect(page.locator('.season-toggle .season-toggle-badge')).toHaveCount(0);
+    await expect(seasonButton(page)).toHaveAccessibleName('Season: Autumn');
+    await seasonButton(page).click();
+    await expect(menuItem(page, 'Autumn')).toHaveAttribute('aria-checked', 'true');
+    await expect(menuItem(page, 'Summer')).toHaveAttribute('aria-checked', 'false');
+    await expect(menuItem(page, 'Summer').locator('.season-tag')).toHaveText('Automatic'); // the tag stays on the detected row
+    await expect(menuItem(page, 'Autumn')).toBeFocused();
+    await menuItem(page, 'Summer').click(); // the detected row
+    expect(await storedSeason(page)).toBe('auto');
+    await expectSeason(page, 'summer');
+    await expect(page.locator('.season-toggle .season-toggle-badge')).toHaveText('A');
+    await expect(seasonButton(page)).toHaveAccessibleName('Season: Auto (currently summer)');
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await hydrated(page);
+    await expect(seasonButton(page)).toHaveAccessibleName('Season: Auto (currently summer)');
+  });
+
+  test('a stored valid season is honoured in every region (no regional rule)', async ({ visit }) => {
+    const cases: Array<[string, string, string, SeasonId]> = [
+      ['Asia/Manila', 'winter', '2026-11-15T12:00:00Z', 'wet'],
+      ['Asia/Jakarta', 'spring', '2026-07-15T12:00:00Z', 'dry'],
+      ['Europe/Berlin', 'wet', '2026-07-15T12:00:00Z', 'summer'],
+      ['Australia/Sydney', 'dry', '2026-01-15T12:00:00Z', 'summer'],
+      ['UTC', 'autumn', '2026-07-15T12:00:00Z', 'summer'],
+    ];
+    for (const [timeZone, stored, now] of cases) {
+      const page = await visit({ timeZone, season: stored, now });
+      await goto(page, '/');
+      await expectSeason(page, stored as SeasonId); // before hydration, by the init script
+      await hydrated(page);
+      await expectSeason(page, stored as SeasonId);
+      await expect(seasonButton(page), `${timeZone} with stored ${stored}`).toHaveAccessibleName(`Season: ${LABELS[stored as SeasonId]}`);
+      await expect(page.locator('.season-toggle .season-toggle-badge')).toHaveCount(0);
+      await seasonButton(page).click();
+      await expect(menuItem(page, LABELS[stored as SeasonId])).toHaveAttribute('aria-checked', 'true');
+      await page.context().close();
+    }
   });
 
   test('choosing a season applies immediately without navigation, updates the name and aria-checked, and persists', async ({ visit }) => {
-    const page = await visit({ now: '2026-07-15T12:00:00Z' });
+    const page = await visit({ now: '2026-07-15T12:00:00Z' }); // Berlin July: summer is detected
     await goto(page, '/');
     await hydrated(page);
     await expectSeason(page, 'summer');
@@ -439,9 +572,9 @@ test.describe('season picker (FR-008, FR-009, SC-003)', () => {
     for (const id of SEASON_IDS) {
       await pick(page, LABELS[id]);
       await expectSeason(page, id); // same tick: no reload, no waiting for a navigation
-      await expect(seasonButton(page)).toHaveAccessibleName(`Season: ${LABELS[id]}`);
+      await expect(seasonButton(page)).toHaveAccessibleName(id === 'summer' ? 'Season: Auto (currently summer)' : `Season: ${LABELS[id]}`);
       await expect(seasonMenu(page)).toHaveCount(0);
-      expect(await storedSeason(page)).toBe(id);
+      expect(await storedSeason(page)).toBe(id === 'summer' ? 'auto' : id);
       await seasonButton(page).click();
       await expect(menuItem(page, LABELS[id])).toHaveAttribute('aria-checked', 'true');
       await expect(seasonMenu(page).getByRole('menuitemradio', { checked: true })).toHaveCount(1);
@@ -467,48 +600,43 @@ test.describe('season picker (FR-008, FR-009, SC-003)', () => {
       await seasonButton(page).click(); // interaction 1
       await menuItem(page, 'Dry season').click(); // interaction 2
       await expectSeason(page, 'dry');
-      await pick(page, 'Automatic');
+      await pick(page, 'Winter'); // the detected row: back to Automatic
+      await expectSeason(page, 'winter');
+      expect(await storedSeason(page)).toBe('auto');
     }
   });
 
-  test('Automatic restores detection, stores "auto", and survives reload', async ({ visit }) => {
+  test('choosing the detected row restores detection, stores "auto", and survives reload', async ({ visit }) => {
     const page = await visit({ now: '2026-01-15T12:00:00Z' }); // Berlin January: winter
     await goto(page, '/');
     await hydrated(page);
     await pick(page, 'Dry season');
     await expectSeason(page, 'dry');
-    await pick(page, 'Automatic');
+    await pick(page, 'Winter');
     await expectSeason(page, 'winter');
     expect(await storedSeason(page)).toBe('auto');
-    await expect(seasonButton(page)).toHaveAccessibleName('Season: Automatic');
+    await expect(seasonButton(page)).toHaveAccessibleName('Season: Auto (currently winter)');
     await page.reload({ waitUntil: 'domcontentloaded' });
     await hydrated(page);
     await expectSeason(page, 'winter');
-    await expect(seasonButton(page)).toHaveAccessibleName('Season: Automatic');
+    await expect(seasonButton(page)).toHaveAccessibleName('Season: Auto (currently winter)');
   });
 
   test('an invalid stored value behaves as Automatic', async ({ visit }) => {
     for (const bad of ['banana', '', 'WINTER', ' winter', '{"season":"winter"}', 'null', 'undefined']) {
       const page = await visit({ now: '2026-07-15T12:00:00Z', season: bad });
-      await page.context().addInitScript((value) => {
-        try {
-          localStorage.setItem('season', value);
-        } catch {
-          /* ignore */
-        }
-      }, bad);
       await goto(page, '/');
       await expectSeason(page, 'summer'); // Berlin July
       await hydrated(page);
-      await expect(seasonButton(page), `stored "${bad}"`).toHaveAccessibleName('Season: Automatic');
+      await expect(seasonButton(page), `stored "${bad}"`).toHaveAccessibleName('Season: Auto (currently summer)');
       await seasonButton(page).click();
-      await expect(menuItem(page, 'Automatic')).toHaveAttribute('aria-checked', 'true');
+      await expect(menuItem(page, 'Summer')).toHaveAttribute('aria-checked', 'true');
       await page.context().close();
     }
   });
 
-  test('keyboard only: reach the button with Tab, open, navigate, select, escape and focus return', async ({ visit }) => {
-    const page = await visit();
+  test('keyboard only: open, move with wrap/Home/End, select, escape, Tab and focus return', async ({ visit }) => {
+    const page = await visit(); // Berlin January: the winter row is the checked one
     await goto(page, '/');
     await hydrated(page);
 
@@ -521,11 +649,11 @@ test.describe('season picker (FR-008, FR-009, SC-003)', () => {
     expect(reached, 'Tab order must reach the season button').toBe(true);
     await expect(seasonButton(page)).toBeFocused();
 
-    // Open with Enter: focus moves to the checked item.
+    // Open with Enter: focus moves to the checked item (the detected winter row), with a visible ring.
     await page.keyboard.press('Enter');
     await expect(seasonMenu(page)).toBeVisible();
-    await expect(menuItem(page, 'Automatic')).toBeFocused();
-    const ring = await menuItem(page, 'Automatic').evaluate((node) => {
+    await expect(menuItem(page, 'Winter')).toBeFocused();
+    const ring = await menuItem(page, 'Winter').evaluate((node) => {
       const style = getComputedStyle(node);
       return { style: style.outlineStyle, width: parseFloat(style.outlineWidth), matches: node.matches(':focus-visible') };
     });
@@ -534,50 +662,64 @@ test.describe('season picker (FR-008, FR-009, SC-003)', () => {
     expect(ring.width).toBeGreaterThan(0);
 
     await page.keyboard.press('ArrowDown');
-    await expect(menuItem(page, 'Spring')).toBeFocused();
+    await expect(menuItem(page, 'Wet season')).toBeFocused();
     await page.keyboard.press('ArrowDown');
-    await expect(menuItem(page, 'Summer')).toBeFocused();
-    await page.keyboard.press('ArrowUp');
-    await expect(menuItem(page, 'Spring')).toBeFocused();
-    await page.keyboard.press('End');
     await expect(menuItem(page, 'Dry season')).toBeFocused();
-    await page.keyboard.press('ArrowDown'); // wraps
-    await expect(menuItem(page, 'Automatic')).toBeFocused();
+    await page.keyboard.press('ArrowDown'); // wraps to the first row
+    await expect(menuItem(page, 'Spring')).toBeFocused();
     await page.keyboard.press('ArrowUp'); // wraps the other way
     await expect(menuItem(page, 'Dry season')).toBeFocused();
     await page.keyboard.press('Home');
-    await expect(menuItem(page, 'Automatic')).toBeFocused();
+    await expect(menuItem(page, 'Spring')).toBeFocused();
+    await page.keyboard.press('End');
+    await expect(menuItem(page, 'Dry season')).toBeFocused();
+    await page.keyboard.press('ArrowUp');
+    await expect(menuItem(page, 'Wet season')).toBeFocused();
 
     // Escape closes, returns focus and changes nothing.
     await page.keyboard.press('Escape');
     await expect(seasonMenu(page)).toHaveCount(0);
     await expect(seasonButton(page)).toBeFocused();
     await expect(seasonButton(page)).toHaveAttribute('aria-expanded', 'false');
-    await expect(seasonButton(page)).toHaveAccessibleName('Season: Automatic');
+    await expect(seasonButton(page)).toHaveAccessibleName('Season: Auto (currently winter)');
     expect(await storedSeason(page)).toBeNull();
 
-    // ArrowDown on the button also opens it; select Winter with arrows + Enter.
+    // ArrowDown and ArrowUp on the button also open it, focusing the checked item; Space selects.
     await page.keyboard.press('ArrowDown');
     await expect(seasonMenu(page)).toBeVisible();
-    for (let i = 0; i < 4; i += 1) await page.keyboard.press('ArrowDown');
     await expect(menuItem(page, 'Winter')).toBeFocused();
-    await page.keyboard.press('Enter');
-    await expectSeason(page, 'winter');
+    await page.keyboard.press('Escape');
+    await page.keyboard.press('ArrowUp');
+    await expect(seasonMenu(page)).toBeVisible();
+    await expect(menuItem(page, 'Winter')).toBeFocused();
+    await page.keyboard.press('ArrowUp');
+    await page.keyboard.press('ArrowUp'); // Summer
+    await expect(menuItem(page, 'Summer')).toBeFocused();
+    await page.keyboard.press('Space');
+    await expectSeason(page, 'summer');
     await expect(seasonMenu(page)).toHaveCount(0);
     await expect(seasonButton(page)).toBeFocused();
-    await expect(seasonButton(page)).toHaveAccessibleName('Season: Winter');
-    expect(await storedSeason(page)).toBe('winter');
+    await expect(seasonButton(page)).toHaveAccessibleName('Season: Summer');
+    expect(await storedSeason(page)).toBe('summer');
+
+    // Enter on a row selects too; Space on the button opens.
+    await page.keyboard.press('Space');
+    await expect(menuItem(page, 'Summer')).toBeFocused();
+    await page.keyboard.press('ArrowDown');
+    await page.keyboard.press('Enter');
+    await expectSeason(page, 'autumn');
+    await expect(seasonButton(page)).toBeFocused();
 
     // Persisted choice is what the reopened menu focuses.
     await page.reload({ waitUntil: 'domcontentloaded' });
     await hydrated(page);
     await seasonButton(page).focus();
     await page.keyboard.press('Space');
-    await expect(menuItem(page, 'Winter')).toBeFocused();
-    await expect(menuItem(page, 'Winter')).toHaveAttribute('aria-checked', 'true');
+    await expect(menuItem(page, 'Autumn')).toBeFocused();
+    await expect(menuItem(page, 'Autumn')).toHaveAttribute('aria-checked', 'true');
   });
 
-  test('outside click and Tab close the menu', async ({ visit }) => {
+  test('outside pointer-down and Tab close the menu; clicking the button again closes it', async ({ visit }) => {
     const page = await visit();
     await goto(page, '/');
     await hydrated(page);
@@ -591,17 +733,24 @@ test.describe('season picker (FR-008, FR-009, SC-003)', () => {
     await expect(seasonMenu(page)).toBeVisible();
     await page.keyboard.press('Tab');
     await expect(seasonMenu(page)).toHaveCount(0);
-  });
+    await expect(page.locator('.theme-toggle')).toBeFocused(); // focus moved on to the next control
 
-  test('clicking the button again closes the menu without changing the season', async ({ visit }) => {
-    const page = await visit();
-    await goto(page, '/');
-    await hydrated(page);
     await seasonButton(page).click();
     await seasonButton(page).click();
     await expect(seasonMenu(page)).toHaveCount(0);
-    await expect(seasonButton(page)).toHaveAccessibleName('Season: Automatic');
+    await expect(seasonButton(page)).toHaveAccessibleName('Season: Auto (currently winter)');
     expect(await storedSeason(page)).toBeNull();
+  });
+
+  test('choosing the row that is already selected changes nothing but closes the menu and shows the label', async ({ visit }) => {
+    const page = await visit();
+    await goto(page, '/');
+    await hydrated(page);
+    await pick(page, 'Winter'); // Auto already, detected row
+    await expect(seasonMenu(page)).toHaveCount(0);
+    await expectSeason(page, 'winter');
+    expect(await storedSeason(page), 'writes auto (idempotent), never a manual winter').toBe('auto');
+    await expect(seasonButton(page)).toHaveAccessibleName('Season: Auto (currently winter)');
   });
 
   test('storage unavailable: automatic still works and a manual choice lasts for the page view', async ({ visit }) => {
@@ -625,6 +774,25 @@ test.describe('season picker (FR-008, FR-009, SC-003)', () => {
     await getAnyNavigation(page);
     expect(errors.filter((message) => /season/i.test(message))).toEqual([]);
   });
+
+  test('another tab follows a change, and clearing storage in one tab returns the others to Automatic', async ({ visit }) => {
+    const a = await visit({ now: '2026-07-15T12:00:00Z' });
+    const b = await a.context().newPage();
+    await goto(a, '/');
+    await goto(b, '/blog');
+    await hydrated(a);
+    await hydrated(b);
+    await pick(a, 'Winter');
+    await expectSeason(a, 'winter');
+    await expectSeason(b, 'winter');
+    await expect(seasonButton(b)).toHaveAccessibleName('Season: Winter');
+    await pick(b, 'Wet season');
+    await expectSeason(a, 'wet');
+    await expect(seasonButton(a)).toHaveAccessibleName('Season: Wet season');
+    await a.evaluate(() => localStorage.clear()); // the browser delivers the clear (key null) to the OTHER tabs only
+    await expectSeason(b, 'summer');
+    await expect(seasonButton(b)).toHaveAccessibleName('Season: Auto (currently summer)');
+  });
 });
 
 async function getAnyNavigation(page: Page) {
@@ -637,64 +805,102 @@ async function getAnyNavigation(page: Page) {
 // ---------------------------------------------------------------------------------------------------------------
 // FR-009 / FR-015 - independence from dark/light
 
-test.describe('independence from the dark/light theme (FR-009, FR-015)', () => {
-  test('dark remains the default on a fresh visit and nothing is stored until the visitor chooses', async ({ visit }) => {
-    const page = await visit();
-    await goto(page, '/');
-    await hydrated(page);
-    await expect(html(page)).toHaveClass(/\bdark\b/);
-    await expect(themeButton(page)).toHaveAccessibleName('Switch to light theme');
-    expect(await storedSeason(page)).toBeNull();
+test.describe('independence from the theme mode (FR-009, FR-015; theme modes: specs/004-auto-theme-by-time)', () => {
+  test('Auto is the default on a fresh visit (light by day, dark by night) and no season is stored until the visitor chooses', async ({ visit }) => {
+    // The fixture clock is 13:00 in Berlin: day.
+    const day = await visit();
+    await goto(day, '/');
+    await hydrated(day);
+    await expect(html(day)).toHaveClass(/\blight\b/);
+    await expect(themeButton(day)).toHaveAccessibleName('Theme: Auto (currently light)');
+    expect(await storedSeason(day)).toBeNull();
+
+    // 22:00 in Berlin: night.
+    const night = await visit({ now: '2026-01-15T21:00:00Z' });
+    await goto(night, '/');
+    await hydrated(night);
+    await expect(html(night)).toHaveClass(/\bdark\b/);
+    await expect(themeButton(night)).toHaveAccessibleName('Theme: Auto (currently dark)');
+    expect(await storedSeason(night)).toBeNull();
   });
 
-  test('toggling the theme keeps the season; both survive reload and navigation', async ({ visit }) => {
-    const page = await visit();
+  test('flipping the theme keeps the season; both survive reload and navigation', async ({ visit }) => {
+    // Berlin in July at 14:00: Auto is light, and winter is NOT the detected season, so choosing it is a manual choice.
+    const page = await visit({ now: '2026-07-15T12:00:00Z' });
     await goto(page, '/');
     await hydrated(page);
     await pick(page, 'Winter');
-    await themeButton(page).click();
+    await expect(themeButton(page)).toHaveAccessibleName('Theme: Auto (currently light)');
     await expect(html(page)).toHaveClass(/\blight\b/);
     await expectSeason(page, 'winter');
-    await expect(seasonButton(page)).toHaveAccessibleName('Season: Winter');
     expect(await accent(page)).toBe('#1c5e8c');
+
+    await themeButton(page).click(); // by day a press selects the opposite theme: Auto -> Dark
+    await expect(themeButton(page)).toHaveAccessibleName('Theme: Dark');
+    await expect(html(page)).toHaveClass(/\bdark\b/);
+    await expectSeason(page, 'winter');
+    await expect(seasonButton(page)).toHaveAccessibleName('Season: Winter');
+    expect(await accent(page), 'dark winter is not the light winter accent').not.toBe('#1c5e8c');
 
     await page.reload({ waitUntil: 'domcontentloaded' });
     await hydrated(page);
-    await expect(html(page)).toHaveClass(/\blight\b/);
+    await expect(themeButton(page)).toHaveAccessibleName('Theme: Dark');
+    await expect(html(page)).toHaveClass(/\bdark\b/);
     await expectSeason(page, 'winter');
 
     await goto(page, ARTICLE);
     await hydrated(page);
-    await expect(html(page)).toHaveClass(/\blight\b/);
+    await expect(themeButton(page)).toHaveAccessibleName('Theme: Dark');
+    await expect(html(page)).toHaveClass(/\bdark\b/);
     await expectSeason(page, 'winter');
 
     await pick(page, 'Wet season');
-    await expect(html(page)).toHaveClass(/\blight\b/);
-    await themeButton(page).click();
     await expect(html(page)).toHaveClass(/\bdark\b/);
+    await expect(themeButton(page)).toHaveAccessibleName('Theme: Dark');
     await expectSeason(page, 'wet');
     expect(await accent(page)).toBe('#5fd0d8');
+
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await hydrated(page);
+    await expect(html(page)).toHaveClass(/\bdark\b/);
+    await expectSeason(page, 'wet');
+
+    await themeButton(page).click(); // Dark by day -> Auto (light again)
+    await expect(themeButton(page)).toHaveAccessibleName('Theme: Auto (currently light)');
+    await expect(html(page)).toHaveClass(/\blight\b/);
+    await expectSeason(page, 'wet');
+    await expect(seasonButton(page)).toHaveAccessibleName('Season: Wet season');
   });
 
   test('rapid, interleaved season and theme changes end in the last requested state of each', async ({ visit }) => {
-    const page = await visit();
+    const page = await visit(); // starts in Auto (13:00 Berlin: light)
     await goto(page, '/');
     await hydrated(page);
+    // Eight presses of the flip alternate Dark, Auto, ... and end in Auto.
     for (let i = 0; i < 4; i += 1) {
       await pick(page, 'Wet season');
       await themeButton(page).click();
       await pick(page, 'Dry season');
       await themeButton(page).click();
     }
-    await pick(page, 'Autumn');
-    await themeButton(page).click();
-    await expectSeason(page, 'autumn');
+    await expectSeason(page, 'dry');
+    await expect(themeButton(page)).toHaveAccessibleName('Theme: Auto (currently light)');
     await expect(html(page)).toHaveClass(/\blight\b/);
+
+    await pick(page, 'Autumn');
+    await expectSeason(page, 'autumn');
+    await expect(themeButton(page)).toHaveAccessibleName('Theme: Auto (currently light)'); // the season change did not touch the mode
+    await themeButton(page).click(); // the ninth press: Auto -> Dark
+    await expectSeason(page, 'autumn');
+    await expect(themeButton(page)).toHaveAccessibleName('Theme: Dark');
+    await expect(html(page)).toHaveClass(/\bdark\b/);
     expect(await storedSeason(page)).toBe('autumn');
+    expect(await page.evaluate(() => localStorage.getItem('theme-mode'))).toBe('dark');
     await page.reload({ waitUntil: 'domcontentloaded' });
     await hydrated(page);
     await expectSeason(page, 'autumn');
-    await expect(html(page)).toHaveClass(/\blight\b/);
+    await expect(themeButton(page)).toHaveAccessibleName('Theme: Dark');
+    await expect(html(page)).toHaveClass(/\bdark\b/);
   });
 });
 
@@ -934,7 +1140,7 @@ test.describe('no overflow and usable header controls (FR-013, SC-006, US2.5)', 
       await inside(seasonMenu(page), viewport);
       await noOverflow(page);
       const items = await seasonMenu(page).getByRole('menuitemradio').all();
-      expect(items).toHaveLength(7);
+      expect(items).toHaveLength(6);
       for (const item of items) {
         await expect(item).toBeVisible();
         await inside(item, viewport);
@@ -980,6 +1186,17 @@ test.describe('scripts disabled (FR-006, SC-007)', () => {
     await goto(page, '/');
     await expectSeason(page, null);
     expect(await accent(page)).toBe(EMERALD.dark);
+    // The control is shown but inert, with the neutral compass and the Automatic badge (FR-017, FR-019).
+    await expect(page.locator('.season-toggle-wrap')).toBeVisible();
+    await expect(page.locator('.season-toggle')).toBeDisabled();
+    await expect(page.locator('.season-toggle .season-toggle-badge')).toHaveText('A');
+    const compass = await page.locator('.season-toggle').evaluate((node) => {
+      const visible = Array.from(node.querySelectorAll('svg')).filter((svg) => getComputedStyle(svg).display !== 'none');
+      return { count: visible.length, className: visible[0]?.getAttribute('class') ?? '' };
+    });
+    expect(compass.count).toBe(1);
+    expect(compass.className).toContain('season-toggle-icon-none');
+    await expect(page.locator('.season-menu')).toHaveCount(0);
     await expect(page.locator('main')).toBeVisible();
     await expect(page.getByRole('heading', { level: 1 }).first()).toBeVisible();
     await expect(ambient(page)).toHaveCSS('display', 'none');
@@ -1012,7 +1229,7 @@ test.describe('runtime health', () => {
     const errors = watchErrors(page);
     await goto(page, '/');
     await hydrated(page);
-    for (const label of ['Winter', 'Wet season', 'Automatic']) await pick(page, label);
+    for (const label of ['Winter', 'Wet season', 'Summer']) await pick(page, label); // Summer is detected in July: back to Automatic
     await themeButton(page).click();
     await page.getByRole('link', { name: 'Blog' }).first().click();
     await expect(page).toHaveURL(/\/blog\/?$/);
@@ -1038,8 +1255,8 @@ test.describe('runtime health', () => {
     await goto(page, '/');
     await hydrated(page);
     await pick(page, 'Wet season');
-    await pick(page, 'Summer');
-    await pick(page, 'Automatic');
+    await pick(page, 'Autumn');
+    await pick(page, 'Winter'); // the detected row (January): back to Automatic
     await page.waitForLoadState('load');
     const shift = await page.evaluate(() => (window as unknown as { __shift: number }).__shift);
     expect(shift).toBeLessThan(0.01);

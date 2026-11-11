@@ -177,6 +177,18 @@ export function resolveSeason(
    return parsed === "auto" ? detectSeason(timeZone, date) : parsed;
 }
 
+/**
+ * The preference stored when a season is chosen from the menu: choosing the season detected
+ * for the visitor's region means Automatic; any other season is a manual choice.
+ */
+export function preferenceForSelection(
+   season: Season,
+   timeZone: string | null | undefined,
+   date: Date
+): SeasonPreference {
+   return season === detectSeason(timeZone, date) ? "auto" : season;
+}
+
 // JSON for embedding in an inline <script>: "<" is escaped so "</script" and "<!--" cannot occur.
 const embed = (value: unknown) =>
    JSON.stringify(value).replace(/</g, "\\u003c");

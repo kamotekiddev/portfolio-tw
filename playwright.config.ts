@@ -13,10 +13,12 @@ export default defineConfig({
     trace: 'retain-on-failure',
   },
   timeout: 45_000,
-  // blog.spec.ts finishes by restarting the shared fixture server with no posts, so the season suite
-  // runs first; it also restores the original fixtures itself if it ever finds them missing.
+  // blog.spec.ts finishes by restarting the shared fixture server with no posts, so the season and theme
+  // suites run first (project order is run order with one worker); both also restore the original fixtures
+  // themselves if they ever find them missing.
   projects: [
     { name: 'season', testMatch: 'season.spec.ts' },
+    { name: 'theme', testMatch: 'theme.spec.ts' },
     { name: 'blog', testMatch: 'blog.spec.ts' },
   ],
 });
