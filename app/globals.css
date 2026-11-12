@@ -1926,3 +1926,11 @@ details[open] .disclosure-symbol::after {
       display: none;
    }
 }
+
+/* Circle-reveal theme/season transition (specs/005-theme-transition): replace the default
+   crossfade with the clip-path animation started in app/components/theme-transition.ts. */
+::view-transition-old(root),
+::view-transition-new(root) {
+   animation: none;
+   mix-blend-mode: normal;
+}
