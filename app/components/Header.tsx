@@ -1,20 +1,15 @@
-import Link from "next/link";
 import Logo from "./Logo";
+import MainNav from "./MainNav";
 import SeasonPicker from "./SeasonPicker";
 import ThemeToggle from "./ThemeToggle";
 
-export default function Header() {
+/** `current` names the site area the page belongs to, for the nav highlight. */
+export default function Header({ current }: { current?: "home" | "blog" }) {
    return (
       <header className="site-header">
          <div className="header-inner content-width">
             <Logo />
-            <nav aria-label="Main navigation" className="main-nav">
-               <Link href="/#work">Work</Link>
-               <Link href="/#experience">Experience</Link>
-               <Link href="/#about">About</Link>
-               <Link href="/#contact">Contact</Link>
-               <Link href="/blog">Blog</Link>
-            </nav>
+            <MainNav current={current} />
             <div className="header-controls">
                <SeasonPicker />
                <ThemeToggle />
