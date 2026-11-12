@@ -19,6 +19,7 @@ import {
    resolveTheme,
    type ThemeMode,
 } from "@/data/theme-schedule";
+import { runThemeTransition } from "./theme-transition";
 
 /**
  * The last known mode for this page view. Module scope survives client-side navigation
@@ -221,14 +222,22 @@ export default function ThemeToggle() {
             aria-label={label}
             data-animate={animate ? "true" : undefined}
             onAnimationEnd={onAnimationEnd}
-            onClick={() => {
+            onClick={(event) => {
                // Flip: switch to the opposite of the shown theme; landing on the theme
                // the time of day calls for returns to Auto. Every press changes the
                // shown theme, so the icon (and its animation) always changes too.
-               const next = nextThemeMode(current, new Date());
+               // sessionMode is updated synchronously here, while `current` waits for the
+               // reveal's callback, so a second press within a frame still flips again.
+               const next = nextThemeMode(sessionMode ?? current, new Date());
                sessionMode = next;
-               setMode(next);
-               apply(next); // writes theme-mode, then setTheme
+               // Persist before the reveal so it never delays the stored choice (FR-003).
+               writeMode(next);
+               // Only a press reveals the new theme from the button; automatic applies
+               // elsewhere in this component stay instant.
+               runThemeTransition(event.currentTarget, () => {
+                  setMode(next);
+                  apply(next); // its theme-mode write is now a no-op; then setTheme
+               });
                showLabel();
             }}
          >

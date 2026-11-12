@@ -30,6 +30,7 @@ import {
    type Season,
    type SeasonPreference,
 } from "@/data/seasons";
+import { runThemeTransition } from "./theme-transition";
 import { useFlashLabel, useIconAnimation } from "./ThemeToggle";
 
 const ICONS: Record<SeasonPreference, IconType> = {
@@ -168,8 +169,16 @@ export default function SeasonPicker() {
             : preferenceForSelection(option, deviceTimeZone(), new Date());
       sessionPreference = next;
       writePreference(next);
-      setApplied(applySeason(next));
-      setMode(next);
+      // Reveal the new palette from the trigger, but only when the applied season
+      // actually changes (e.g. not when picking the detected season again).
+      const changes =
+         resolveSeason(next, deviceTimeZone(), new Date()) !==
+         document.documentElement.getAttribute(SEASON_ATTRIBUTE);
+      // The palette and the button's name/icon commit together in the new snapshot.
+      runThemeTransition(changes ? buttonRef.current : null, () => {
+         setApplied(applySeason(next));
+         setMode(next);
+      });
       close(true);
       showLabel();
    };
