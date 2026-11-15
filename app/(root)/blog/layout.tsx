@@ -8,7 +8,7 @@ export default function BlogLayout({ children }: { children: ReactNode }) {
          <a className="skip-link" href="#main-content">
             Skip to content
          </a>
-         <Header />
+         <Header current="blog" />
          {children}
          <Footer topHref="#top" />
       </div>

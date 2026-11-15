@@ -19,6 +19,7 @@ export default defineConfig({
   projects: [
     { name: 'season', testMatch: 'season.spec.ts' },
     { name: 'theme', testMatch: 'theme.spec.ts' },
+    { name: 'nav', testMatch: 'nav.spec.ts' },
     { name: 'blog', testMatch: 'blog.spec.ts' },
   ],
 });
