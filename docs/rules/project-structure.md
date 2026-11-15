@@ -25,7 +25,8 @@ app/
     components/                 Server-rendered article body and date/topic metadata
   components/                   Shared UI: header, footer, logo, Auto/flip theme toggle
                                 (`ThemeToggle.tsx`), season picker, seasonal ambient layer, motion,
-                                circle-reveal theme transition helper (`theme-transition.ts`)
+                                circle-reveal theme transition helper (`theme-transition.ts`),
+                                header nav with current-item highlight (`MainNav.tsx`)
   context/                      Theme provider wrapper
   data/                         Editable portfolio data, season tables and detection
                                 (`seasons.ts`), time-of-day theme schedule

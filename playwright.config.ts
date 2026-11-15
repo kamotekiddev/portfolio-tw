@@ -20,6 +20,7 @@ export default defineConfig({
     { name: 'season', testMatch: 'season.spec.ts' },
     { name: 'theme', testMatch: 'theme.spec.ts' },
     { name: 'theme-transition', testMatch: 'theme-transition.spec.ts' },
+    { name: 'nav', testMatch: 'nav.spec.ts' },
     { name: 'blog', testMatch: 'blog.spec.ts' },
   ],
 });

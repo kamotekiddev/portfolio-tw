@@ -9,7 +9,7 @@ export default function Layout({ children }: { children: ReactNode }) {
          <a className="skip-link" href="#main-content">
             Skip to content
          </a>
-         <Header />
+         <Header current="home" />
          {children}
          <Footer />
          <PageMotion />
