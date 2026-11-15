@@ -65,6 +65,13 @@ type VisitOptions = {
   storageUnavailable?: boolean;
   /** Count calls to the geolocation API (FR-003). */
   watchGeolocation?: boolean;
+  /**
+   * Remove document.startViewTransition before any page script runs. Spec 005 (specs/005-theme-transition) adds a circle
+   * reveal to visitor-started changes, during which hit-testing goes to <html> by design and the DOM change lands one
+   * frame after the press. Tests that check spec 004's icon animation in isolation use this to keep the instant switch
+   * they were written for; the reveal itself is covered by tests/theme-transition.spec.ts.
+   */
+  noViewTransitions?: boolean;
 };
 
 const test = base.extend<{ visit: (options?: VisitOptions) => Promise<Page> }>({
@@ -179,6 +186,11 @@ const test = base.extend<{ visit: (options?: VisitOptions) => Promise<Page> }>({
             requestAnimationFrame(frame);
           };
           requestAnimationFrame(frame);
+        });
+      }
+      if (options.noViewTransitions) {
+        await context.addInitScript(() => {
+          delete (Document.prototype as unknown as Record<string, unknown>).startViewTransition;
         });
       }
       if (options.watchGeolocation) {
@@ -2394,7 +2406,8 @@ test.describe('icon animation (FR-013)', () => {
 
   for (const how of ['click', 'Enter', 'Space'] as const) {
     test(`${how}: exactly one theme-icon-in on the new svg, under 240 ms, transform and opacity only, then the icon is at rest`, async ({ visit }) => {
-      const page = await visit({ iconRecorder: true, time: '10:00:00' });
+      // Instant switch: this checks the icon animation alone ("button stays hit-testable" cannot hold during a reveal).
+      const page = await visit({ iconRecorder: true, time: '10:00:00', noViewTransitions: true });
       await goto(page, '/');
       await hydrated(page);
       if (how !== 'click') await reachToggleByTab(page);
@@ -2847,9 +2860,12 @@ test.describe('season menu button: markup, label, icon and badge (FR-017, FR-019
       expect(auto, `${zone}: Auto`).toMatchObject({ svgCount: 1, svgHidden: ['true'], svgSize: [[20, 20]], badgeCount: 1, badgeText: 'A', badgeHidden: 'true', badgePointerEvents: 'none', badgeSize: [16, 16], badgeInside: true });
       await expect(html(page)).toHaveAttribute('data-season', expected);
       expect(auto.shape, `${zone}: Auto shows the applied season's icon`).toBe(shapes[SEASON_IDS.indexOf(expected)]);
+      // A chosen season is applied in the next frame (spec 005 reveal), so wait for the button to show it before reading.
       await chooseSeason(page, 'Spring');
+      await expect(seasonButton(page)).toHaveAccessibleName('Season: Spring');
       expect((await seasonIconState(page)).badgeCount, 'no badge once chosen').toBe(0);
       await chooseSeason(page, seasonName(expected)); // the detected row: Automatic again
+      await expect(seasonButton(page)).toHaveAccessibleName(/^Season: Auto \(currently /);
       expect((await seasonIconState(page)).badgeCount, 'the badge is back').toBe(1);
       await page.context().close();
     }
@@ -2923,7 +2939,8 @@ test.describe('season menu: icon animation (FR-013 parity)', () => {
   });
 
   test('choosing a different season plays exactly one theme-icon-in on the new svg (under 240 ms, transform and opacity only); choosing the selected row plays none', async ({ visit }) => {
-    const page = await visit({ iconRecorder: true, time: '10:00:00', zone: 'Europe/Berlin' }); // Berlin January: winter
+    // Instant switch: this checks the icon animation alone (hit-testing goes to <html> during a spec 005 reveal).
+    const page = await visit({ iconRecorder: true, time: '10:00:00', zone: 'Europe/Berlin', noViewTransitions: true }); // Berlin January: winter
     await goto(page, '/');
     await hydrated(page);
     const before = await boxes(page);

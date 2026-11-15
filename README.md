@@ -32,6 +32,8 @@ The theme starts in Auto: light from 06:00 to 18:00 device time and dark otherwi
 
 The accent colours and a subtle ambient effect follow the visitor's season: spring, summer, autumn, or winter by hemisphere, and wet or dry in the tropics. The season comes from the device time zone and month, with no location permission or network lookup. The header's season button opens a menu of all six seasons; the detected season is tagged "Automatic", choosing it returns to automatic, and any other season is a remembered manual choice (an "A" badge on the button marks Automatic). Without JavaScript, or in an unrecognised time zone with Automatic selected, the emerald design is shown. Season tables live in `app/data/seasons.ts`; palettes and effects live in `app/globals.css`.
 
+Pressing the theme button or choosing a season reveals the new look as a circle growing from that button (View Transitions, `app/components/theme-transition.ts`); with reduced motion, in browsers without the API, and for automatic changes the switch is instant.
+
 See [redesign notes](docs/redesign-notes.md) for the visual direction, asset provenance, and verification details.
 
 ## Spec-driven development

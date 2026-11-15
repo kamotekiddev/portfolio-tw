@@ -787,6 +787,9 @@ test.describe('season menu (FR-008, FR-017, FR-019, SC-003)', () => {
     await expectSeason(b, 'winter');
     await expect(seasonButton(b)).toHaveAccessibleName('Season: Winter');
     await pick(b, 'Wet season');
+    // A visitor's own choice is applied in the next frame (circle reveal, specs/005-theme-transition), so let b finish
+    // applying it before the other tab clears storage; otherwise the clear can arrive first and be overwritten.
+    await expectSeason(b, 'wet');
     await expectSeason(a, 'wet');
     await expect(seasonButton(a)).toHaveAccessibleName('Season: Wet season');
     await a.evaluate(() => localStorage.clear()); // the browser delivers the clear (key null) to the OTHER tabs only
